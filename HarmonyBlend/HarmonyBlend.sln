@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34408.163
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HarmonyBlend", "HarmonyBlend.csproj", "{FDA000E9-24B7-4208-8CF7-4F4D2C7C1249}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "HarmonyBlendSetup", "..\HarmonyBlendSetup\HarmonyBlendSetup.vdproj", "{20F2ED5E-114D-4CC6-A9D5-C922FFBA2073}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonyBlend.ORM", "..\HarmonyBlend.ORM\HarmonyBlend.ORM.csproj", "{C9945BF2-2B83-446F-B8CB-E8118B698ECB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonyBlend.Entity", "..\HarmonyBlend.Entity\HarmonyBlend.Entity.csproj", "{CBD81704-D06C-474E-B46B-6CDA02E849E0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FDA000E9-24B7-4208-8CF7-4F4D2C7C1249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDA000E9-24B7-4208-8CF7-4F4D2C7C1249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDA000E9-24B7-4208-8CF7-4F4D2C7C1249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDA000E9-24B7-4208-8CF7-4F4D2C7C1249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20F2ED5E-114D-4CC6-A9D5-C922FFBA2073}.Debug|Any CPU.ActiveCfg = Debug
+		{20F2ED5E-114D-4CC6-A9D5-C922FFBA2073}.Release|Any CPU.ActiveCfg = Release
+		{C9945BF2-2B83-446F-B8CB-E8118B698ECB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9945BF2-2B83-446F-B8CB-E8118B698ECB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9945BF2-2B83-446F-B8CB-E8118B698ECB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9945BF2-2B83-446F-B8CB-E8118B698ECB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBD81704-D06C-474E-B46B-6CDA02E849E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBD81704-D06C-474E-B46B-6CDA02E849E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBD81704-D06C-474E-B46B-6CDA02E849E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBD81704-D06C-474E-B46B-6CDA02E849E0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BA217892-EB02-4AD6-A701-7B77ECD04EE9}
+	EndGlobalSection
+EndGlobal
