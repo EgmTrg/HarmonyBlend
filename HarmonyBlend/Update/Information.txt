@@ -1,0 +1,8 @@
+﻿Update kısmının düzgün çalışması için sırasıyla aşağıdaki adımları izlememiz gerekiyor;
+
+
+	1-	HarmonyBlendSetup projesindeki "Version" özelliğini hangi versiona taşımak istiyorsak onu ayarlıyoruz.
+		Bu projemizin içerisinde belilenen versionu belirliyor.
+	2-	Update özelliğimizin temeli githup olduğundan dolayı; bağlı olduğu repository'de update klasörü mevcut. 
+		Buradaki version değeri ile 1. adımdaki değer aynı olması gerekmekte.
+	3-	Sonra otomatik olarak zaten Güncelleme mevcut diyerekten "İndirilenler" klasörüne indirecek. Sadece kurulumu yapması kalacak.
