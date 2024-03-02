@@ -27,9 +27,12 @@
 		private void InitializeComponent() {
 			components = new System.ComponentModel.Container();
 			panel_Control = new Panel();
+			button1 = new Button();
+			panel8 = new Panel();
+			minimize_button = new Button();
+			maximaze_button = new Button();
+			exit_button = new Button();
 			label1 = new Label();
-			sidebar_buttonPictureBox = new PictureBox();
-			button4 = new Button();
 			sidebar_flowLayoutPanel = new FlowLayoutPanel();
 			pictureBox2 = new PictureBox();
 			panel5 = new Panel();
@@ -49,10 +52,9 @@
 			logout_button = new Button();
 			mainPanel = new Panel();
 			menuButtonTransition = new System.Windows.Forms.Timer(components);
-			button1 = new Button();
-			button2 = new Button();
+			sidebarTransition = new System.Windows.Forms.Timer(components);
 			panel_Control.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)sidebar_buttonPictureBox).BeginInit();
+			panel8.SuspendLayout();
 			sidebar_flowLayoutPanel.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
 			panel5.SuspendLayout();
@@ -68,17 +70,86 @@
 			// panel_Control
 			// 
 			panel_Control.BackColor = Color.White;
-			panel_Control.Controls.Add(button2);
 			panel_Control.Controls.Add(button1);
+			panel_Control.Controls.Add(panel8);
 			panel_Control.Controls.Add(label1);
-			panel_Control.Controls.Add(sidebar_buttonPictureBox);
-			panel_Control.Controls.Add(button4);
 			panel_Control.Dock = DockStyle.Top;
 			panel_Control.ForeColor = Color.White;
 			panel_Control.Location = new Point(0, 0);
 			panel_Control.Name = "panel_Control";
-			panel_Control.Size = new Size(1004, 38);
+			panel_Control.Size = new Size(1004, 30);
 			panel_Control.TabIndex = 1;
+			panel_Control.MouseDown += HeaderMouseDown_Event;
+			// 
+			// button1
+			// 
+			button1.FlatAppearance.BorderSize = 0;
+			button1.FlatStyle = FlatStyle.Flat;
+			button1.Image = Properties.Resources.menu_32x32;
+			button1.Location = new Point(3, -1);
+			button1.Name = "button1";
+			button1.Size = new Size(47, 32);
+			button1.TabIndex = 0;
+			button1.UseVisualStyleBackColor = true;
+			button1.Click += button1_Click;
+			// 
+			// panel8
+			// 
+			panel8.Anchor = AnchorStyles.Right;
+			panel8.Controls.Add(minimize_button);
+			panel8.Controls.Add(maximaze_button);
+			panel8.Controls.Add(exit_button);
+			panel8.Location = new Point(900, -1);
+			panel8.Name = "panel8";
+			panel8.Size = new Size(106, 30);
+			panel8.TabIndex = 0;
+			// 
+			// minimize_button
+			// 
+			minimize_button.BackColor = Color.White;
+			minimize_button.FlatAppearance.BorderSize = 0;
+			minimize_button.FlatStyle = FlatStyle.Flat;
+			minimize_button.Font = new Font("Microsoft Sans Serif", 10F);
+			minimize_button.ForeColor = SystemColors.WindowText;
+			minimize_button.Image = Properties.Resources.subminimize_16x16;
+			minimize_button.Location = new Point(1, 1);
+			minimize_button.Name = "minimize_button";
+			minimize_button.Size = new Size(30, 30);
+			minimize_button.TabIndex = 7;
+			minimize_button.UseVisualStyleBackColor = false;
+			minimize_button.Click += minimize_button_Click;
+			// 
+			// maximaze_button
+			// 
+			maximaze_button.BackColor = Color.White;
+			maximaze_button.FlatAppearance.BorderSize = 0;
+			maximaze_button.FlatStyle = FlatStyle.Flat;
+			maximaze_button.Font = new Font("Microsoft Sans Serif", 10F);
+			maximaze_button.ForeColor = SystemColors.WindowText;
+			maximaze_button.Image = Properties.Resources.minimize_16x16;
+			maximaze_button.Location = new Point(37, 1);
+			maximaze_button.Name = "maximaze_button";
+			maximaze_button.Size = new Size(30, 30);
+			maximaze_button.TabIndex = 6;
+			maximaze_button.UseVisualStyleBackColor = false;
+			maximaze_button.Click += maximaze_button_Click;
+			// 
+			// exit_button
+			// 
+			exit_button.BackColor = Color.White;
+			exit_button.FlatAppearance.BorderSize = 0;
+			exit_button.FlatStyle = FlatStyle.Flat;
+			exit_button.Font = new Font("Microsoft Sans Serif", 10F);
+			exit_button.ForeColor = SystemColors.WindowText;
+			exit_button.Image = Properties.Resources.close_16x16;
+			exit_button.Location = new Point(73, 1);
+			exit_button.Name = "exit_button";
+			exit_button.Size = new Size(30, 30);
+			exit_button.TabIndex = 5;
+			exit_button.UseVisualStyleBackColor = false;
+			exit_button.Click += exit_button_Click;
+			exit_button.MouseLeave += ExitButtonEvent;
+			exit_button.MouseHover += ExitButtonEvent;
 			// 
 			// label1
 			// 
@@ -87,33 +158,11 @@
 			label1.ForeColor = Color.Black;
 			label1.Location = new Point(56, 7);
 			label1.Name = "label1";
-			label1.Size = new Size(163, 17);
+			label1.Size = new Size(160, 22);
 			label1.TabIndex = 0;
 			label1.Text = "EGMTRG | HarmonyBlend";
-			// 
-			// sidebar_buttonPictureBox
-			// 
-			sidebar_buttonPictureBox.Image = Properties.Resources.menu_512x512;
-			sidebar_buttonPictureBox.Location = new Point(6, 3);
-			sidebar_buttonPictureBox.Name = "sidebar_buttonPictureBox";
-			sidebar_buttonPictureBox.Size = new Size(38, 26);
-			sidebar_buttonPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
-			sidebar_buttonPictureBox.TabIndex = 0;
-			sidebar_buttonPictureBox.TabStop = false;
-			// 
-			// button4
-			// 
-			button4.BackColor = Color.White;
-			button4.FlatAppearance.BorderSize = 0;
-			button4.FlatStyle = FlatStyle.Flat;
-			button4.Font = new Font("Microsoft Sans Serif", 10F);
-			button4.ForeColor = SystemColors.WindowText;
-			button4.Image = Properties.Resources.close_16x16;
-			button4.Location = new Point(969, 3);
-			button4.Name = "button4";
-			button4.Size = new Size(32, 32);
-			button4.TabIndex = 2;
-			button4.UseVisualStyleBackColor = false;
+			label1.UseCompatibleTextRendering = true;
+			label1.MouseDown += HeaderMouseDown_Event;
 			// 
 			// sidebar_flowLayoutPanel
 			// 
@@ -125,9 +174,9 @@
 			sidebar_flowLayoutPanel.Controls.Add(panel3);
 			sidebar_flowLayoutPanel.Controls.Add(panel4);
 			sidebar_flowLayoutPanel.Dock = DockStyle.Left;
-			sidebar_flowLayoutPanel.Location = new Point(0, 38);
+			sidebar_flowLayoutPanel.Location = new Point(0, 30);
 			sidebar_flowLayoutPanel.Name = "sidebar_flowLayoutPanel";
-			sidebar_flowLayoutPanel.Size = new Size(177, 546);
+			sidebar_flowLayoutPanel.Size = new Size(177, 554);
 			sidebar_flowLayoutPanel.TabIndex = 5;
 			// 
 			// pictureBox2
@@ -339,41 +388,20 @@
 			// mainPanel
 			// 
 			mainPanel.Dock = DockStyle.Fill;
-			mainPanel.Location = new Point(177, 38);
+			mainPanel.Location = new Point(177, 30);
 			mainPanel.Name = "mainPanel";
-			mainPanel.Size = new Size(827, 546);
+			mainPanel.Size = new Size(827, 554);
 			mainPanel.TabIndex = 6;
 			// 
 			// menuButtonTransition
 			// 
+			menuButtonTransition.Interval = 20;
 			menuButtonTransition.Tick += menuTransition_Tick;
 			// 
-			// button1
+			// sidebarTransition
 			// 
-			button1.BackColor = Color.White;
-			button1.FlatAppearance.BorderSize = 0;
-			button1.FlatStyle = FlatStyle.Flat;
-			button1.Font = new Font("Microsoft Sans Serif", 10F);
-			button1.ForeColor = SystemColors.WindowText;
-			button1.Image = Properties.Resources.minimize_16x16;
-			button1.Location = new Point(931, 3);
-			button1.Name = "button1";
-			button1.Size = new Size(32, 32);
-			button1.TabIndex = 3;
-			button1.UseVisualStyleBackColor = false;
-			// 
-			// button2
-			// 
-			button2.BackColor = Color.White;
-			button2.FlatAppearance.BorderSize = 0;
-			button2.FlatStyle = FlatStyle.Flat;
-			button2.Font = new Font("Microsoft Sans Serif", 10F);
-			button2.ForeColor = SystemColors.WindowText;
-			button2.Location = new Point(893, 3);
-			button2.Name = "button2";
-			button2.Size = new Size(32, 32);
-			button2.TabIndex = 4;
-			button2.UseVisualStyleBackColor = false;
+			sidebarTransition.Interval = 20;
+			sidebarTransition.Tick += sidebarTransition_Tick;
 			// 
 			// AppForm
 			// 
@@ -389,7 +417,7 @@
 			Text = "AppForm";
 			panel_Control.ResumeLayout(false);
 			panel_Control.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)sidebar_buttonPictureBox).EndInit();
+			panel8.ResumeLayout(false);
 			sidebar_flowLayoutPanel.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
 			panel5.ResumeLayout(false);
@@ -406,11 +434,9 @@
 		#endregion
 
 		private Panel panel_Control;
-		private Button button4;
 		private FlowLayoutPanel sidebar_flowLayoutPanel;
 		private Panel mainPanel;
 		private Label label1;
-		private PictureBox sidebar_buttonPictureBox;
 		private Panel panel1;
 		private Button menu_button;
 		private Panel panel4;
@@ -428,7 +454,11 @@
 		private Button menu_subbutton2;
 		private System.Windows.Forms.Timer menuButtonTransition;
 		private PictureBox pictureBox2;
-		private Button button2;
+		private Panel panel8;
+		private Button minimize_button;
+		private Button maximaze_button;
+		private Button exit_button;
+		private System.Windows.Forms.Timer sidebarTransition;
 		private Button button1;
 	}
 }
