@@ -63,6 +63,16 @@ namespace HarmonyBlend.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _c8ee5be0_988a_4ba2_a2be_b7f600344b3a_removebg_preview {
+            get {
+                object obj = ResourceManager.GetObject("_c8ee5be0-988a-4ba2-a2be-b7f600344b3a-removebg-preview", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap button_16x16 {
             get {
                 object obj = ResourceManager.GetObject("button_16x16", resourceCulture);
@@ -113,6 +123,16 @@ namespace HarmonyBlend.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap close_16x16_White {
+            get {
+                object obj = ResourceManager.GetObject("close_16x16_White", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap dashboard_32x32 {
             get {
                 object obj = ResourceManager.GetObject("dashboard_32x32", resourceCulture);
@@ -126,26 +146,6 @@ namespace HarmonyBlend.Properties {
         internal static System.Drawing.Bitmap dashboard_32x32_White {
             get {
                 object obj = ResourceManager.GetObject("dashboard_32x32_White", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap dashboard_512x512 {
-            get {
-                object obj = ResourceManager.GetObject("dashboard_512x512", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap document_512x512 {
-            get {
-                object obj = ResourceManager.GetObject("document_512x512", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -186,16 +186,6 @@ namespace HarmonyBlend.Properties {
         internal static System.Drawing.Bitmap home_32x32_White {
             get {
                 object obj = ResourceManager.GetObject("home_32x32_White", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap home_512x512 {
-            get {
-                object obj = ResourceManager.GetObject("home_512x512", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -323,9 +313,9 @@ namespace HarmonyBlend.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap menu_512x512 {
+        internal static System.Drawing.Bitmap minimize_16x16 {
             get {
-                object obj = ResourceManager.GetObject("menu_512x512", resourceCulture);
+                object obj = ResourceManager.GetObject("minimize_16x16", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -333,9 +323,9 @@ namespace HarmonyBlend.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap minimize_16x16 {
+        internal static System.Drawing.Bitmap minimize_16x16_White {
             get {
-                object obj = ResourceManager.GetObject("minimize_16x16", resourceCulture);
+                object obj = ResourceManager.GetObject("minimize_16x16_White", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -356,16 +346,6 @@ namespace HarmonyBlend.Properties {
         internal static System.Drawing.Bitmap order_32x32_White {
             get {
                 object obj = ResourceManager.GetObject("order_32x32_White", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap order_512x512 {
-            get {
-                object obj = ResourceManager.GetObject("order_512x512", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -396,6 +376,16 @@ namespace HarmonyBlend.Properties {
         internal static System.Drawing.Bitmap subminimize_16x16 {
             get {
                 object obj = ResourceManager.GetObject("subminimize_16x16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap subminimize_16x16_White {
+            get {
+                object obj = ResourceManager.GetObject("subminimize_16x16_White", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -20,8 +20,14 @@ namespace HarmonyBlend
 			if(userDataRow is not null) {
 				string username = userDataRow.Field<string>("Username") ?? "";
 				string password = userDataRow.Field<string>("Password") ?? "";
-
-				MessageBox.Show(username + "\n" + password);
+				//MessageBox.Show(username + "\n" + password);
+				if(username.Equals(username_textBox.Text) && password.Equals(password_maskedTextBox.Text)) {
+					MainForm mainform = new MainForm(username.ToUpper());
+					mainform.Show();
+					this.Hide();
+				} else {
+					MessageBox.Show("Password Error!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
 			}
 		}
 		#endregion
@@ -38,7 +44,13 @@ namespace HarmonyBlend
 		}
 
 		private void button1_Click(object sender, EventArgs e) {
+			new MainForm("ADMIN").Show();
+		}
 
+		private void password_maskedTextBox_KeyDown(object sender, KeyEventArgs e) {
+			if(e.KeyCode == Keys.Enter) {
+				login_button.PerformClick();
+			}
 		}
 	}
 }
