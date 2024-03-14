@@ -12,9 +12,8 @@ namespace HarmonyBlend.ORM
 				if(_connection == null) {
 					// The connection string will be implement.
 					_connection = new SqlConnection("Server=EGEMENPC\\SQLEXPRESS;" +
-													"Database=TestDatabase;" +
-													"User Id=Egemen;" +
-													"Password=123456;" +
+													"Database=HarmonyBlend;" +
+													"Trusted_Connection=True;" +
 													"TrustServerCertificate=true");
 				}
 				return _connection;

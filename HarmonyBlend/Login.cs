@@ -15,19 +15,22 @@ namespace HarmonyBlend
 		}
 
 		private void Login_button_Click(object sender, EventArgs e) {
-			var userDataRow = GetOneDataRowByName("Egemen");
+			var userDataRow = GetOneDataRowByName(username_textBox.Text);
 
 			if(userDataRow is not null) {
-				string username = userDataRow.Field<string>("Username") ?? "";
-				string password = userDataRow.Field<string>("Password") ?? "";
-				//MessageBox.Show(username + "\n" + password);
-				if(username.Equals(username_textBox.Text) && password.Equals(password_maskedTextBox.Text)) {
-					MainForm mainform = new MainForm(username.ToUpper());
-					mainform.Show();
-					this.Hide();
-				} else {
-					MessageBox.Show("Password Error!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				try {
+					string username = userDataRow.Field<string>("Username") ?? "";
+					string password = userDataRow.Field<string>("Password") ?? "";
+					if(username.Equals(username_textBox.Text) && password.Equals(password_maskedTextBox.Text)) {
+						MainForm mainform = new MainForm(username.ToUpper());
+						mainform.Show();
+						this.Hide();
+					}
+				} catch(Exception ex) {
+					MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					throw;
 				}
+
 			}
 		}
 		#endregion
@@ -51,6 +54,10 @@ namespace HarmonyBlend
 			if(e.KeyCode == Keys.Enter) {
 				login_button.PerformClick();
 			}
+		}
+
+		private void username_textBox_Leave(object sender, EventArgs e) {
+			((TextBox)sender).Text = username_textBox.Text.ToUpper();
 		}
 	}
 }

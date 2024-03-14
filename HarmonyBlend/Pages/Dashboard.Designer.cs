@@ -159,11 +159,12 @@
 			// 
 			// label1
 			// 
+			label1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 			label1.AutoSize = true;
 			label1.BackColor = Color.FromArgb(54, 64, 78);
 			label1.Font = new Font("Castellar", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
 			label1.ForeColor = Color.White;
-			label1.Location = new Point(158, 20);
+			label1.Location = new Point(177, 23);
 			label1.Name = "label1";
 			label1.Size = new Size(446, 33);
 			label1.TabIndex = 0;

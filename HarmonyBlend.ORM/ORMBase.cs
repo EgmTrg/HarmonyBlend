@@ -27,7 +27,7 @@ namespace HarmonyBlend.ORM
 			DataTable dataTable = new DataTable();
 
 			sqlCommand.Connection = Tools.Connection;
-			sqlCommand.CommandText = string.Format($"Select{getPropertyType.Name}"); // Example: commandText = SelectUsers
+			sqlCommand.CommandText = string.Format($"Select{getPropertyType.Name}");
 			sqlCommand.CommandType = CommandType.StoredProcedure;
 
 			sqlAdapter.SelectCommand = sqlCommand;

@@ -8,16 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace HarmonyBlend.Pages
+namespace HarmonyBlend.Utilities
 {
-	public partial class Order : Form, IPages_Mdi
+	public partial class MaskedTextBoxForProducts : UserControl
 	{
-		public Order() {
+		public MaskedTextBoxForProducts() {
 			InitializeComponent();
-		}
-
-		private void Order_Load(object sender, EventArgs e) {
-
 		}
 	}
 }

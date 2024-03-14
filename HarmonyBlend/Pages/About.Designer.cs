@@ -74,7 +74,7 @@
 			label2.ForeColor = Color.White;
 			label2.Location = new Point(53, 115);
 			label2.Name = "label2";
-			label2.Size = new Size(1026, 440);
+			label2.Size = new Size(1026, 420);
 			label2.TabIndex = 1;
 			label2.Text = resources.GetString("label2.Text");
 			// 

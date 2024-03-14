@@ -54,6 +54,7 @@
 			username_textBox.Name = "username_textBox";
 			username_textBox.Size = new Size(192, 29);
 			username_textBox.TabIndex = 0;
+			username_textBox.Leave += username_textBox_Leave;
 			// 
 			// password_maskedTextBox
 			// 
