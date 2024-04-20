@@ -1,5 +1,4 @@
 ﻿using HarmonyBlend.Pages;
-using HarmonyBlend.Utilities;
 using System.Runtime.InteropServices;
 
 namespace HarmonyBlend

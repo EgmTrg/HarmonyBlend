@@ -62,7 +62,7 @@
 			panel_Control.ForeColor = Color.White;
 			panel_Control.Location = new Point(0, 0);
 			panel_Control.Name = "panel_Control";
-			panel_Control.Size = new Size(1366, 30);
+			panel_Control.Size = new Size(1403, 30);
 			panel_Control.TabIndex = 1;
 			panel_Control.MouseDown += HeaderMouseDown_Event;
 			// 
@@ -80,11 +80,11 @@
 			// 
 			// panel8
 			// 
-			panel8.Anchor = AnchorStyles.Right;
 			panel8.Controls.Add(minimize_button);
 			panel8.Controls.Add(maximaze_button);
 			panel8.Controls.Add(exit_button);
-			panel8.Location = new Point(1275, 0);
+			panel8.Dock = DockStyle.Right;
+			panel8.Location = new Point(1312, 0);
 			panel8.Name = "panel8";
 			panel8.Size = new Size(91, 30);
 			panel8.TabIndex = 0;
@@ -159,7 +159,7 @@
 			sidebar_flowLayoutPanel.Dock = DockStyle.Left;
 			sidebar_flowLayoutPanel.Location = new Point(0, 30);
 			sidebar_flowLayoutPanel.Name = "sidebar_flowLayoutPanel";
-			sidebar_flowLayoutPanel.Size = new Size(177, 738);
+			sidebar_flowLayoutPanel.Size = new Size(177, 820);
 			sidebar_flowLayoutPanel.TabIndex = 5;
 			// 
 			// pictureBox2
@@ -329,7 +329,7 @@
 			// MainForm
 			// 
 			AutoScaleMode = AutoScaleMode.None;
-			ClientSize = new Size(1366, 768);
+			ClientSize = new Size(1403, 850);
 			Controls.Add(sidebar_flowLayoutPanel);
 			Controls.Add(panel_Control);
 			ForeColor = Color.Black;

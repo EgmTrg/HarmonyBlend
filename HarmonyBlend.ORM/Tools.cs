@@ -21,16 +21,24 @@ namespace HarmonyBlend.ORM
 			private set { _connection = value; }
 		}
 
-		public static bool ExecuteNonQuery(SqlCommand command) {
+		public static Result<bool> ExecuteNonQuery(SqlCommand command) {
 			try {
 				if(command.Connection.State == ConnectionState.Closed)
 					command.Connection.Open();
 
 				int affectedRows = command.ExecuteNonQuery();
-				return affectedRows > 0 ? true : false;
 
-			} catch(Exception) {
-				return false;
+				return new Result<bool> {
+					isSuccess = true,
+					Message = "Islem Basarili!",
+					Data = affectedRows > 0 ? true : false
+				};
+
+			} catch(Exception exception) {
+				return new Result<bool> {
+					isSuccess = false,
+					Message = exception.Message,
+				};
 
 			} finally {
 				if(command.Connection.State != ConnectionState.Closed) {

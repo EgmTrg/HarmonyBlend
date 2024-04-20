@@ -41,7 +41,7 @@ namespace HarmonyBlend
 				throw new DeletedRowInaccessibleException();
 			}
 
-			return selectDT.AsEnumerable()
+			return selectDT.Data.AsEnumerable()
 						   .Where(row => row.Field<string>("Username") == name)
 						   .FirstOrDefault();
 		}

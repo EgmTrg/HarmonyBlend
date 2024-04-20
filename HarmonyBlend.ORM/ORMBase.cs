@@ -4,13 +4,12 @@ using System.Reflection;
 
 namespace HarmonyBlend.ORM
 {
-
 	interface IORM<tTable>
 	{
-		DataTable Select();
-		bool Insert(tTable table);
-		bool Update(tTable table);
-		bool Delete(tTable table);
+		Result<DataTable> Select();
+		Result<bool> Insert(tTable table);
+		Result<bool> Update(tTable table, string ID);
+		Result<bool> Delete(int ID);
 	}
 
 	public class ORMBase<tTable> : IORM<tTable> where tTable : class
@@ -19,7 +18,7 @@ namespace HarmonyBlend.ORM
 			get { return typeof(tTable); }
 		}
 
-		public DataTable Select() {
+		public Result<DataTable> Select() {
 			// It will be revised with customized ExecuteNonQuery. (Tools.ExecuteNonQuery)
 
 			SqlDataAdapter sqlAdapter = new SqlDataAdapter();
@@ -33,10 +32,14 @@ namespace HarmonyBlend.ORM
 			sqlAdapter.SelectCommand = sqlCommand;
 			sqlAdapter.Fill(dataTable);
 
-			return dataTable;
+			return new Result<DataTable> {
+				isSuccess = true,
+				Data = dataTable,
+				Message = "True"
+			};
 		}
 
-		public bool Insert(tTable table) {
+		public Result<bool> Insert(tTable table) {
 			SqlCommand command = new SqlCommand();
 			command.CommandText = string.Format($"Insert{getPropertyType.Name}");
 			command.CommandType = CommandType.StoredProcedure;
@@ -50,12 +53,40 @@ namespace HarmonyBlend.ORM
 			return Tools.ExecuteNonQuery(command);
 		}
 
-		public bool Update(tTable table) {
-			throw new NotImplementedException();
+		public Result<bool> Update(tTable table, string ID) {
+			// veritabaninda procedure olusturulmadi
+
+			SqlCommand cmd = new();
+			cmd.CommandText = string.Format("Update{0}", getPropertyType.Name);
+			cmd.CommandType = CommandType.StoredProcedure;
+			cmd.Connection = Tools.Connection;
+
+			PropertyInfo[] props = getPropertyType.GetProperties();
+
+			foreach(PropertyInfo property in props) {
+				if(property.Name == "PrimaryKey") {
+					cmd.Parameters.AddWithValue($"@{property.GetValue(table)}", ID);
+					continue;
+				}
+				cmd.Parameters.AddWithValue($"@{property.Name}", property.GetValue(table));
+			}
+			return Tools.ExecuteNonQuery(cmd);
 		}
 
-		public bool Delete(tTable table) {
-			throw new NotImplementedException();
+		public Result<bool> Delete(int ID) {
+			// veritabaninda procedure olusturulmadi.
+
+			tTable table = Activator.CreateInstance<tTable>();
+			SqlCommand cmd = new SqlCommand();
+			cmd.CommandText = string.Format("Delete{0}", getPropertyType.Name);
+			cmd.CommandType = CommandType.StoredProcedure;
+			cmd.Connection = Tools.Connection;
+
+			PropertyInfo? property = getPropertyType.GetProperty("PrimaryKey");
+
+			cmd.Parameters.AddWithValue($"@{property?.GetValue(table)}", ID);
+
+			return Tools.ExecuteNonQuery(cmd);
 		}
 	}
 
