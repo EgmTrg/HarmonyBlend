@@ -177,6 +177,8 @@
 			dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 			dataGridView1.Size = new Size(1233, 421);
 			dataGridView1.TabIndex = 0;
+			dataGridView1.CellValueChanged += dataGridView1_CellValueChanged;
+			dataGridView1.EditingControlShowing += dataGridView1_EditingControlShowing;
 			// 
 			// Image
 			// 

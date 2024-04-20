@@ -8,20 +8,11 @@ namespace HarmonyBlend.Pages
 		public Order() {
 			InitializeComponent();
 		}
-		#region Events
+
 		private void Order_Load(object sender, EventArgs e) {
 			DataGridStyle();
 			CreateRows();
 			DataGridSettings();
-		}
-
-		private void DataGridSettings() {
-			dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter;
-
-			dataGridView1.Columns["Image"].ReadOnly = true;
-			dataGridView1.Columns["PCode"].ReadOnly = true;
-			dataGridView1.Columns["PName"].ReadOnly = true;
-			dataGridView1.Columns["Unit"].ReadOnly = true;
 		}
 
 		private void CreateRows() {
@@ -42,6 +33,16 @@ namespace HarmonyBlend.Pages
 				}
 				dataGridView1.Rows.Add(row);
 			}
+		}
+
+		#region DataGridView Style And Settings
+		private void DataGridSettings() {
+			dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter;
+
+			dataGridView1.Columns["Image"].ReadOnly = true;
+			dataGridView1.Columns["PCode"].ReadOnly = true;
+			dataGridView1.Columns["PName"].ReadOnly = true;
+			dataGridView1.Columns["Unit"].ReadOnly = true;
 		}
 
 		private void DataGridStyle() {
@@ -74,8 +75,41 @@ namespace HarmonyBlend.Pages
 			dataGridView1.DefaultCellStyle.Font = new Font(dataGridView1.Font.FontFamily, 11);
 		}
 
-		private void productCode_textBox_TextChanged(object sender, EventArgs e) {
-			MessageBox.Show(((TextBox)sender).Text);
+		#endregion
+
+		#region Control for Amount Value
+		private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
+			if(e.RowIndex < 0 || e.RowIndex >= dataGridView1.Rows.Count || dataGridView1.Rows[e.RowIndex].IsNewRow)
+				return;
+
+			if(e.ColumnIndex == 5) {
+				DataGridViewCell amountCell = dataGridView1.Rows[e.RowIndex].Cells[5];
+
+				// Önce amountCell.Value'ın null olup olmadığını kontrol edin
+				if(amountCell.Value == null || string.IsNullOrEmpty(amountCell.Value.ToString()) || amountCell.Value.ToString() == "0") {
+					dataGridView1.Rows[e.RowIndex].Cells[2].Value = false;
+				}
+
+				// Ardından amountCell.Value'ı null değilse ve int'e dönüştürülebilirse işlem yapın
+				int miktar;
+				if(amountCell.Value != null && int.TryParse(amountCell.Value.ToString(), out miktar) && miktar >= 1) {
+					dataGridView1.Rows[e.RowIndex].Cells[2].Value = true;
+				}
+			}
+		}
+
+		private void dataGridView1_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e) {
+			if(e.Control is TextBox) {
+				TextBox textBox = (TextBox)e.Control;
+				textBox.KeyPress += TextBox_KeyPress;
+			}
+		}
+
+		private void TextBox_KeyPress(object? sender, KeyPressEventArgs e) {
+			if(!char.IsDigit(e.KeyChar) && e.KeyChar != 8 && e.KeyChar != 127 && e.KeyChar != 22 && e.KeyChar != 3 && e.KeyChar != 24 && e.KeyChar != 26) {
+				// Geçersiz bir karakter olduğunu belirtmek için olayı işaretle
+				e.Handled = true;
+			}
 		}
 		#endregion
 	}
