@@ -118,8 +118,6 @@ namespace HarmonyBlend.Pages
 
 			if(IsAmountColumn(e.ColumnIndex))
 				CalculateTotalPriceAndKDV(rowIndex);
-
-			CalculateTotalOrderCount(rowIndex);
 		}
 
 		private void CalculateTotalPriceAndKDV(int rowIndex) {
@@ -131,10 +129,6 @@ namespace HarmonyBlend.Pages
 			} else {
 				ClearCorrespondingRow(rowIndex);
 			}
-		}
-
-		private void CalculateTotalOrderCount(int rowIndex) {
-			// Calculate total KDV for the row and update the corresponding cell
 		}
 
 		private void CalculateTotalPriceForRow(int rowIndex) {
@@ -160,7 +154,7 @@ namespace HarmonyBlend.Pages
 		}
 
 		public float CurrencyToFloat(string currency) {
-			string convertedValue= currency.Replace("₺", "").Replace(".", "").Replace(",", ".");
+			string convertedValue = currency.Replace("₺", "").Replace(".", "").Replace(",", ".");
 			return float.Parse(convertedValue, NumberStyles.Float, new CultureInfo("tr-TR"));
 		}
 
@@ -198,6 +192,10 @@ namespace HarmonyBlend.Pages
 			if(!char.IsDigit(e.KeyChar) && e.KeyChar != 8 && e.KeyChar != 127 && e.KeyChar != 22 && e.KeyChar != 3 && e.KeyChar != 24 && e.KeyChar != 26) {
 				e.Handled = true;
 			}
+		}
+
+		private void Order_Button_Click(object sender, EventArgs e) {
+
 		}
 	}
 }
