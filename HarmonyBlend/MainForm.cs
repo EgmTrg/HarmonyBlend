@@ -101,7 +101,7 @@ namespace HarmonyBlend
 		private IPages_Mdi InstantiatePage(string buttonText) {
 			IPages_Mdi? page = buttonText switch {
 				"Dashboard" => new Dashboard(),
-				"Sipariş Ver" => new Order(),
+				"Sipariş Ver" => new Orders(),
 				"Sub Menu 2" => new SubPage2(),
 				"Settings" => new Settings(),
 				"About" => new About(),

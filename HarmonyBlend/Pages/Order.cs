@@ -1,11 +1,14 @@
 ﻿using HarmonyBlend.Properties;
 using System.Data;
+using System.Globalization;
+using System.Security.AccessControl;
+using System.Windows.Forms;
 
 namespace HarmonyBlend.Pages
 {
-	public partial class Order : Form, IPages_Mdi
+	public partial class Orders : Form, IPages_Mdi
 	{
-		public Order() {
+		public Orders() {
 			InitializeComponent();
 		}
 
@@ -13,6 +16,10 @@ namespace HarmonyBlend.Pages
 			DataGridStyle();
 			CreateRows();
 			DataGridSettings();
+
+			totalOrderCount_label.Text = 0.ToString();
+			totalKDV_label.Text = 0.ToString();
+			totalPayment_label.Text = 0.ToString();
 		}
 
 		private void CreateRows() {
@@ -43,6 +50,9 @@ namespace HarmonyBlend.Pages
 			dataGridView1.Columns["PCode"].ReadOnly = true;
 			dataGridView1.Columns["PName"].ReadOnly = true;
 			dataGridView1.Columns["Unit"].ReadOnly = true;
+			dataGridView1.Columns["ListPrice"].ReadOnly = true;
+			dataGridView1.Columns["KDV"].ReadOnly = true;
+			dataGridView1.Columns["TotalPrice"].ReadOnly = true;
 		}
 
 		private void DataGridStyle() {
@@ -78,39 +88,116 @@ namespace HarmonyBlend.Pages
 		#endregion
 
 		#region Control for Amount Value
+
+		#region Detect Which Column It Is?
+		private bool IsInvalidRowIndex(int rowIndex) {
+			return rowIndex < 0 || rowIndex >= dataGridView1.Rows.Count;
+		}
+
+		private bool IsAmountColumn(int columnIndex) {
+			return columnIndex == 5;
+		}
+
+		private bool IsCheckColumn(int columnIndex) {
+			return columnIndex == 2;
+		}
+		#endregion
+
 		private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
-			if(e.RowIndex < 0 || e.RowIndex >= dataGridView1.Rows.Count || dataGridView1.Rows[e.RowIndex].IsNewRow)
+			if(IsInvalidRowIndex(e.RowIndex) || dataGridView1.Rows[e.RowIndex].IsNewRow)
 				return;
 
-			if(e.ColumnIndex == 5) {
-				DataGridViewCell amountCell = dataGridView1.Rows[e.RowIndex].Cells[5];
+			int columnIndex = e.ColumnIndex;
 
-				// Önce amountCell.Value'ın null olup olmadığını kontrol edin
-				if(amountCell.Value == null || string.IsNullOrEmpty(amountCell.Value.ToString()) || amountCell.Value.ToString() == "0") {
-					dataGridView1.Rows[e.RowIndex].Cells[2].Value = false;
-				}
+			if(IsAmountColumn(columnIndex) || IsCheckColumn(columnIndex))
+				HandleAmountOrCheckColumnChange(e);
+		}
 
-				// Ardından amountCell.Value'ı null değilse ve int'e dönüştürülebilirse işlem yapın
-				int miktar;
-				if(amountCell.Value != null && int.TryParse(amountCell.Value.ToString(), out miktar) && miktar >= 1) {
-					dataGridView1.Rows[e.RowIndex].Cells[2].Value = true;
+		private void HandleAmountOrCheckColumnChange(DataGridViewCellEventArgs e) {
+			int rowIndex = e.RowIndex;
+
+			if(IsAmountColumn(e.ColumnIndex))
+				CalculateTotalPriceAndKDV(rowIndex);
+
+			CalculateTotalOrderCount(rowIndex);
+		}
+
+		private void CalculateTotalPriceAndKDV(int rowIndex) {
+			var amountCell = dataGridView1.Rows[rowIndex].Cells[5];
+			if(amountCell.Value != null && float.Parse(amountCell.Value.ToString()) != 0f) {
+				CalculateTotalPriceForRow(rowIndex);
+				CalculateTotalKDVForRow(rowIndex);
+				SetValueToCell(rowIndex, "Check", true);
+			} else {
+				ClearCorrespondingRow(rowIndex);
+			}
+		}
+
+		private void CalculateTotalOrderCount(int rowIndex) {
+			// Calculate total KDV for the row and update the corresponding cell
+		}
+
+		private void CalculateTotalPriceForRow(int rowIndex) {
+			float unitPrice = 0f;
+			float.TryParse(dataGridView1.Rows[rowIndex].Cells[7].Value.ToString(), CultureInfo.InvariantCulture.NumberFormat, out unitPrice);
+			float amount = 0f;
+			float.TryParse(dataGridView1.Rows[rowIndex].Cells[5].Value.ToString(), CultureInfo.InvariantCulture.NumberFormat, out amount);
+
+			if(unitPrice != 0f && amount != 0f) {
+				float total_Price = 0f;
+				total_Price = amount * unitPrice;
+				SetValueToCell(rowIndex, "TotalPrice", total_Price.ToString("C", new CultureInfo("tr-TR")));
+			}
+		}
+
+		private void CalculateTotalKDVForRow(int rowIndex) {
+			var totalPriceCell = dataGridView1.Rows[rowIndex].Cells[9];
+			if(totalPriceCell.Value != null) {
+				float total_KDV = 0f;
+				total_KDV = CurrencyToFloat(totalPriceCell.Value.ToString()) * 0.01f;
+				SetValueToCell(rowIndex, "KDV", total_KDV.ToString("C", new CultureInfo("tr-TR")));
+			}
+		}
+
+		public float CurrencyToFloat(string currency) {
+			string convertedValue= currency.Replace("₺", "").Replace(".", "").Replace(",", ".");
+			return float.Parse(convertedValue, NumberStyles.Float, new CultureInfo("tr-TR"));
+		}
+
+		private void SetValueToCell(int rowIndex, string columnName, object newValue) {
+			dataGridView1.Rows[rowIndex].Cells[columnName].Value = newValue;
+		}
+
+		private void ClearCorrespondingRow(int rowIndex) {
+			SetValueToCell(rowIndex, "Amount", null);
+			SetValueToCell(rowIndex, "Check", false);
+			SetValueToCell(rowIndex, "TotalPrice", null);
+			SetValueToCell(rowIndex, "KDV", null);
+		}
+		#endregion
+
+		private void productName_textBox_TextChanged(object sender, EventArgs e) {
+			string searchText = (sender as TextBox).Text.ToUpper();
+
+			foreach(DataGridViewRow row in dataGridView1.Rows) {
+				bool visibleRow = false;
+				if(!string.IsNullOrEmpty(row.Cells[4].Value.ToString()) || row.Cells[4].Value.ToString().Contains(searchText)) {
+					row.Visible = true;
+					break;
 				}
 			}
 		}
 
 		private void dataGridView1_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e) {
-			if(e.Control is TextBox) {
-				TextBox textBox = (TextBox)e.Control;
+			if(e.Control is TextBox textBox) {
 				textBox.KeyPress += TextBox_KeyPress;
 			}
 		}
 
 		private void TextBox_KeyPress(object? sender, KeyPressEventArgs e) {
 			if(!char.IsDigit(e.KeyChar) && e.KeyChar != 8 && e.KeyChar != 127 && e.KeyChar != 22 && e.KeyChar != 3 && e.KeyChar != 24 && e.KeyChar != 26) {
-				// Geçersiz bir karakter olduğunu belirtmek için olayı işaretle
 				e.Handled = true;
 			}
 		}
-		#endregion
 	}
 }

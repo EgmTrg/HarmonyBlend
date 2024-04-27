@@ -1,6 +1,6 @@
 ﻿namespace HarmonyBlend.Pages
 {
-	partial class Order
+	partial class Orders
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -30,7 +30,16 @@
 			DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
 			DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
 			orderPage_panel = new Panel();
+			groupBox1 = new GroupBox();
+			Order_Button = new Button();
+			totalPayment_label = new Label();
+			totalKDV_label = new Label();
+			totalOrderCount_label = new Label();
+			label6 = new Label();
+			label4 = new Label();
+			label5 = new Label();
 			filters_groupBox = new GroupBox();
+			productCode_maskedTextBox = new MaskedTextBox();
 			productName_textBox = new TextBox();
 			label3 = new Label();
 			label2 = new Label();
@@ -46,8 +55,10 @@
 			Amount = new DataGridViewTextBoxColumn();
 			Unit = new DataGridViewTextBoxColumn();
 			ListPrice = new DataGridViewTextBoxColumn();
+			KDV = new DataGridViewTextBoxColumn();
 			TotalPrice = new DataGridViewTextBoxColumn();
 			orderPage_panel.SuspendLayout();
+			groupBox1.SuspendLayout();
 			filters_groupBox.SuspendLayout();
 			panel2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
@@ -55,6 +66,7 @@
 			// 
 			// orderPage_panel
 			// 
+			orderPage_panel.Controls.Add(groupBox1);
 			orderPage_panel.Controls.Add(filters_groupBox);
 			orderPage_panel.Controls.Add(label1);
 			orderPage_panel.Dock = DockStyle.Top;
@@ -63,8 +75,100 @@
 			orderPage_panel.Size = new Size(1233, 168);
 			orderPage_panel.TabIndex = 0;
 			// 
+			// groupBox1
+			// 
+			groupBox1.Controls.Add(Order_Button);
+			groupBox1.Controls.Add(totalPayment_label);
+			groupBox1.Controls.Add(totalKDV_label);
+			groupBox1.Controls.Add(totalOrderCount_label);
+			groupBox1.Controls.Add(label6);
+			groupBox1.Controls.Add(label4);
+			groupBox1.Controls.Add(label5);
+			groupBox1.ForeColor = SystemColors.Control;
+			groupBox1.Location = new Point(837, 39);
+			groupBox1.Name = "groupBox1";
+			groupBox1.Size = new Size(384, 123);
+			groupBox1.TabIndex = 3;
+			groupBox1.TabStop = false;
+			groupBox1.Text = "Filtre";
+			// 
+			// Order_Button
+			// 
+			Order_Button.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			Order_Button.ForeColor = Color.Black;
+			Order_Button.Location = new Point(265, 25);
+			Order_Button.Name = "Order_Button";
+			Order_Button.Size = new Size(113, 49);
+			Order_Button.TabIndex = 5;
+			Order_Button.Text = "Sipariş Ver";
+			Order_Button.UseVisualStyleBackColor = true;
+			// 
+			// totalPayment_label
+			// 
+			totalPayment_label.AutoSize = true;
+			totalPayment_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			totalPayment_label.Location = new Point(158, 90);
+			totalPayment_label.Name = "totalPayment_label";
+			totalPayment_label.Size = new Size(99, 23);
+			totalPayment_label.TabIndex = 4;
+			totalPayment_label.Text = "1234.56 TL";
+			// 
+			// totalKDV_label
+			// 
+			totalKDV_label.AutoSize = true;
+			totalKDV_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			totalKDV_label.Location = new Point(158, 56);
+			totalKDV_label.Name = "totalKDV_label";
+			totalKDV_label.Size = new Size(69, 23);
+			totalKDV_label.TabIndex = 4;
+			totalKDV_label.Text = "1,23 TL";
+			// 
+			// totalOrderCount_label
+			// 
+			totalOrderCount_label.AutoSize = true;
+			totalOrderCount_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			totalOrderCount_label.Location = new Point(158, 22);
+			totalOrderCount_label.Name = "totalOrderCount_label";
+			totalOrderCount_label.Size = new Size(50, 23);
+			totalOrderCount_label.TabIndex = 4;
+			totalOrderCount_label.Text = "1234";
+			// 
+			// label6
+			// 
+			label6.AutoSize = true;
+			label6.Font = new Font("Segoe UI", 10F);
+			label6.ForeColor = SystemColors.Control;
+			label6.Location = new Point(17, 93);
+			label6.Name = "label6";
+			label6.Size = new Size(135, 19);
+			label6.TabIndex = 3;
+			label6.Text = "Sipariş Toplam Tutar:";
+			// 
+			// label4
+			// 
+			label4.AutoSize = true;
+			label4.Font = new Font("Segoe UI", 10F);
+			label4.ForeColor = SystemColors.Control;
+			label4.Location = new Point(31, 59);
+			label4.Name = "label4";
+			label4.Size = new Size(121, 19);
+			label4.TabIndex = 3;
+			label4.Text = "Sipariş KDV Tutarı:";
+			// 
+			// label5
+			// 
+			label5.AutoSize = true;
+			label5.Font = new Font("Segoe UI", 10F);
+			label5.ForeColor = SystemColors.Control;
+			label5.Location = new Point(20, 25);
+			label5.Name = "label5";
+			label5.Size = new Size(133, 19);
+			label5.TabIndex = 3;
+			label5.Text = "Sipariş Ürün Miktarı:";
+			// 
 			// filters_groupBox
 			// 
+			filters_groupBox.Controls.Add(productCode_maskedTextBox);
 			filters_groupBox.Controls.Add(productName_textBox);
 			filters_groupBox.Controls.Add(label3);
 			filters_groupBox.Controls.Add(label2);
@@ -76,12 +180,21 @@
 			filters_groupBox.TabStop = false;
 			filters_groupBox.Text = "Filtre";
 			// 
+			// productCode_maskedTextBox
+			// 
+			productCode_maskedTextBox.Location = new Point(93, 27);
+			productCode_maskedTextBox.Mask = "000.00.000";
+			productCode_maskedTextBox.Name = "productCode_maskedTextBox";
+			productCode_maskedTextBox.Size = new Size(197, 23);
+			productCode_maskedTextBox.TabIndex = 12;
+			// 
 			// productName_textBox
 			// 
 			productName_textBox.Location = new Point(93, 56);
 			productName_textBox.Name = "productName_textBox";
 			productName_textBox.Size = new Size(197, 23);
 			productName_textBox.TabIndex = 4;
+			productName_textBox.TextChanged += productName_textBox_TextChanged;
 			// 
 			// label3
 			// 
@@ -153,7 +266,7 @@
 			dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
 			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
 			dataGridView1.ColumnHeadersHeight = 30;
-			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Image, Favorite, Check, PCode, PName, Amount, Unit, ListPrice, TotalPrice });
+			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Image, Favorite, Check, PCode, PName, Amount, Unit, ListPrice, KDV, TotalPrice });
 			dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			dataGridViewCellStyle3.BackColor = Color.Gainsboro;
 			dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
@@ -197,12 +310,12 @@
 			// 
 			// PCode
 			// 
-			PCode.HeaderText = "P.Code";
+			PCode.HeaderText = "PCode";
 			PCode.Name = "PCode";
 			// 
 			// PName
 			// 
-			PName.HeaderText = "P.Name";
+			PName.HeaderText = "PName";
 			PName.Name = "PName";
 			// 
 			// Amount
@@ -220,12 +333,17 @@
 			ListPrice.HeaderText = "List Price";
 			ListPrice.Name = "ListPrice";
 			// 
+			// KDV
+			// 
+			KDV.HeaderText = "KDV";
+			KDV.Name = "KDV";
+			// 
 			// TotalPrice
 			// 
 			TotalPrice.HeaderText = "Total Price";
 			TotalPrice.Name = "TotalPrice";
 			// 
-			// Order
+			// Orders
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
@@ -235,11 +353,13 @@
 			Controls.Add(panel3);
 			Controls.Add(orderPage_panel);
 			FormBorderStyle = FormBorderStyle.None;
-			Name = "Order";
+			Name = "Orders";
 			Text = "SubPage1";
 			Load += Order_Load;
 			orderPage_panel.ResumeLayout(false);
 			orderPage_panel.PerformLayout();
+			groupBox1.ResumeLayout(false);
+			groupBox1.PerformLayout();
 			filters_groupBox.ResumeLayout(false);
 			filters_groupBox.PerformLayout();
 			panel2.ResumeLayout(false);
@@ -258,6 +378,15 @@
 		private Label label2;
 		private TextBox productName_textBox;
 		private Label label3;
+		private MaskedTextBox productCode_maskedTextBox;
+		private GroupBox groupBox1;
+		private Button Order_Button;
+		private Label totalPayment_label;
+		private Label totalKDV_label;
+		private Label totalOrderCount_label;
+		private Label label6;
+		private Label label4;
+		private Label label5;
 		private DataGridViewImageColumn Image;
 		private DataGridViewCheckBoxColumn Favorite;
 		private DataGridViewCheckBoxColumn Check;
@@ -266,6 +395,7 @@
 		private DataGridViewTextBoxColumn Amount;
 		private DataGridViewTextBoxColumn Unit;
 		private DataGridViewTextBoxColumn ListPrice;
+		private DataGridViewTextBoxColumn KDV;
 		private DataGridViewTextBoxColumn TotalPrice;
 	}
 }
