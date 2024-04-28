@@ -25,11 +25,12 @@
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-			DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
-			DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
-			DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
-			DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
 			orderPage_panel = new Panel();
+			getCartInfos_button = new Button();
 			groupBox1 = new GroupBox();
 			Order_Button = new Button();
 			totalPayment_label = new Label();
@@ -57,7 +58,6 @@
 			ListPrice = new DataGridViewTextBoxColumn();
 			KDV = new DataGridViewTextBoxColumn();
 			TotalPrice = new DataGridViewTextBoxColumn();
-			getCartInfos_button = new Button();
 			orderPage_panel.SuspendLayout();
 			groupBox1.SuspendLayout();
 			filters_groupBox.SuspendLayout();
@@ -77,6 +77,16 @@
 			orderPage_panel.Size = new Size(1233, 168);
 			orderPage_panel.TabIndex = 0;
 			// 
+			// getCartInfos_button
+			// 
+			getCartInfos_button.Location = new Point(1102, 21);
+			getCartInfos_button.Name = "getCartInfos_button";
+			getCartInfos_button.Size = new Size(113, 23);
+			getCartInfos_button.TabIndex = 1;
+			getCartInfos_button.Text = "Sepet Bilgilerini Al";
+			getCartInfos_button.UseVisualStyleBackColor = true;
+			getCartInfos_button.Click += getCartInfos_button_Click;
+			// 
 			// groupBox1
 			// 
 			groupBox1.Controls.Add(Order_Button);
@@ -92,7 +102,7 @@
 			groupBox1.Size = new Size(384, 123);
 			groupBox1.TabIndex = 3;
 			groupBox1.TabStop = false;
-			groupBox1.Text = "Filtre";
+			groupBox1.Text = "Bilgilendirme";
 			// 
 			// Order_Button
 			// 
@@ -253,46 +263,47 @@
 			dataGridView1.AllowUserToAddRows = false;
 			dataGridView1.AllowUserToDeleteRows = false;
 			dataGridView1.AllowUserToOrderColumns = true;
-			dataGridViewCellStyle5.BackColor = Color.FromArgb(224, 224, 224);
-			dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+			dataGridViewCellStyle1.BackColor = Color.FromArgb(224, 224, 224);
+			dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
 			dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
 			dataGridView1.BackgroundColor = Color.FromArgb(39, 47, 59);
 			dataGridView1.BorderStyle = BorderStyle.None;
 			dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-			dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			dataGridViewCellStyle6.BackColor = Color.FromArgb(54, 64, 78);
-			dataGridViewCellStyle6.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 162);
-			dataGridViewCellStyle6.ForeColor = SystemColors.Window;
-			dataGridViewCellStyle6.SelectionBackColor = Color.Silver;
-			dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
-			dataGridViewCellStyle6.WrapMode = DataGridViewTriState.True;
-			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
+			dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle2.BackColor = Color.FromArgb(54, 64, 78);
+			dataGridViewCellStyle2.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 162);
+			dataGridViewCellStyle2.ForeColor = SystemColors.Window;
+			dataGridViewCellStyle2.SelectionBackColor = Color.Silver;
+			dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+			dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
 			dataGridView1.ColumnHeadersHeight = 30;
 			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Image, Favorite, Check, PCode, PName, Amount, Unit, ListPrice, KDV, TotalPrice });
-			dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle7.BackColor = Color.Gainsboro;
-			dataGridViewCellStyle7.Font = new Font("Segoe UI", 9F);
-			dataGridViewCellStyle7.ForeColor = SystemColors.ControlText;
-			dataGridViewCellStyle7.SelectionBackColor = SystemColors.Highlight;
-			dataGridViewCellStyle7.SelectionForeColor = SystemColors.HighlightText;
-			dataGridViewCellStyle7.WrapMode = DataGridViewTriState.False;
-			dataGridView1.DefaultCellStyle = dataGridViewCellStyle7;
+			dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle3.BackColor = Color.Gainsboro;
+			dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
+			dataGridViewCellStyle3.ForeColor = SystemColors.ControlText;
+			dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
+			dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+			dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+			dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
 			dataGridView1.Dock = DockStyle.Fill;
 			dataGridView1.Location = new Point(0, 0);
 			dataGridView1.MultiSelect = false;
 			dataGridView1.Name = "dataGridView1";
-			dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			dataGridViewCellStyle8.BackColor = Color.FromArgb(54, 64, 78);
-			dataGridViewCellStyle8.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 162);
-			dataGridViewCellStyle8.ForeColor = SystemColors.Window;
-			dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
-			dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
-			dataGridViewCellStyle8.WrapMode = DataGridViewTriState.True;
-			dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+			dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle4.BackColor = Color.FromArgb(54, 64, 78);
+			dataGridViewCellStyle4.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			dataGridViewCellStyle4.ForeColor = SystemColors.Window;
+			dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
+			dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
+			dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
+			dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
 			dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 			dataGridView1.Size = new Size(1233, 421);
 			dataGridView1.TabIndex = 0;
+			dataGridView1.CellBeginEdit += dataGridView1_CellBeginEdit;
 			dataGridView1.CellValueChanged += dataGridView1_CellValueChanged;
 			dataGridView1.EditingControlShowing += dataGridView1_EditingControlShowing;
 			// 
@@ -345,16 +356,6 @@
 			// 
 			TotalPrice.HeaderText = "Total Price";
 			TotalPrice.Name = "TotalPrice";
-			// 
-			// getCartInfos_button
-			// 
-			getCartInfos_button.Location = new Point(1102, 21);
-			getCartInfos_button.Name = "getCartInfos_button";
-			getCartInfos_button.Size = new Size(113, 23);
-			getCartInfos_button.TabIndex = 1;
-			getCartInfos_button.Text = "Sepet Bilgilerini Al";
-			getCartInfos_button.UseVisualStyleBackColor = true;
-			getCartInfos_button.Click += getCartInfos_button_Click;
 			// 
 			// Orders
 			// 

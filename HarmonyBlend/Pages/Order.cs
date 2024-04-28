@@ -10,6 +10,8 @@ namespace HarmonyBlend.Pages
 {
 	public partial class Orders : Form, IPages_Mdi
 	{
+		private Dictionary<string?, float?> _ROW_BEFORE_EDITING = new();
+
 		public Orders() {
 			InitializeComponent();
 		}
@@ -22,6 +24,10 @@ namespace HarmonyBlend.Pages
 			totalOrderCount_label.Text = 0.ToString();
 			totalKDV_label.Text = 0.ToString();
 			totalPayment_label.Text = 0.ToString();
+
+			_ROW_BEFORE_EDITING.Add("AMOUNT", null);
+			_ROW_BEFORE_EDITING.Add("KDV", null);
+			_ROW_BEFORE_EDITING.Add("TOTALPRICE", null);
 		}
 
 		private void CreateRows() {
@@ -152,9 +158,11 @@ namespace HarmonyBlend.Pages
 			if(amountCell.Value != null && float.Parse(amountCell.Value.ToString()) != 0f) {
 				CalculateTotalPriceForRow(rowIndex);
 				CalculateTotalKDVForRow(rowIndex);
+				UpdateOrderInformation(rowIndex, true);
 				SetValueToCell(rowIndex, "Check", true);
 			} else {
 				ClearCorrespondingRow(rowIndex);
+				UpdateOrderInformation(rowIndex, false);
 			}
 		}
 
@@ -181,6 +189,28 @@ namespace HarmonyBlend.Pages
 		private void SetValueToCell(int rowIndex, string columnName, object? newValue) {
 			dataGridView1.Rows[rowIndex].Cells[columnName].Value = newValue;
 		}
+
+
+
+		private void UpdateOrderInformation(int rowIndex, bool IsDeclare) {
+			var row = dataGridView1.Rows[rowIndex];
+
+			int currentAmount = int.Parse(totalOrderCount_label.Text);
+			float currentKDV = totalKDV_label.Text.CurrencyToFloat();
+			float currentTotalPrice = totalPayment_label.Text.CurrencyToFloat();
+
+			if(IsDeclare) {
+				totalOrderCount_label.Text = (currentAmount - _ROW_BEFORE_EDITING["AMOUNT"]).ToString();
+				totalKDV_label.Text = (currentKDV - (float)_ROW_BEFORE_EDITING["KDV"]).FloatToCurrency();
+				totalPayment_label.Text = (currentTotalPrice - (float)_ROW_BEFORE_EDITING["TOTALPRICE"]).FloatToCurrency();
+			}
+
+			totalOrderCount_label.Text = (currentAmount + int.Parse(row.Cells[5].Value.ToString())).ToString();
+			totalKDV_label.Text = (currentKDV + row.Cells[8].Value.ToString().CurrencyToFloat()).FloatToCurrency();
+			totalPayment_label.Text = (currentTotalPrice + row.Cells[9].Value.ToString().CurrencyToFloat()).FloatToCurrency();
+		}
+
+
 
 		private void ClearCorrespondingRow(int rowIndex) {
 			SetValueToCell(rowIndex, "Amount", null);
@@ -217,6 +247,24 @@ namespace HarmonyBlend.Pages
 			}
 
 			MessageBox.Show('\n' + allInfos);
+		}
+
+		private void dataGridView1_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e) {
+			var row = dataGridView1.Rows[e.RowIndex];
+			if(row.Cells[5].Value == null) {
+				_ROW_BEFORE_EDITING["AMOUNT"] = 0;
+			} else
+				_ROW_BEFORE_EDITING["AMOUNT"] = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[5].Value);
+
+			if(row.Cells[8].Value == null) {
+				_ROW_BEFORE_EDITING["KDV"] = 0f;
+			} else
+				_ROW_BEFORE_EDITING["KDV"] = dataGridView1.Rows[e.RowIndex].Cells[8]?.Value?.ToString()?.CurrencyToFloat();
+
+			if(row.Cells[9].Value == null) {
+				_ROW_BEFORE_EDITING["TOTALPRICE"] = 0f;
+			} else
+				_ROW_BEFORE_EDITING["TOTALPRICE"] = dataGridView1.Rows[e.RowIndex].Cells[9]?.Value?.ToString()?.CurrencyToFloat();
 		}
 	}
 }
