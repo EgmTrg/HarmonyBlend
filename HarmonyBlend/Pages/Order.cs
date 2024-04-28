@@ -1,8 +1,10 @@
-﻿using HarmonyBlend.Properties;
+﻿using HarmonyBlend.Pages.Order;
+using HarmonyBlend.Properties;
 using System.Data;
 using System.Globalization;
 using System.Security.AccessControl;
 using System.Windows.Forms;
+using HarmonyBlend.Utilities;
 
 namespace HarmonyBlend.Pages
 {
@@ -87,9 +89,34 @@ namespace HarmonyBlend.Pages
 
 		#endregion
 
+		#region Events
+		private void productName_textBox_TextChanged(object sender, EventArgs e) {
+			string searchText = (sender as TextBox).Text.ToUpper();
+
+			foreach(DataGridViewRow row in dataGridView1.Rows) {
+				if(!string.IsNullOrEmpty(row.Cells[4].Value.ToString()) || row.Cells[4].Value.ToString().Contains(searchText)) {
+					row.Visible = true;
+					break;
+				}
+			}
+		}
+
+		private void dataGridView1_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e) {
+			if(e.Control is TextBox textBox) {
+				textBox.KeyPress += TextBox_KeyPress;
+			}
+		}
+
+		private void TextBox_KeyPress(object? sender, KeyPressEventArgs e) {
+			if(!char.IsDigit(e.KeyChar) && e.KeyChar != 8 && e.KeyChar != 127 && e.KeyChar != 22 && e.KeyChar != 3 && e.KeyChar != 24 && e.KeyChar != 26) {
+				e.Handled = true;
+			}
+		}
+		#endregion
+
 		#region Control for Amount Value
 
-		#region Detect Which Column It Is?
+		#region Detect Column
 		private bool IsInvalidRowIndex(int rowIndex) {
 			return rowIndex < 0 || rowIndex >= dataGridView1.Rows.Count;
 		}
@@ -138,8 +165,7 @@ namespace HarmonyBlend.Pages
 			float.TryParse(dataGridView1.Rows[rowIndex].Cells[5].Value.ToString(), CultureInfo.InvariantCulture.NumberFormat, out amount);
 
 			if(unitPrice != 0f && amount != 0f) {
-				float total_Price = 0f;
-				total_Price = amount * unitPrice;
+				float total_Price = amount * unitPrice;
 				SetValueToCell(rowIndex, "TotalPrice", total_Price.ToString("C", new CultureInfo("tr-TR")));
 			}
 		}
@@ -147,18 +173,12 @@ namespace HarmonyBlend.Pages
 		private void CalculateTotalKDVForRow(int rowIndex) {
 			var totalPriceCell = dataGridView1.Rows[rowIndex].Cells[9];
 			if(totalPriceCell.Value != null) {
-				float total_KDV = 0f;
-				total_KDV = CurrencyToFloat(totalPriceCell.Value.ToString()) * 0.01f;
-				SetValueToCell(rowIndex, "KDV", total_KDV.ToString("C", new CultureInfo("tr-TR")));
+				float total_KDV = totalPriceCell.Value.ToString().CurrencyToFloat() * 0.01f;
+				SetValueToCell(rowIndex, "KDV", total_KDV.FloatToCurrency());
 			}
 		}
 
-		public float CurrencyToFloat(string currency) {
-			string convertedValue = currency.Replace("₺", "").Replace(".", "").Replace(",", ".");
-			return float.Parse(convertedValue, NumberStyles.Float, new CultureInfo("tr-TR"));
-		}
-
-		private void SetValueToCell(int rowIndex, string columnName, object newValue) {
+		private void SetValueToCell(int rowIndex, string columnName, object? newValue) {
 			dataGridView1.Rows[rowIndex].Cells[columnName].Value = newValue;
 		}
 
@@ -170,32 +190,33 @@ namespace HarmonyBlend.Pages
 		}
 		#endregion
 
-		private void productName_textBox_TextChanged(object sender, EventArgs e) {
-			string searchText = (sender as TextBox).Text.ToUpper();
-
-			foreach(DataGridViewRow row in dataGridView1.Rows) {
-				bool visibleRow = false;
-				if(!string.IsNullOrEmpty(row.Cells[4].Value.ToString()) || row.Cells[4].Value.ToString().Contains(searchText)) {
-					row.Visible = true;
-					break;
+		private void Order_Button_Click(object sender, EventArgs e) {
+			for(int i = 0; i < dataGridView1.Rows.Count; i++) {
+				var currentRow = dataGridView1.Rows[i];
+				if((bool)currentRow.Cells[2].Value == true) {
+					CartItem item = new CartItem(currentRow);
+					var result = CartManager.AddToCart(item);
+					if(!result.isSuccess) {
+						MessageBox.Show(result.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						return;
+					}
 				}
 			}
+			MessageBox.Show("All products added successfully.", "Added Successfully!", MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 
-		private void dataGridView1_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e) {
-			if(e.Control is TextBox textBox) {
-				textBox.KeyPress += TextBox_KeyPress;
+		private void getCartInfos_button_Click(object sender, EventArgs e) {
+			string allInfos = "__Informations__ \n";
+
+			if(CartManager.ListOfProducts is null) {
+				MessageBox.Show("Cart is Empty. ListOfProducts is null", "Cart Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			} else {
+				foreach(var item in CartManager.ListOfProducts) {
+					allInfos += '\n' + item.GetDetailsAnItem();
+				}
 			}
-		}
 
-		private void TextBox_KeyPress(object? sender, KeyPressEventArgs e) {
-			if(!char.IsDigit(e.KeyChar) && e.KeyChar != 8 && e.KeyChar != 127 && e.KeyChar != 22 && e.KeyChar != 3 && e.KeyChar != 24 && e.KeyChar != 26) {
-				e.Handled = true;
-			}
-		}
-
-		private void Order_Button_Click(object sender, EventArgs e) {
-
+			MessageBox.Show('\n' + allInfos);
 		}
 	}
 }

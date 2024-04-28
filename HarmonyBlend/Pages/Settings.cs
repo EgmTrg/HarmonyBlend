@@ -104,7 +104,7 @@ namespace HarmonyBlend.Pages
 
 			DialogResult saveChanges = MessageBox.Show("Değişiklikleri kaydetmek istiyor musunuz?", "Kaydet!", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-			Result<bool> result = new();
+			Result_ORM<bool> result = new();
 
 
 			if(saveChanges == DialogResult.Yes) {

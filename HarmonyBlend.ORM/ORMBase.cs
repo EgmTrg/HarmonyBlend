@@ -6,10 +6,10 @@ namespace HarmonyBlend.ORM
 {
 	interface IORM<tTable>
 	{
-		Result<DataTable> Select();
-		Result<bool> Insert(tTable table);
-		Result<bool> Update(tTable table, string ID);
-		Result<bool> Delete(int ID);
+		Result_ORM<DataTable> Select();
+		Result_ORM<bool> Insert(tTable table);
+		Result_ORM<bool> Update(tTable table, string ID);
+		Result_ORM<bool> Delete(int ID);
 	}
 
 	public class ORMBase<tTable> : IORM<tTable> where tTable : class
@@ -18,7 +18,7 @@ namespace HarmonyBlend.ORM
 			get { return typeof(tTable); }
 		}
 
-		public Result<DataTable> Select() {
+		public Result_ORM<DataTable> Select() {
 			// It will be revised with customized ExecuteNonQuery. (Tools.ExecuteNonQuery)
 
 			SqlDataAdapter sqlAdapter = new SqlDataAdapter();
@@ -32,14 +32,14 @@ namespace HarmonyBlend.ORM
 			sqlAdapter.SelectCommand = sqlCommand;
 			sqlAdapter.Fill(dataTable);
 
-			return new Result<DataTable> {
+			return new Result_ORM<DataTable> {
 				isSuccess = true,
 				Data = dataTable,
 				Message = "True"
 			};
 		}
 
-		public Result<bool> Insert(tTable table) {
+		public Result_ORM<bool> Insert(tTable table) {
 			SqlCommand command = new SqlCommand();
 			command.CommandText = string.Format($"Insert{getPropertyType.Name}");
 			command.CommandType = CommandType.StoredProcedure;
@@ -53,7 +53,7 @@ namespace HarmonyBlend.ORM
 			return Tools.ExecuteNonQuery(command);
 		}
 
-		public Result<bool> Update(tTable table, string ID) {
+		public Result_ORM<bool> Update(tTable table, string ID) {
 			// veritabaninda procedure olusturulmadi
 
 			SqlCommand cmd = new();
@@ -73,7 +73,7 @@ namespace HarmonyBlend.ORM
 			return Tools.ExecuteNonQuery(cmd);
 		}
 
-		public Result<bool> Delete(int ID) {
+		public Result_ORM<bool> Delete(int ID) {
 			// veritabaninda procedure olusturulmadi.
 
 			tTable table = Activator.CreateInstance<tTable>();

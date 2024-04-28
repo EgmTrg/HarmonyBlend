@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HarmonyBlend.ORM
 {
-	public class Result<T>
+	public class Result_ORM<T>
 	{
 		public bool isSuccess { get; set; }
 		public string? Message { get; set; }

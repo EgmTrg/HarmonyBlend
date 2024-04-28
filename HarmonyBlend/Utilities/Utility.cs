@@ -1,4 +1,6 @@
-﻿namespace HarmonyBlend.Utilities
+﻿using System.Globalization;
+
+namespace HarmonyBlend.Utilities
 {
 	internal static class Utility
 	{
@@ -14,6 +16,15 @@
 				}
 			}
 			return originalImage;
+		}
+
+		internal static float CurrencyToFloat(this string currency) {
+			string convertedValue = currency.Replace("₺", "").Replace(".", "").Replace(",", ".");
+			return float.Parse(convertedValue, NumberStyles.Float, new CultureInfo("tr-TR"));
+		}
+
+		internal static string FloatToCurrency(this float value) {
+			return value.ToString("C", new CultureInfo("tr-TR"));
 		}
 	}
 }

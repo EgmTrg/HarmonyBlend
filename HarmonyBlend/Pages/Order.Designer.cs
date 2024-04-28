@@ -57,6 +57,7 @@
 			ListPrice = new DataGridViewTextBoxColumn();
 			KDV = new DataGridViewTextBoxColumn();
 			TotalPrice = new DataGridViewTextBoxColumn();
+			getCartInfos_button = new Button();
 			orderPage_panel.SuspendLayout();
 			groupBox1.SuspendLayout();
 			filters_groupBox.SuspendLayout();
@@ -66,6 +67,7 @@
 			// 
 			// orderPage_panel
 			// 
+			orderPage_panel.Controls.Add(getCartInfos_button);
 			orderPage_panel.Controls.Add(groupBox1);
 			orderPage_panel.Controls.Add(filters_groupBox);
 			orderPage_panel.Controls.Add(label1);
@@ -344,6 +346,16 @@
 			TotalPrice.HeaderText = "Total Price";
 			TotalPrice.Name = "TotalPrice";
 			// 
+			// getCartInfos_button
+			// 
+			getCartInfos_button.Location = new Point(1102, 21);
+			getCartInfos_button.Name = "getCartInfos_button";
+			getCartInfos_button.Size = new Size(113, 23);
+			getCartInfos_button.TabIndex = 1;
+			getCartInfos_button.Text = "Sepet Bilgilerini Al";
+			getCartInfos_button.UseVisualStyleBackColor = true;
+			getCartInfos_button.Click += getCartInfos_button_Click;
+			// 
 			// Orders
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
@@ -398,5 +410,6 @@
 		private DataGridViewTextBoxColumn ListPrice;
 		private DataGridViewTextBoxColumn KDV;
 		private DataGridViewTextBoxColumn TotalPrice;
+		private Button getCartInfos_button;
 	}
 }

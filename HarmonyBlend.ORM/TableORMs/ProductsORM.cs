@@ -51,7 +51,7 @@ namespace HarmonyBlend.ORM.TableORMs
 			return dataTable;
 		}
 
-		public Result<DataTable> GetActiveProducts_ORDER() {
+		public Result_ORM<DataTable> GetActiveProducts_ORDER() {
 			using SqlDataAdapter sqlAdapter = new SqlDataAdapter();
 			using SqlCommand sqlCommand = new SqlCommand();
 			DataTable dataTable = new DataTable();
@@ -67,7 +67,7 @@ namespace HarmonyBlend.ORM.TableORMs
 
 			}
 
-			return new Result<DataTable>() {
+			return new Result_ORM<DataTable>() {
 				Data = dataTable,
 				isSuccess = true,
 				Message = "Success"
