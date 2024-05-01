@@ -10,7 +10,7 @@ namespace HarmonyBlend.Pages
 {
 	public partial class Orders : Form, IPages_Mdi
 	{
-		private Dictionary<string?, float?> _ROW_BEFORE_EDITING = new();
+		private Dictionary<string, float?> _ROW_BEFORE_EDITING = new();
 
 		public Orders() {
 			InitializeComponent();
@@ -154,15 +154,15 @@ namespace HarmonyBlend.Pages
 		}
 
 		private void CalculateTotalPriceAndKDV(int rowIndex) {
-			var amountCell = dataGridView1.Rows[rowIndex].Cells[5];
-			if(amountCell.Value != null && float.Parse(amountCell.Value.ToString()) != 0f) {
+			DataGridViewCell amountCell = dataGridView1.Rows[rowIndex].Cells[5];
+			if(amountCell.Value != null && Convert.ToInt32(amountCell.Value.ToString()) != 0f) {
 				CalculateTotalPriceForRow(rowIndex);
 				CalculateTotalKDVForRow(rowIndex);
-				UpdateOrderInformation(rowIndex, true);
+				UpdateOrderInformation(rowIndex, false);
 				SetValueToCell(rowIndex, "Check", true);
 			} else {
 				ClearCorrespondingRow(rowIndex);
-				UpdateOrderInformation(rowIndex, false);
+				UpdateOrderInformation(rowIndex, true);
 			}
 		}
 
@@ -203,14 +203,12 @@ namespace HarmonyBlend.Pages
 				totalOrderCount_label.Text = (currentAmount - _ROW_BEFORE_EDITING["AMOUNT"]).ToString();
 				totalKDV_label.Text = (currentKDV - (float)_ROW_BEFORE_EDITING["KDV"]).FloatToCurrency();
 				totalPayment_label.Text = (currentTotalPrice - (float)_ROW_BEFORE_EDITING["TOTALPRICE"]).FloatToCurrency();
+			} else {
+				totalOrderCount_label.Text = (currentAmount + Convert.ToInt32(row.Cells[5].Value.ToString())).ToString();
+				totalKDV_label.Text = (currentKDV + row.Cells[8].Value.ToString().CurrencyToFloat()).FloatToCurrency();
+				totalPayment_label.Text = (currentTotalPrice + row.Cells[9].Value.ToString().CurrencyToFloat()).FloatToCurrency();
 			}
-
-			totalOrderCount_label.Text = (currentAmount + int.Parse(row.Cells[5].Value.ToString())).ToString();
-			totalKDV_label.Text = (currentKDV + row.Cells[8].Value.ToString().CurrencyToFloat()).FloatToCurrency();
-			totalPayment_label.Text = (currentTotalPrice + row.Cells[9].Value.ToString().CurrencyToFloat()).FloatToCurrency();
 		}
-
-
 
 		private void ClearCorrespondingRow(int rowIndex) {
 			SetValueToCell(rowIndex, "Amount", null);
@@ -252,7 +250,7 @@ namespace HarmonyBlend.Pages
 		private void dataGridView1_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e) {
 			var row = dataGridView1.Rows[e.RowIndex];
 			if(row.Cells[5].Value == null) {
-				_ROW_BEFORE_EDITING["AMOUNT"] = 0;
+				_ROW_BEFORE_EDITING["AMOUNT"] = 0f;
 			} else
 				_ROW_BEFORE_EDITING["AMOUNT"] = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[5].Value);
 
