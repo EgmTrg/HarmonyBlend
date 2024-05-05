@@ -1,23 +1,51 @@
 ﻿using HarmonyBlend.Utilities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace HarmonyBlend.Pages.Order
 {
 	public partial class CartDetails : Form
 	{
 		private float TOTALPRICE_ALLPRODUCTS = 0F;
+		private int TOTALORDERCOUNT_ALLPRODUCTS = 0;
 
 		public CartDetails() {
 			InitializeComponent();
 		}
+
+		#region ControlBox
+
+		private void exit_button_Click(object sender, EventArgs e) {
+			this.Close();
+			this.Dispose();
+		}
+
+		private void minimize_button_Click(object sender, EventArgs e) {
+			WindowState = FormWindowState.Minimized;
+		}
+
+		private void maximaze_button_Click(object sender, EventArgs e) {
+			if(WindowState == FormWindowState.Normal) {
+				WindowState = FormWindowState.Maximized;
+			} else {
+				WindowState = FormWindowState.Normal;
+			}
+		}
+
+		#endregion
+
+		#region ControlBox - Header
+		public const int WM_NCLBUTTONDOWN = 0XA1;
+		public const int HTCAPTION = 0x2;
+		[DllImport("user32.dll")] public static extern bool ReleaseCapture();
+		[DllImport("user32.dll")] public static extern int SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+		private void HeaderMouseDown_Event(object sender, MouseEventArgs e) {
+			if(e.Button == MouseButtons.Left) {
+				ReleaseCapture();
+				SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+			}
+		}
+		#endregion
 
 		private void CartDetails_Load(object sender, EventArgs e) {
 			if(CartManager.ListOfProducts != null) {
@@ -32,18 +60,22 @@ namespace HarmonyBlend.Pages.Order
 					row.Cells[4].Value = item.TotalPrice;
 
 					TOTALPRICE_ALLPRODUCTS += item.TotalPrice;
+					TOTALORDERCOUNT_ALLPRODUCTS += item.Amount;
 					dataGridView1.Rows.Add(row);
 				}
 			}
 
-			label1.Text = TOTALPRICE_ALLPRODUCTS.FloatToCurrency();
+			dataGridView1.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+			totalPayment_label.Text = TOTALPRICE_ALLPRODUCTS.FloatToCurrency();
+			totalOrderCount_label.Text = TOTALORDERCOUNT_ALLPRODUCTS.ToString();
 		}
 
 		private void confirm_button_Click(object sender, EventArgs e) {
 			if(totalPriceCheck_checkBox.Checked) {
 				MessageBox.Show("Your order has been placed successfully.");
 			} else {
-				MessageBox.Show("Check the `TotalPriceChecked!` then place the order.");
+				MessageBox.Show("Check the `Informations Check!` then confirm the order.");
 			}
 		}
 	}

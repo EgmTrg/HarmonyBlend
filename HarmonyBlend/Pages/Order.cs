@@ -216,7 +216,7 @@ namespace HarmonyBlend.Pages
 		}
 		#endregion
 
-		private void Order_Button_Click(object sender, EventArgs e) {
+		private void AddAllProductsToCart_Button_Click(object sender, EventArgs e) {
 			for(int i = 0; i < dataGridView1.Rows.Count; i++) {
 				var currentRow = dataGridView1.Rows[i];
 				if((bool)currentRow.Cells[2].Value == true) {
@@ -224,7 +224,6 @@ namespace HarmonyBlend.Pages
 					var result = CartManager.AddToCart(item);
 					if(!result.isSuccess) {
 						MessageBox.Show(result.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-						return;
 					}
 				}
 			}

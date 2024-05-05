@@ -130,7 +130,7 @@
 			Order_Button.TabIndex = 5;
 			Order_Button.Text = "Seçilenleri Sepete Ekle";
 			Order_Button.UseVisualStyleBackColor = true;
-			Order_Button.Click += Order_Button_Click;
+			Order_Button.Click += AddAllProductsToCart_Button_Click;
 			// 
 			// getCartInfos_button
 			// 

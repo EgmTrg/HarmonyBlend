@@ -25,10 +25,10 @@
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-			DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
-			DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
-			DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
-			DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle9 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle10 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle11 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle12 = new DataGridViewCellStyle();
 			panel_Control = new Panel();
 			panel8 = new Panel();
 			minimize_button = new Button();
@@ -36,7 +36,7 @@
 			exit_button = new Button();
 			loggedInUsername_label = new Label();
 			panel1 = new Panel();
-			label1 = new Label();
+			totalPriceCheck_checkBox = new CheckBox();
 			edit_button = new Button();
 			confirm_button = new Button();
 			panel2 = new Panel();
@@ -46,7 +46,10 @@
 			Unit = new DataGridViewTextBoxColumn();
 			ListPrice = new DataGridViewTextBoxColumn();
 			TotalPrice = new DataGridViewTextBoxColumn();
-			totalPriceCheck_checkBox = new CheckBox();
+			totalPayment_label = new Label();
+			totalOrderCount_label = new Label();
+			label6 = new Label();
+			label5 = new Label();
 			panel_Control.SuspendLayout();
 			panel8.SuspendLayout();
 			panel1.SuspendLayout();
@@ -56,7 +59,7 @@
 			// 
 			// panel_Control
 			// 
-			panel_Control.BackColor = Color.FromArgb(40, 47, 58);
+			panel_Control.BackColor = Color.DimGray;
 			panel_Control.Controls.Add(panel8);
 			panel_Control.Controls.Add(loggedInUsername_label);
 			panel_Control.Dock = DockStyle.Top;
@@ -65,6 +68,7 @@
 			panel_Control.Name = "panel_Control";
 			panel_Control.Size = new Size(906, 30);
 			panel_Control.TabIndex = 2;
+			panel_Control.MouseDown += HeaderMouseDown_Event;
 			// 
 			// panel8
 			// 
@@ -79,7 +83,7 @@
 			// 
 			// minimize_button
 			// 
-			minimize_button.BackColor = Color.FromArgb(40, 47, 58);
+			minimize_button.BackColor = Color.DimGray;
 			minimize_button.FlatAppearance.BorderSize = 0;
 			minimize_button.FlatStyle = FlatStyle.Flat;
 			minimize_button.Font = new Font("Microsoft Sans Serif", 10F);
@@ -90,10 +94,11 @@
 			minimize_button.Size = new Size(30, 30);
 			minimize_button.TabIndex = 7;
 			minimize_button.UseVisualStyleBackColor = false;
+			minimize_button.Click += minimize_button_Click;
 			// 
 			// maximaze_button
 			// 
-			maximaze_button.BackColor = Color.FromArgb(40, 47, 58);
+			maximaze_button.BackColor = Color.DimGray;
 			maximaze_button.FlatAppearance.BorderSize = 0;
 			maximaze_button.FlatStyle = FlatStyle.Flat;
 			maximaze_button.Font = new Font("Microsoft Sans Serif", 10F);
@@ -104,10 +109,11 @@
 			maximaze_button.Size = new Size(30, 30);
 			maximaze_button.TabIndex = 6;
 			maximaze_button.UseVisualStyleBackColor = false;
+			maximaze_button.Click += maximaze_button_Click;
 			// 
 			// exit_button
 			// 
-			exit_button.BackColor = Color.FromArgb(40, 47, 58);
+			exit_button.BackColor = Color.DimGray;
 			exit_button.FlatAppearance.BorderSize = 0;
 			exit_button.FlatStyle = FlatStyle.Flat;
 			exit_button.Font = new Font("Microsoft Sans Serif", 10F);
@@ -118,6 +124,7 @@
 			exit_button.Size = new Size(30, 30);
 			exit_button.TabIndex = 5;
 			exit_button.UseVisualStyleBackColor = false;
+			exit_button.Click += exit_button_Click;
 			// 
 			// loggedInUsername_label
 			// 
@@ -133,8 +140,11 @@
 			// 
 			// panel1
 			// 
+			panel1.Controls.Add(totalPayment_label);
+			panel1.Controls.Add(totalOrderCount_label);
+			panel1.Controls.Add(label6);
+			panel1.Controls.Add(label5);
 			panel1.Controls.Add(totalPriceCheck_checkBox);
-			panel1.Controls.Add(label1);
 			panel1.Controls.Add(edit_button);
 			panel1.Controls.Add(confirm_button);
 			panel1.Dock = DockStyle.Bottom;
@@ -143,14 +153,16 @@
 			panel1.Size = new Size(906, 61);
 			panel1.TabIndex = 3;
 			// 
-			// label1
+			// totalPriceCheck_checkBox
 			// 
-			label1.AutoSize = true;
-			label1.Location = new Point(279, 22);
-			label1.Name = "label1";
-			label1.Size = new Size(38, 15);
-			label1.TabIndex = 1;
-			label1.Text = "label1";
+			totalPriceCheck_checkBox.AutoSize = true;
+			totalPriceCheck_checkBox.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold);
+			totalPriceCheck_checkBox.Location = new Point(323, 15);
+			totalPriceCheck_checkBox.Name = "totalPriceCheck_checkBox";
+			totalPriceCheck_checkBox.Size = new Size(211, 27);
+			totalPriceCheck_checkBox.TabIndex = 2;
+			totalPriceCheck_checkBox.Text = "Informations Checked!";
+			totalPriceCheck_checkBox.UseVisualStyleBackColor = true;
 			// 
 			// edit_button
 			// 
@@ -186,44 +198,44 @@
 			// 
 			dataGridView1.AllowUserToAddRows = false;
 			dataGridView1.AllowUserToDeleteRows = false;
-			dataGridView1.AllowUserToOrderColumns = true;
-			dataGridViewCellStyle5.BackColor = Color.FromArgb(224, 224, 224);
-			dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+			dataGridViewCellStyle9.BackColor = Color.FromArgb(224, 224, 224);
+			dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle9;
 			dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
-			dataGridView1.BackgroundColor = Color.FromArgb(39, 47, 59);
+			dataGridView1.BackgroundColor = Color.DimGray;
 			dataGridView1.BorderStyle = BorderStyle.None;
 			dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-			dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			dataGridViewCellStyle6.BackColor = Color.FromArgb(54, 64, 78);
-			dataGridViewCellStyle6.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 162);
-			dataGridViewCellStyle6.ForeColor = SystemColors.Window;
-			dataGridViewCellStyle6.SelectionBackColor = Color.Silver;
-			dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
-			dataGridViewCellStyle6.WrapMode = DataGridViewTriState.True;
-			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
+			dataGridViewCellStyle10.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle10.BackColor = Color.FromArgb(54, 64, 78);
+			dataGridViewCellStyle10.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 162);
+			dataGridViewCellStyle10.ForeColor = SystemColors.Window;
+			dataGridViewCellStyle10.SelectionBackColor = Color.Silver;
+			dataGridViewCellStyle10.SelectionForeColor = SystemColors.HighlightText;
+			dataGridViewCellStyle10.WrapMode = DataGridViewTriState.True;
+			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle10;
 			dataGridView1.ColumnHeadersHeight = 30;
 			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { PName, Amount, Unit, ListPrice, TotalPrice });
-			dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle7.BackColor = Color.Gainsboro;
-			dataGridViewCellStyle7.Font = new Font("Segoe UI", 9F);
-			dataGridViewCellStyle7.ForeColor = SystemColors.ControlText;
-			dataGridViewCellStyle7.SelectionBackColor = SystemColors.Highlight;
-			dataGridViewCellStyle7.SelectionForeColor = SystemColors.HighlightText;
-			dataGridViewCellStyle7.WrapMode = DataGridViewTriState.False;
-			dataGridView1.DefaultCellStyle = dataGridViewCellStyle7;
+			dataGridViewCellStyle11.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle11.BackColor = Color.Gainsboro;
+			dataGridViewCellStyle11.Font = new Font("Segoe UI", 9F);
+			dataGridViewCellStyle11.ForeColor = SystemColors.ControlText;
+			dataGridViewCellStyle11.SelectionBackColor = SystemColors.Highlight;
+			dataGridViewCellStyle11.SelectionForeColor = SystemColors.HighlightText;
+			dataGridViewCellStyle11.WrapMode = DataGridViewTriState.False;
+			dataGridView1.DefaultCellStyle = dataGridViewCellStyle11;
 			dataGridView1.Dock = DockStyle.Fill;
 			dataGridView1.Location = new Point(0, 0);
 			dataGridView1.MultiSelect = false;
 			dataGridView1.Name = "dataGridView1";
-			dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			dataGridViewCellStyle8.BackColor = Color.FromArgb(54, 64, 78);
-			dataGridViewCellStyle8.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 162);
-			dataGridViewCellStyle8.ForeColor = SystemColors.Window;
-			dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
-			dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
-			dataGridViewCellStyle8.WrapMode = DataGridViewTriState.True;
-			dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+			dataGridView1.ReadOnly = true;
+			dataGridViewCellStyle12.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle12.BackColor = Color.FromArgb(54, 64, 78);
+			dataGridViewCellStyle12.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			dataGridViewCellStyle12.ForeColor = SystemColors.Window;
+			dataGridViewCellStyle12.SelectionBackColor = SystemColors.Highlight;
+			dataGridViewCellStyle12.SelectionForeColor = SystemColors.HighlightText;
+			dataGridViewCellStyle12.WrapMode = DataGridViewTriState.True;
+			dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
 			dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 			dataGridView1.Size = new Size(906, 406);
 			dataGridView1.TabIndex = 1;
@@ -234,6 +246,7 @@
 			PName.HeaderText = "PName";
 			PName.MinimumWidth = 200;
 			PName.Name = "PName";
+			PName.ReadOnly = true;
 			// 
 			// Amount
 			// 
@@ -241,6 +254,7 @@
 			Amount.HeaderText = "Amount";
 			Amount.MinimumWidth = 100;
 			Amount.Name = "Amount";
+			Amount.ReadOnly = true;
 			// 
 			// Unit
 			// 
@@ -248,6 +262,7 @@
 			Unit.HeaderText = "Unit";
 			Unit.MinimumWidth = 50;
 			Unit.Name = "Unit";
+			Unit.ReadOnly = true;
 			// 
 			// ListPrice
 			// 
@@ -255,6 +270,7 @@
 			ListPrice.HeaderText = "List Price";
 			ListPrice.MinimumWidth = 100;
 			ListPrice.Name = "ListPrice";
+			ListPrice.ReadOnly = true;
 			// 
 			// TotalPrice
 			// 
@@ -262,16 +278,49 @@
 			TotalPrice.HeaderText = "Total Price";
 			TotalPrice.MinimumWidth = 200;
 			TotalPrice.Name = "TotalPrice";
+			TotalPrice.ReadOnly = true;
 			// 
-			// totalPriceCheck_checkBox
+			// totalPayment_label
 			// 
-			totalPriceCheck_checkBox.AutoSize = true;
-			totalPriceCheck_checkBox.Location = new Point(82, 21);
-			totalPriceCheck_checkBox.Name = "totalPriceCheck_checkBox";
-			totalPriceCheck_checkBox.Size = new Size(132, 19);
-			totalPriceCheck_checkBox.TabIndex = 2;
-			totalPriceCheck_checkBox.Text = "Total Price Checked!";
-			totalPriceCheck_checkBox.UseVisualStyleBackColor = true;
+			totalPayment_label.AutoSize = true;
+			totalPayment_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			totalPayment_label.Location = new Point(186, 30);
+			totalPayment_label.Name = "totalPayment_label";
+			totalPayment_label.Size = new Size(99, 23);
+			totalPayment_label.TabIndex = 7;
+			totalPayment_label.Text = "1234.56 TL";
+			// 
+			// totalOrderCount_label
+			// 
+			totalOrderCount_label.AutoSize = true;
+			totalOrderCount_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			totalOrderCount_label.Location = new Point(186, 6);
+			totalOrderCount_label.Name = "totalOrderCount_label";
+			totalOrderCount_label.Size = new Size(50, 23);
+			totalOrderCount_label.TabIndex = 8;
+			totalOrderCount_label.Text = "1234";
+			// 
+			// label6
+			// 
+			label6.AutoSize = true;
+			label6.Font = new Font("Segoe UI", 12.75F);
+			label6.ForeColor = SystemColors.ControlText;
+			label6.Location = new Point(12, 30);
+			label6.Name = "label6";
+			label6.Size = new Size(168, 23);
+			label6.TabIndex = 5;
+			label6.Text = "Sipariş Toplam Tutar:";
+			// 
+			// label5
+			// 
+			label5.AutoSize = true;
+			label5.Font = new Font("Segoe UI", 12.75F);
+			label5.ForeColor = SystemColors.ControlText;
+			label5.Location = new Point(17, 6);
+			label5.Name = "label5";
+			label5.Size = new Size(163, 23);
+			label5.TabIndex = 6;
+			label5.Text = "Sipariş Ürün Miktarı:";
 			// 
 			// CartDetails
 			// 
@@ -309,12 +358,15 @@
 		private Button edit_button;
 		private Button confirm_button;
 		private DataGridView dataGridView1;
+		private CheckBox totalPriceCheck_checkBox;
 		private DataGridViewTextBoxColumn PName;
 		private DataGridViewTextBoxColumn Amount;
 		private DataGridViewTextBoxColumn Unit;
 		private DataGridViewTextBoxColumn ListPrice;
 		private DataGridViewTextBoxColumn TotalPrice;
-		private Label label1;
-		private CheckBox totalPriceCheck_checkBox;
+		private Label totalPayment_label;
+		private Label totalOrderCount_label;
+		private Label label6;
+		private Label label5;
 	}
 }
