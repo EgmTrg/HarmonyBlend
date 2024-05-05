@@ -30,9 +30,11 @@
 			DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
 			DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
 			orderPage_panel = new Panel();
-			getCartInfos_button = new Button();
 			groupBox1 = new GroupBox();
+			clearSelected_button = new Button();
+			clearCart_button = new Button();
 			Order_Button = new Button();
+			getCartInfos_button = new Button();
 			totalPayment_label = new Label();
 			totalKDV_label = new Label();
 			totalOrderCount_label = new Label();
@@ -67,7 +69,6 @@
 			// 
 			// orderPage_panel
 			// 
-			orderPage_panel.Controls.Add(getCartInfos_button);
 			orderPage_panel.Controls.Add(groupBox1);
 			orderPage_panel.Controls.Add(filters_groupBox);
 			orderPage_panel.Controls.Add(label1);
@@ -77,19 +78,12 @@
 			orderPage_panel.Size = new Size(1233, 168);
 			orderPage_panel.TabIndex = 0;
 			// 
-			// getCartInfos_button
-			// 
-			getCartInfos_button.Location = new Point(1102, 21);
-			getCartInfos_button.Name = "getCartInfos_button";
-			getCartInfos_button.Size = new Size(113, 23);
-			getCartInfos_button.TabIndex = 1;
-			getCartInfos_button.Text = "Sepet Bilgilerini Al";
-			getCartInfos_button.UseVisualStyleBackColor = true;
-			getCartInfos_button.Click += getCartInfos_button_Click;
-			// 
 			// groupBox1
 			// 
+			groupBox1.Controls.Add(clearSelected_button);
+			groupBox1.Controls.Add(clearCart_button);
 			groupBox1.Controls.Add(Order_Button);
+			groupBox1.Controls.Add(getCartInfos_button);
 			groupBox1.Controls.Add(totalPayment_label);
 			groupBox1.Controls.Add(totalKDV_label);
 			groupBox1.Controls.Add(totalOrderCount_label);
@@ -97,24 +91,57 @@
 			groupBox1.Controls.Add(label4);
 			groupBox1.Controls.Add(label5);
 			groupBox1.ForeColor = SystemColors.Control;
-			groupBox1.Location = new Point(837, 39);
+			groupBox1.Location = new Point(674, 39);
 			groupBox1.Name = "groupBox1";
-			groupBox1.Size = new Size(384, 123);
+			groupBox1.Size = new Size(547, 123);
 			groupBox1.TabIndex = 3;
 			groupBox1.TabStop = false;
 			groupBox1.Text = "Bilgilendirme";
+			// 
+			// clearSelected_button
+			// 
+			clearSelected_button.ForeColor = SystemColors.ActiveCaptionText;
+			clearSelected_button.Location = new Point(309, 21);
+			clearSelected_button.Name = "clearSelected_button";
+			clearSelected_button.Size = new Size(113, 28);
+			clearSelected_button.TabIndex = 1;
+			clearSelected_button.Text = "Seçilenleri Temizle";
+			clearSelected_button.UseVisualStyleBackColor = true;
+			clearSelected_button.Click += unselectOrders_button_Click;
+			// 
+			// clearCart_button
+			// 
+			clearCart_button.ForeColor = SystemColors.ActiveCaptionText;
+			clearCart_button.Location = new Point(309, 52);
+			clearCart_button.Name = "clearCart_button";
+			clearCart_button.Size = new Size(113, 28);
+			clearCart_button.TabIndex = 1;
+			clearCart_button.Text = "Sepeti Temizle";
+			clearCart_button.UseVisualStyleBackColor = true;
+			clearCart_button.Click += clearCart_button_Click;
 			// 
 			// Order_Button
 			// 
 			Order_Button.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 162);
 			Order_Button.ForeColor = Color.Black;
-			Order_Button.Location = new Point(265, 22);
+			Order_Button.Location = new Point(428, 21);
 			Order_Button.Name = "Order_Button";
 			Order_Button.Size = new Size(113, 90);
 			Order_Button.TabIndex = 5;
 			Order_Button.Text = "Seçilenleri Sepete Ekle";
 			Order_Button.UseVisualStyleBackColor = true;
 			Order_Button.Click += Order_Button_Click;
+			// 
+			// getCartInfos_button
+			// 
+			getCartInfos_button.ForeColor = SystemColors.ActiveCaptionText;
+			getCartInfos_button.Location = new Point(309, 83);
+			getCartInfos_button.Name = "getCartInfos_button";
+			getCartInfos_button.Size = new Size(113, 28);
+			getCartInfos_button.TabIndex = 1;
+			getCartInfos_button.Text = "Sepet Bilgilerini Al";
+			getCartInfos_button.UseVisualStyleBackColor = true;
+			getCartInfos_button.Click += getCartInfos_button_Click;
 			// 
 			// totalPayment_label
 			// 
@@ -309,52 +336,72 @@
 			// 
 			// Image
 			// 
+			Image.FillWeight = 25.3807087F;
 			Image.HeaderText = "Image";
+			Image.MinimumWidth = 120;
 			Image.Name = "Image";
 			// 
 			// Favorite
 			// 
+			Favorite.FillWeight = 25.3807087F;
 			Favorite.HeaderText = "Favorite";
+			Favorite.MinimumWidth = 75;
 			Favorite.Name = "Favorite";
 			// 
 			// Check
 			// 
+			Check.FillWeight = 25.3807087F;
 			Check.HeaderText = "Check";
+			Check.MinimumWidth = 60;
 			Check.Name = "Check";
 			// 
 			// PCode
 			// 
+			PCode.FillWeight = 25.3807087F;
 			PCode.HeaderText = "PCode";
+			PCode.MinimumWidth = 120;
 			PCode.Name = "PCode";
 			// 
 			// PName
 			// 
+			PName.FillWeight = 771.5736F;
 			PName.HeaderText = "PName";
+			PName.MinimumWidth = 200;
 			PName.Name = "PName";
 			// 
 			// Amount
 			// 
+			Amount.FillWeight = 25.3807087F;
 			Amount.HeaderText = "Amount";
+			Amount.MinimumWidth = 100;
 			Amount.Name = "Amount";
 			// 
 			// Unit
 			// 
+			Unit.FillWeight = 25.3807087F;
 			Unit.HeaderText = "Unit";
+			Unit.MinimumWidth = 50;
 			Unit.Name = "Unit";
 			// 
 			// ListPrice
 			// 
+			ListPrice.FillWeight = 25.3807087F;
 			ListPrice.HeaderText = "List Price";
+			ListPrice.MinimumWidth = 100;
 			ListPrice.Name = "ListPrice";
 			// 
 			// KDV
 			// 
+			KDV.FillWeight = 25.3807087F;
 			KDV.HeaderText = "KDV";
+			KDV.MinimumWidth = 100;
 			KDV.Name = "KDV";
 			// 
 			// TotalPrice
 			// 
+			TotalPrice.FillWeight = 25.3807087F;
 			TotalPrice.HeaderText = "Total Price";
+			TotalPrice.MinimumWidth = 200;
 			TotalPrice.Name = "TotalPrice";
 			// 
 			// Orders
@@ -401,6 +448,9 @@
 		private Label label6;
 		private Label label4;
 		private Label label5;
+		private Button getCartInfos_button;
+		private Button clearCart_button;
+		private Button clearSelected_button;
 		private DataGridViewImageColumn Image;
 		private DataGridViewCheckBoxColumn Favorite;
 		private DataGridViewCheckBoxColumn Check;
@@ -411,6 +461,5 @@
 		private DataGridViewTextBoxColumn ListPrice;
 		private DataGridViewTextBoxColumn KDV;
 		private DataGridViewTextBoxColumn TotalPrice;
-		private Button getCartInfos_button;
 	}
 }

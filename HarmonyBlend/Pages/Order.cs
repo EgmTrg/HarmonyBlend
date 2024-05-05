@@ -2,8 +2,6 @@
 using HarmonyBlend.Properties;
 using System.Data;
 using System.Globalization;
-using System.Security.AccessControl;
-using System.Windows.Forms;
 using HarmonyBlend.Utilities;
 
 namespace HarmonyBlend.Pages
@@ -97,12 +95,14 @@ namespace HarmonyBlend.Pages
 
 		#region Events
 		private void productName_textBox_TextChanged(object sender, EventArgs e) {
-			string searchText = (sender as TextBox).Text.ToUpper();
+			string? searchText = (sender as TextBox).Text.ToUpper();
 
 			foreach(DataGridViewRow row in dataGridView1.Rows) {
-				if(!string.IsNullOrEmpty(row.Cells[4].Value.ToString()) || row.Cells[4].Value.ToString().Contains(searchText)) {
+				string? productName = row.Cells[4].Value.ToString();
+				if(!string.IsNullOrEmpty(productName) && productName.Contains(searchText)) {
 					row.Visible = true;
-					break;
+				} else {
+					row.Visible = false;
 				}
 			}
 		}
@@ -190,8 +190,6 @@ namespace HarmonyBlend.Pages
 			dataGridView1.Rows[rowIndex].Cells[columnName].Value = newValue;
 		}
 
-
-
 		private void UpdateOrderInformation(int rowIndex, bool IsDeclare) {
 			var row = dataGridView1.Rows[rowIndex];
 
@@ -234,7 +232,7 @@ namespace HarmonyBlend.Pages
 		}
 
 		private void getCartInfos_button_Click(object sender, EventArgs e) {
-			string allInfos = "__Informations__ \n";
+			/*string allInfos = "__Informations__ \n";
 
 			if(CartManager.ListOfProducts is null) {
 				MessageBox.Show("Cart is Empty. ListOfProducts is null", "Cart Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -244,7 +242,10 @@ namespace HarmonyBlend.Pages
 				}
 			}
 
-			MessageBox.Show('\n' + allInfos);
+			MessageBox.Show('\n' + allInfos);*/
+
+			CartDetails cartDetails = new CartDetails();
+			cartDetails.ShowDialog();
 		}
 
 		private void dataGridView1_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e) {
@@ -263,6 +264,24 @@ namespace HarmonyBlend.Pages
 				_ROW_BEFORE_EDITING["TOTALPRICE"] = 0f;
 			} else
 				_ROW_BEFORE_EDITING["TOTALPRICE"] = dataGridView1.Rows[e.RowIndex].Cells[9]?.Value?.ToString()?.CurrencyToFloat();
+		}
+
+		private void clearCart_button_Click(object sender, EventArgs e) {
+			CartManager.ClearCart();
+		}
+
+		private void unselectOrders_button_Click(object sender, EventArgs e) {
+			foreach(DataGridViewRow row in dataGridView1.Rows) {
+				SetValueToCell(row.Index, "Amount", null);
+			}
+
+			_ROW_BEFORE_EDITING["AMOUNT"] = 0f;
+			_ROW_BEFORE_EDITING["KDV"] = 0f;
+			_ROW_BEFORE_EDITING["TOTALPRICE"] = 0f;
+
+			totalOrderCount_label.Text = 0.ToString();
+			totalKDV_label.Text = 0.ToString();
+			totalPayment_label.Text = 0.ToString();
 		}
 	}
 }

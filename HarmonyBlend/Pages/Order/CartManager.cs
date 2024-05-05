@@ -6,10 +6,12 @@ namespace HarmonyBlend.Pages.Order
 	{
 		internal static List<CartItem>? ListOfProducts { get; set; }
 
+		internal static void ClearCart() => ListOfProducts = null;
+
 		internal static Result<bool> AddToCart(List<DataGridViewRow> checkedRows) {
 			return new Result<bool> {
-				isSuccess = true,
-				Message = "All products added successfully."
+				isSuccess = false,
+				Message = "All products NOT added."
 			};
 		}
 
