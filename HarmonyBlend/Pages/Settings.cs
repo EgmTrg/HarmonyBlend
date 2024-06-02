@@ -1,7 +1,9 @@
 ﻿using HarmonyBlend.Entity;
 using HarmonyBlend.ORM;
+using HarmonyBlend.Pages.Order;
+using HarmonyBlend.Pages.Setting;
+using HarmonyBlend.Utilities;
 using System.Data;
-using System.Security.Cryptography;
 
 namespace HarmonyBlend.Pages
 {
@@ -85,27 +87,21 @@ namespace HarmonyBlend.Pages
 		private void addProduct_button_Click(object sender, EventArgs e) {
 			List<string> all_productCode = AllProductsColumnDatasToList("ProductID");
 
-			if(all_productCode.Contains(productCode_maskedTextBox.Text)) {
-				// can not add item or product or row.
-				MessageBox.Show("Code Contains Database");
-				return;
-			} else {
-				// can add item or product or row.
-				MessageBox.Show("OK!");
-			}
+			NewProductForm newProduct = new NewProductForm() {
+				all_productCode = all_productCode
+			};
+			newProduct.ShowDialog();
 		}
 
 		private void saveChanges_button_Click(object sender, EventArgs e) {
 			if(productCode_maskedTextBox.Text.StartsWith(' ')) {
 				MessageBox.Show("Ürün kodu boş olduğundan dolayı herhangi bir veri kaydedilemiyor.\n" +
-					"Lütfen yukarıdaki veri tablosundan değişiklik yapmak istediğiniz ürünü tıklayınız.", "Kayıt Başarısız!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					"Lütfen yukarıdaki veri tablosundan değişiklik yapmak istediğiniz ürünü tıklayınız.", "İşlem Başlatılamadı!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return;
 			}
 
 			DialogResult saveChanges = MessageBox.Show("Değişiklikleri kaydetmek istiyor musunuz?", "Kaydet!", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
 			Result_ORM<bool> result = new();
-
 
 			if(saveChanges == DialogResult.Yes) {
 				Products product = new() {
@@ -116,7 +112,11 @@ namespace HarmonyBlend.Pages
 					Category = category_AllProducts_comboBox.Text,
 					Description = desc_textBox.Text
 				};
-				result = new ORM.TableORMs.ProductsORM().Update(product, productCode_maskedTextBox.Text);
+				if(!changePCode_checkBox.Checked) {
+					result = new ORM.TableORMs.ProductsORM().Update(product, productCode_maskedTextBox.Text);
+				} else {
+					MessageBox.Show("Ürün kodu değiştirme daha yapılmadı. Yapım Aşamasında");
+				}
 			}
 			MessageBox.Show("Message: " + result.Message);
 
@@ -125,6 +125,7 @@ namespace HarmonyBlend.Pages
 				RefreshDataGridViews(false);
 			}
 		}
+
 		#endregion
 
 		private List<string> AllProductsColumnDatasToList(string columnName) {
@@ -143,6 +144,14 @@ namespace HarmonyBlend.Pages
 			List<string> category_items = AllProductsColumnDatasToList("Category");
 			category_comboBox.Items.AddRange(category_items.Distinct().ToArray());
 			category_AllProducts_comboBox.Items.AddRange(category_items.Distinct().ToArray());
+		}
+
+		private void changePCode_checkBox_CheckedChanged(object sender, EventArgs e) {
+			if(changePCode_checkBox.Checked) {
+				productCode_maskedTextBox.Enabled = true;
+			} else {
+				productCode_maskedTextBox.Enabled = false;
+			}
 		}
 	}
 }

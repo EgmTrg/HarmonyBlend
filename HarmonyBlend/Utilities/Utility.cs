@@ -4,6 +4,10 @@ namespace HarmonyBlend.Utilities
 {
 	internal static class Utility
 	{
+		public static string? CurrentUser = null;
+		public static int CurrentUserID = -1;
+		internal static string EMPTY_MASKEDTEXTBOX { get { return "   .  ."; } }
+
 		public static Image ChangeColorOfObject(Image image, Color targetColor) {
 			string transparent_Code = "0";
 			Bitmap originalImage = (Bitmap)image;

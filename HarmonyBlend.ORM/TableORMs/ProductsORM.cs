@@ -1,10 +1,10 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using HarmonyBlend.Entity;
+using Microsoft.Data.SqlClient;
 using System.Data;
-using System.Diagnostics;
 
 namespace HarmonyBlend.ORM.TableORMs
 {
-	public class ProductsORM : ORMBase<Entity.Products>
+	public class ProductsORM : ORMBase<Products>
 	{
 		public DataTable GetActiveProducts(bool? activePassive = null) {
 			// It will be revised with customized ExecuteNonQuery. (Tools.ExecuteNonQuery)
@@ -49,29 +49,6 @@ namespace HarmonyBlend.ORM.TableORMs
 			sqlAdapter.Fill(dataTable);
 
 			return dataTable;
-		}
-
-		public Result_ORM<DataTable> GetActiveProducts_ORDER() {
-			using SqlDataAdapter sqlAdapter = new SqlDataAdapter();
-			using SqlCommand sqlCommand = new SqlCommand();
-			DataTable dataTable = new DataTable();
-
-			sqlCommand.Connection = Tools.Connection;
-			sqlCommand.CommandText = string.Format("SELECT P.ProductID, P.ProductName, P.Price, P.Unit FROM Products P WHERE P.ActivePassive = 1");
-			sqlCommand.CommandType = CommandType.Text;
-
-			sqlAdapter.SelectCommand = sqlCommand;
-			sqlAdapter.Fill(dataTable);
-
-			if(true) {
-
-			}
-
-			return new Result_ORM<DataTable>() {
-				Data = dataTable,
-				isSuccess = true,
-				Message = "Success"
-			};
 		}
 	}
 }

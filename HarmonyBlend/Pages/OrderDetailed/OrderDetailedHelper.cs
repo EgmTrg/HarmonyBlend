@@ -1,0 +1,23 @@
+﻿using HarmonyBlend.Pages.Order;
+using HarmonyBlend.Utilities;
+using System.Globalization;
+
+namespace HarmonyBlend.Pages.OrderDetailed
+{
+	internal class OrderDetailedHelper
+	{
+		public Entity.OrderDetailed GetOrderDetailed(CartItem cartItem) {
+			Entity.OrderDetailed od = new Entity.OrderDetailed();
+			od.SellerID = Utility.CurrentUserID;
+			od.SellerName = Utility.CurrentUser;
+			od.ProductID = cartItem.ProductCode;
+			od.ProductName = cartItem.ProductName;
+			od.Amount = cartItem.Amount;
+			od.KDV = decimal.Parse(cartItem.KDV.ToString());
+			od.Price = decimal.Parse(cartItem.ListPrice.ToString()) * decimal.Parse(cartItem.Amount.ToString());
+			od.TotalPrice = decimal.Parse(cartItem.TotalPrice.ToString());
+
+			return od;
+		}
+	}
+}

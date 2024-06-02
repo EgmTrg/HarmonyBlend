@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HarmonyBlend.Utilities
 {
-	public class Result<T>
+	internal class Result<T>
 	{
 		public bool isSuccess { get; set; }
 		public string? Message { get; set; }

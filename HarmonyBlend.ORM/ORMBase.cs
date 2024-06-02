@@ -47,6 +47,9 @@ namespace HarmonyBlend.ORM
 
 			PropertyInfo[] properties = getPropertyType.GetProperties();
 			foreach(PropertyInfo property in properties) {
+				if(property.Name == "PrimaryKey")
+					continue;
+
 				command.Parameters.AddWithValue($"@{property.Name}", property.GetValue(table));
 			}
 

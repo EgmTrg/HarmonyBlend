@@ -47,6 +47,7 @@
 			activePassive_comboBox = new ComboBox();
 			label8 = new Label();
 			groupBox2 = new GroupBox();
+			changePCode_checkBox = new CheckBox();
 			label14 = new Label();
 			category_AllProducts_comboBox = new ComboBox();
 			productCode_maskedTextBox = new MaskedTextBox();
@@ -297,6 +298,7 @@
 			// 
 			// groupBox2
 			// 
+			groupBox2.Controls.Add(changePCode_checkBox);
 			groupBox2.Controls.Add(label14);
 			groupBox2.Controls.Add(category_AllProducts_comboBox);
 			groupBox2.Controls.Add(productCode_maskedTextBox);
@@ -324,12 +326,23 @@
 			groupBox2.TabStop = false;
 			groupBox2.Text = "Adjustments";
 			// 
+			// changePCode_checkBox
+			// 
+			changePCode_checkBox.AutoSize = true;
+			changePCode_checkBox.Location = new Point(99, 14);
+			changePCode_checkBox.Name = "changePCode_checkBox";
+			changePCode_checkBox.Size = new Size(217, 19);
+			changePCode_checkBox.TabIndex = 14;
+			changePCode_checkBox.Text = "Ürün kodunu değiştirmek istiyorum.";
+			changePCode_checkBox.UseVisualStyleBackColor = true;
+			changePCode_checkBox.CheckedChanged += changePCode_checkBox_CheckedChanged;
+			// 
 			// label14
 			// 
 			label14.AutoSize = true;
 			label14.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold);
 			label14.ForeColor = Color.White;
-			label14.Location = new Point(313, 107);
+			label14.Location = new Point(313, 110);
 			label14.Name = "label14";
 			label14.Size = new Size(90, 20);
 			label14.TabIndex = 12;
@@ -341,14 +354,15 @@
 			category_AllProducts_comboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
 			category_AllProducts_comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
 			category_AllProducts_comboBox.FormattingEnabled = true;
-			category_AllProducts_comboBox.Location = new Point(407, 106);
+			category_AllProducts_comboBox.Location = new Point(407, 109);
 			category_AllProducts_comboBox.Name = "category_AllProducts_comboBox";
 			category_AllProducts_comboBox.Size = new Size(117, 23);
 			category_AllProducts_comboBox.TabIndex = 13;
 			// 
 			// productCode_maskedTextBox
 			// 
-			productCode_maskedTextBox.Location = new Point(117, 34);
+			productCode_maskedTextBox.Enabled = false;
+			productCode_maskedTextBox.Location = new Point(117, 37);
 			productCode_maskedTextBox.Mask = "000.00.000";
 			productCode_maskedTextBox.Name = "productCode_maskedTextBox";
 			productCode_maskedTextBox.Size = new Size(190, 23);
@@ -359,7 +373,7 @@
 			label2.AutoSize = true;
 			label2.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold);
 			label2.ForeColor = Color.White;
-			label2.Location = new Point(23, 33);
+			label2.Location = new Point(23, 36);
 			label2.Name = "label2";
 			label2.Size = new Size(88, 20);
 			label2.TabIndex = 4;
@@ -370,7 +384,7 @@
 			label3.AutoSize = true;
 			label3.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold);
 			label3.ForeColor = Color.White;
-			label3.Location = new Point(23, 72);
+			label3.Location = new Point(23, 75);
 			label3.Name = "label3";
 			label3.Size = new Size(75, 20);
 			label3.TabIndex = 4;
@@ -381,7 +395,7 @@
 			label4.AutoSize = true;
 			label4.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold);
 			label4.ForeColor = Color.White;
-			label4.Location = new Point(313, 36);
+			label4.Location = new Point(313, 39);
 			label4.Name = "label4";
 			label4.Size = new Size(92, 20);
 			label4.TabIndex = 4;
@@ -392,7 +406,7 @@
 			label15.AutoSize = true;
 			label15.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold);
 			label15.ForeColor = Color.White;
-			label15.Location = new Point(23, 136);
+			label15.Location = new Point(23, 139);
 			label15.Name = "label15";
 			label15.Size = new Size(75, 20);
 			label15.TabIndex = 4;
@@ -403,7 +417,7 @@
 			label5.AutoSize = true;
 			label5.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold);
 			label5.ForeColor = Color.White;
-			label5.Location = new Point(23, 107);
+			label5.Location = new Point(23, 110);
 			label5.Name = "label5";
 			label5.Size = new Size(85, 20);
 			label5.TabIndex = 4;
@@ -413,7 +427,7 @@
 			// 
 			deleteActivate_checkBox.AutoSize = true;
 			deleteActivate_checkBox.Font = new Font("Segoe UI", 12F);
-			deleteActivate_checkBox.Location = new Point(55, 214);
+			deleteActivate_checkBox.Location = new Point(55, 217);
 			deleteActivate_checkBox.Name = "deleteActivate_checkBox";
 			deleteActivate_checkBox.Size = new Size(194, 25);
 			deleteActivate_checkBox.TabIndex = 10;
@@ -426,7 +440,7 @@
 			label6.AutoSize = true;
 			label6.Font = new Font("Segoe UI Semibold", 11.25F, FontStyle.Bold);
 			label6.ForeColor = Color.White;
-			label6.Location = new Point(313, 72);
+			label6.Location = new Point(313, 75);
 			label6.Name = "label6";
 			label6.Size = new Size(92, 20);
 			label6.TabIndex = 4;
@@ -434,7 +448,7 @@
 			// 
 			// productName_textBox
 			// 
-			productName_textBox.Location = new Point(117, 71);
+			productName_textBox.Location = new Point(117, 74);
 			productName_textBox.Name = "productName_textBox";
 			productName_textBox.Size = new Size(190, 23);
 			productName_textBox.TabIndex = 5;
@@ -443,7 +457,7 @@
 			// 
 			saveChanges_button.Font = new Font("Segoe UI", 12F);
 			saveChanges_button.ForeColor = Color.FromArgb(39, 47, 59);
-			saveChanges_button.Location = new Point(279, 170);
+			saveChanges_button.Location = new Point(279, 173);
 			saveChanges_button.Name = "saveChanges_button";
 			saveChanges_button.Size = new Size(245, 33);
 			saveChanges_button.TabIndex = 7;
@@ -453,14 +467,14 @@
 			// 
 			// desc_textBox
 			// 
-			desc_textBox.Location = new Point(117, 140);
+			desc_textBox.Location = new Point(117, 143);
 			desc_textBox.Name = "desc_textBox";
 			desc_textBox.Size = new Size(407, 23);
 			desc_textBox.TabIndex = 5;
 			// 
 			// productPrice_textbox
 			// 
-			productPrice_textbox.Location = new Point(117, 106);
+			productPrice_textbox.Location = new Point(117, 109);
 			productPrice_textbox.Name = "productPrice_textbox";
 			productPrice_textbox.Size = new Size(190, 23);
 			productPrice_textbox.TabIndex = 5;
@@ -469,7 +483,7 @@
 			// 
 			addProduct_button.Font = new Font("Segoe UI", 12F);
 			addProduct_button.ForeColor = Color.FromArgb(39, 47, 59);
-			addProduct_button.Location = new Point(23, 170);
+			addProduct_button.Location = new Point(23, 173);
 			addProduct_button.Name = "addProduct_button";
 			addProduct_button.Size = new Size(245, 33);
 			addProduct_button.TabIndex = 7;
@@ -484,7 +498,7 @@
 			productUnit_comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
 			productUnit_comboBox.FormattingEnabled = true;
 			productUnit_comboBox.Items.AddRange(new object[] { "TEPSİ", "KG", "ADET", "KOLİ", "KUTU", "PAKET" });
-			productUnit_comboBox.Location = new Point(407, 35);
+			productUnit_comboBox.Location = new Point(407, 38);
 			productUnit_comboBox.Name = "productUnit_comboBox";
 			productUnit_comboBox.Size = new Size(75, 23);
 			productUnit_comboBox.TabIndex = 6;
@@ -494,7 +508,7 @@
 			deleteProduct_button.Enabled = false;
 			deleteProduct_button.Font = new Font("Segoe UI", 12F);
 			deleteProduct_button.ForeColor = Color.FromArgb(39, 47, 59);
-			deleteProduct_button.Location = new Point(279, 209);
+			deleteProduct_button.Location = new Point(279, 212);
 			deleteProduct_button.Name = "deleteProduct_button";
 			deleteProduct_button.Size = new Size(245, 33);
 			deleteProduct_button.TabIndex = 7;
@@ -509,7 +523,7 @@
 			activePassive_AllProducts_comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
 			activePassive_AllProducts_comboBox.FormattingEnabled = true;
 			activePassive_AllProducts_comboBox.Items.AddRange(new object[] { "Aktif", "Pasif" });
-			activePassive_AllProducts_comboBox.Location = new Point(407, 71);
+			activePassive_AllProducts_comboBox.Location = new Point(407, 74);
 			activePassive_AllProducts_comboBox.Name = "activePassive_AllProducts_comboBox";
 			activePassive_AllProducts_comboBox.Size = new Size(105, 23);
 			activePassive_AllProducts_comboBox.TabIndex = 6;
@@ -662,5 +676,6 @@
 		private ComboBox category_AllProducts_comboBox;
 		private Label label15;
 		private TextBox desc_textBox;
+		private CheckBox changePCode_checkBox;
 	}
 }

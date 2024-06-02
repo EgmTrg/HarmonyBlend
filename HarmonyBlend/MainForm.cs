@@ -1,17 +1,17 @@
 ﻿using HarmonyBlend.Pages;
+using HarmonyBlend.Utilities;
 using System.Runtime.InteropServices;
 
 namespace HarmonyBlend
 {
 	public partial class MainForm : Form
 	{
-		public string CurrentUser { get; set; }
 		public bool MenuExpand { get; set; }
 
 		public MainForm(string user) {
 			InitializeComponent();
-			CurrentUser = user;
-			loggedInUsername_label.Text = CurrentUser + " | HarmonyBlend";
+			Utility.CurrentUser = user;
+			loggedInUsername_label.Text = Utility.CurrentUser + " | HarmonyBlend";
 		}
 
 		#region ControlBox
@@ -111,7 +111,9 @@ namespace HarmonyBlend
 			if(page == null)
 				Application.Restart();
 
+#pragma warning disable CS8603 // Possible null reference return.
 			return page;
+#pragma warning restore CS8603 // Possible null reference return.
 		}
 
 

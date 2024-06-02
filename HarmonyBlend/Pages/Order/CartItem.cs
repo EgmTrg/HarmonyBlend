@@ -12,24 +12,6 @@ namespace HarmonyBlend.Pages.Order
 		public float KDV { get; set; }
 		public float TotalPrice { get; set; }
 
-		public CartItem(string ProductCode, string ProductName, int Amount, string? Unit, float ListPrice, float KDV, float TotalPrice) {
-			this.ProductCode = ProductCode;
-			this.ProductName = ProductName;
-			this.Amount = Amount;
-			this.Unit = Unit;
-			this.ListPrice = ListPrice;
-			this.KDV = KDV;
-			this.TotalPrice = TotalPrice;
-		}
-
-		public CartItem(string ProductCode, string ProductName, int Amount, float KDV, float TotalPrice) {
-			this.ProductCode = ProductCode;
-			this.ProductName = ProductName;
-			this.Amount = Amount;
-			this.KDV = KDV;
-			this.TotalPrice = TotalPrice;
-		}
-
 		public CartItem(DataGridViewRow row) {
 			try {
 				this.ProductCode = row.Cells[3].Value.ToString() ?? "NULL";

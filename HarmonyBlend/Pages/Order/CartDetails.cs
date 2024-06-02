@@ -1,4 +1,5 @@
-﻿using HarmonyBlend.Utilities;
+﻿using HarmonyBlend.ORM;
+using HarmonyBlend.Utilities;
 using System.Runtime.InteropServices;
 
 namespace HarmonyBlend.Pages.Order
@@ -73,10 +74,19 @@ namespace HarmonyBlend.Pages.Order
 
 		private void confirm_button_Click(object sender, EventArgs e) {
 			if(totalPriceCheck_checkBox.Checked) {
-				MessageBox.Show("Your order has been placed successfully.");
+				PlaceTheOrder(CartManager.ListOfProducts);
 			} else {
 				MessageBox.Show("Check the `Informations Check!` then confirm the order.");
 			}
+		}
+
+		private void PlaceTheOrder(List<CartItem> listOfProducts) {
+			if(listOfProducts is null) {
+				MessageBox.Show("Sepet boş olduğundan dolayı işleme devam edilemiyor", "Sepet Boş", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
+			}
+
+			new ORM.TableORMs.OrderDetailedORM().Insert_OrderUsingByCartManager(listOfProducts.ToArray())
 		}
 	}
 }

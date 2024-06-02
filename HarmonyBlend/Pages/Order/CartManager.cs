@@ -8,13 +8,6 @@ namespace HarmonyBlend.Pages.Order
 
 		internal static void ClearCart() => ListOfProducts = null;
 
-		internal static Result<bool> AddToCart(List<DataGridViewRow> checkedRows) {
-			return new Result<bool> {
-				isSuccess = false,
-				Message = "All products NOT added."
-			};
-		}
-
 		internal static Result<bool> AddToCart(CartItem item) {
 			if(ListOfProducts is null)
 				ListOfProducts = new List<CartItem>();
@@ -45,15 +38,15 @@ namespace HarmonyBlend.Pages.Order
 
 		internal static Result<bool> RemoveFromCart(int pCode) {
 			return new Result<bool> {
-				isSuccess = true,
-				Message = "All products added successfully."
+				isSuccess = false,
+				Message = "."
 			};
 		}
 
 		internal static Result<bool> RemoveFromCart(DataGridViewRow pRow) {
 			return new Result<bool> {
-				isSuccess = true,
-				Message = "All products added successfully."
+				isSuccess = false,
+				Message = "."
 			};
 		}
 	}

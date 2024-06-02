@@ -30,7 +30,7 @@
 			DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
 			DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
 			orderPage_panel = new Panel();
-			groupBox1 = new GroupBox();
+			information_groupBox = new GroupBox();
 			clearSelected_button = new Button();
 			clearCart_button = new Button();
 			Order_Button = new Button();
@@ -42,6 +42,8 @@
 			label4 = new Label();
 			label5 = new Label();
 			filters_groupBox = new GroupBox();
+			clearFilter_button = new Button();
+			categories_checkedListBox = new CheckedListBox();
 			productCode_maskedTextBox = new MaskedTextBox();
 			productName_textBox = new TextBox();
 			label3 = new Label();
@@ -60,8 +62,9 @@
 			ListPrice = new DataGridViewTextBoxColumn();
 			KDV = new DataGridViewTextBoxColumn();
 			TotalPrice = new DataGridViewTextBoxColumn();
+			KDV_Percent = new DataGridViewTextBoxColumn();
 			orderPage_panel.SuspendLayout();
-			groupBox1.SuspendLayout();
+			information_groupBox.SuspendLayout();
 			filters_groupBox.SuspendLayout();
 			panel2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
@@ -69,34 +72,34 @@
 			// 
 			// orderPage_panel
 			// 
-			orderPage_panel.Controls.Add(groupBox1);
+			orderPage_panel.Controls.Add(information_groupBox);
 			orderPage_panel.Controls.Add(filters_groupBox);
 			orderPage_panel.Controls.Add(label1);
 			orderPage_panel.Dock = DockStyle.Top;
 			orderPage_panel.Location = new Point(0, 0);
 			orderPage_panel.Name = "orderPage_panel";
-			orderPage_panel.Size = new Size(1233, 168);
+			orderPage_panel.Size = new Size(1243, 168);
 			orderPage_panel.TabIndex = 0;
 			// 
-			// groupBox1
+			// information_groupBox
 			// 
-			groupBox1.Controls.Add(clearSelected_button);
-			groupBox1.Controls.Add(clearCart_button);
-			groupBox1.Controls.Add(Order_Button);
-			groupBox1.Controls.Add(getCartInfos_button);
-			groupBox1.Controls.Add(totalPayment_label);
-			groupBox1.Controls.Add(totalKDV_label);
-			groupBox1.Controls.Add(totalOrderCount_label);
-			groupBox1.Controls.Add(label6);
-			groupBox1.Controls.Add(label4);
-			groupBox1.Controls.Add(label5);
-			groupBox1.ForeColor = SystemColors.Control;
-			groupBox1.Location = new Point(674, 39);
-			groupBox1.Name = "groupBox1";
-			groupBox1.Size = new Size(547, 123);
-			groupBox1.TabIndex = 3;
-			groupBox1.TabStop = false;
-			groupBox1.Text = "Bilgilendirme";
+			information_groupBox.Controls.Add(clearSelected_button);
+			information_groupBox.Controls.Add(clearCart_button);
+			information_groupBox.Controls.Add(Order_Button);
+			information_groupBox.Controls.Add(getCartInfos_button);
+			information_groupBox.Controls.Add(totalPayment_label);
+			information_groupBox.Controls.Add(totalKDV_label);
+			information_groupBox.Controls.Add(totalOrderCount_label);
+			information_groupBox.Controls.Add(label6);
+			information_groupBox.Controls.Add(label4);
+			information_groupBox.Controls.Add(label5);
+			information_groupBox.ForeColor = SystemColors.Control;
+			information_groupBox.Location = new Point(679, 39);
+			information_groupBox.Name = "information_groupBox";
+			information_groupBox.Size = new Size(547, 123);
+			information_groupBox.TabIndex = 3;
+			information_groupBox.TabStop = false;
+			information_groupBox.Text = "Bilgilendirme";
 			// 
 			// clearSelected_button
 			// 
@@ -208,17 +211,40 @@
 			// 
 			// filters_groupBox
 			// 
+			filters_groupBox.Controls.Add(clearFilter_button);
+			filters_groupBox.Controls.Add(categories_checkedListBox);
 			filters_groupBox.Controls.Add(productCode_maskedTextBox);
 			filters_groupBox.Controls.Add(productName_textBox);
 			filters_groupBox.Controls.Add(label3);
 			filters_groupBox.Controls.Add(label2);
 			filters_groupBox.ForeColor = SystemColors.Control;
-			filters_groupBox.Location = new Point(12, 62);
+			filters_groupBox.Location = new Point(12, 39);
 			filters_groupBox.Name = "filters_groupBox";
-			filters_groupBox.Size = new Size(312, 95);
+			filters_groupBox.Size = new Size(656, 123);
 			filters_groupBox.TabIndex = 2;
 			filters_groupBox.TabStop = false;
 			filters_groupBox.Text = "Filtre";
+			// 
+			// clearFilter_button
+			// 
+			clearFilter_button.Font = new Font("Segoe UI Semibold", 10.25F, FontStyle.Bold);
+			clearFilter_button.ForeColor = SystemColors.ActiveCaptionText;
+			clearFilter_button.Location = new Point(296, 27);
+			clearFilter_button.Name = "clearFilter_button";
+			clearFilter_button.Size = new Size(78, 59);
+			clearFilter_button.TabIndex = 14;
+			clearFilter_button.Text = "Filtreyi Kaldir";
+			clearFilter_button.UseVisualStyleBackColor = true;
+			clearFilter_button.Click += clearFilter_button_Click;
+			// 
+			// categories_checkedListBox
+			// 
+			categories_checkedListBox.FormattingEnabled = true;
+			categories_checkedListBox.Items.AddRange(new object[] { "Hepsi" });
+			categories_checkedListBox.Location = new Point(380, 27);
+			categories_checkedListBox.Name = "categories_checkedListBox";
+			categories_checkedListBox.Size = new Size(175, 58);
+			categories_checkedListBox.TabIndex = 13;
 			// 
 			// productCode_maskedTextBox
 			// 
@@ -227,10 +253,11 @@
 			productCode_maskedTextBox.Name = "productCode_maskedTextBox";
 			productCode_maskedTextBox.Size = new Size(197, 23);
 			productCode_maskedTextBox.TabIndex = 12;
+			productCode_maskedTextBox.TextChanged += productCode_maskedTextBox_TextChanged;
 			// 
 			// productName_textBox
 			// 
-			productName_textBox.Location = new Point(93, 56);
+			productName_textBox.Location = new Point(93, 63);
 			productName_textBox.Name = "productName_textBox";
 			productName_textBox.Size = new Size(197, 23);
 			productName_textBox.TabIndex = 4;
@@ -240,7 +267,7 @@
 			// 
 			label3.AutoSize = true;
 			label3.ForeColor = SystemColors.Control;
-			label3.Location = new Point(20, 59);
+			label3.Location = new Point(20, 66);
 			label3.Name = "label3";
 			label3.Size = new Size(57, 15);
 			label3.TabIndex = 3;
@@ -262,7 +289,7 @@
 			label1.BackColor = Color.FromArgb(54, 64, 78);
 			label1.Font = new Font("Castellar", 22.25F);
 			label1.ForeColor = Color.White;
-			label1.Location = new Point(12, 9);
+			label1.Location = new Point(12, 3);
 			label1.Name = "label1";
 			label1.Size = new Size(225, 36);
 			label1.TabIndex = 1;
@@ -273,7 +300,7 @@
 			panel3.Dock = DockStyle.Bottom;
 			panel3.Location = new Point(0, 589);
 			panel3.Name = "panel3";
-			panel3.Size = new Size(1233, 63);
+			panel3.Size = new Size(1243, 63);
 			panel3.TabIndex = 1;
 			// 
 			// panel2
@@ -282,7 +309,7 @@
 			panel2.Dock = DockStyle.Fill;
 			panel2.Location = new Point(0, 168);
 			panel2.Name = "panel2";
-			panel2.Size = new Size(1233, 421);
+			panel2.Size = new Size(1243, 421);
 			panel2.TabIndex = 2;
 			// 
 			// dataGridView1
@@ -306,7 +333,7 @@
 			dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
 			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
 			dataGridView1.ColumnHeadersHeight = 30;
-			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Image, Favorite, Check, PCode, PName, Amount, Unit, ListPrice, KDV, TotalPrice });
+			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Image, Favorite, Check, PCode, PName, Amount, Unit, ListPrice, KDV, TotalPrice, KDV_Percent });
 			dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			dataGridViewCellStyle3.BackColor = Color.Gainsboro;
 			dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
@@ -327,8 +354,9 @@
 			dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
 			dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
 			dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+			dataGridView1.ScrollBars = ScrollBars.Vertical;
 			dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-			dataGridView1.Size = new Size(1233, 421);
+			dataGridView1.Size = new Size(1243, 421);
 			dataGridView1.TabIndex = 0;
 			dataGridView1.CellBeginEdit += dataGridView1_CellBeginEdit;
 			dataGridView1.CellValueChanged += dataGridView1_CellValueChanged;
@@ -338,7 +366,7 @@
 			// 
 			Image.FillWeight = 25.3807087F;
 			Image.HeaderText = "Image";
-			Image.MinimumWidth = 120;
+			Image.MinimumWidth = 100;
 			Image.Name = "Image";
 			// 
 			// Favorite
@@ -404,12 +432,19 @@
 			TotalPrice.MinimumWidth = 200;
 			TotalPrice.Name = "TotalPrice";
 			// 
+			// KDV_Percent
+			// 
+			KDV_Percent.HeaderText = "KDV_Percent";
+			KDV_Percent.MinimumWidth = 100;
+			KDV_Percent.Name = "KDV_Percent";
+			KDV_Percent.Visible = false;
+			// 
 			// Orders
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			BackColor = Color.FromArgb(39, 47, 59);
-			ClientSize = new Size(1233, 652);
+			ClientSize = new Size(1243, 652);
 			Controls.Add(panel2);
 			Controls.Add(panel3);
 			Controls.Add(orderPage_panel);
@@ -419,8 +454,8 @@
 			Load += Order_Load;
 			orderPage_panel.ResumeLayout(false);
 			orderPage_panel.PerformLayout();
-			groupBox1.ResumeLayout(false);
-			groupBox1.PerformLayout();
+			information_groupBox.ResumeLayout(false);
+			information_groupBox.PerformLayout();
 			filters_groupBox.ResumeLayout(false);
 			filters_groupBox.PerformLayout();
 			panel2.ResumeLayout(false);
@@ -439,8 +474,7 @@
 		private Label label2;
 		private TextBox productName_textBox;
 		private Label label3;
-		private MaskedTextBox productCode_maskedTextBox;
-		private GroupBox groupBox1;
+		private GroupBox information_groupBox;
 		private Button Order_Button;
 		private Label totalPayment_label;
 		private Label totalKDV_label;
@@ -451,6 +485,9 @@
 		private Button getCartInfos_button;
 		private Button clearCart_button;
 		private Button clearSelected_button;
+		private MaskedTextBox productCode_maskedTextBox;
+		private CheckedListBox categories_checkedListBox;
+		private Button clearFilter_button;
 		private DataGridViewImageColumn Image;
 		private DataGridViewCheckBoxColumn Favorite;
 		private DataGridViewCheckBoxColumn Check;
@@ -461,5 +498,6 @@
 		private DataGridViewTextBoxColumn ListPrice;
 		private DataGridViewTextBoxColumn KDV;
 		private DataGridViewTextBoxColumn TotalPrice;
+		private DataGridViewTextBoxColumn KDV_Percent;
 	}
 }

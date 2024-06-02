@@ -9,6 +9,7 @@ namespace HarmonyBlend.Pages
 	public partial class Orders : Form, IPages_Mdi
 	{
 		private Dictionary<string, float?> _ROW_BEFORE_EDITING = new();
+		private float _ZERO = 0f;
 
 		public Orders() {
 			InitializeComponent();
@@ -19,23 +20,25 @@ namespace HarmonyBlend.Pages
 			CreateRows();
 			DataGridSettings();
 
-			totalOrderCount_label.Text = 0.ToString();
-			totalKDV_label.Text = 0.ToString();
-			totalPayment_label.Text = 0.ToString();
+			totalOrderCount_label.Text = _ZERO.FloatToCurrency();
+			totalKDV_label.Text = _ZERO.FloatToCurrency();
+			totalPayment_label.Text = _ZERO.FloatToCurrency();
 
 			_ROW_BEFORE_EDITING.Add("AMOUNT", null);
 			_ROW_BEFORE_EDITING.Add("KDV", null);
 			_ROW_BEFORE_EDITING.Add("TOTALPRICE", null);
+
+			categories_checkedListBox.SetItemCheckState(0, CheckState.Checked);
 		}
 
 		private void CreateRows() {
 			var productsORM = new ORM.TableORMs.ProductsORM();
-			DataTable activeProducts = productsORM.GetActiveProducts();
+			DataTable activeProducts = productsORM.GetActiveProducts(true);
+
 			foreach(DataRow product in activeProducts.Rows) {
 				DataGridViewRow row = new DataGridViewRow();
 				if(product != null) {
 					row.CreateCells(dataGridView1);
-
 					row.Cells[0].Value = Resources.no_image_64x64;
 					row.Cells[1].Value = false;
 					row.Cells[2].Value = false;
@@ -43,6 +46,18 @@ namespace HarmonyBlend.Pages
 					row.Cells[4].Value = product.ItemArray[1]?.ToString();
 					row.Cells[6].Value = product.ItemArray[4]?.ToString();
 					row.Cells[7].Value = product.ItemArray[3]?.ToString();
+					row.Cells[10].Value = product.ItemArray[7]?.ToString();
+
+					string? category = product.ItemArray[6]?.ToString();
+					bool categoryFound = false;
+					foreach(string item in categories_checkedListBox.Items) {
+						if(item == category) {
+							categoryFound = true;
+						}
+					}
+					if(!categoryFound && category is not null) {
+						categories_checkedListBox.Items.Add(category);
+					}
 				}
 				dataGridView1.Rows.Add(row);
 			}
@@ -103,6 +118,25 @@ namespace HarmonyBlend.Pages
 					row.Visible = true;
 				} else {
 					row.Visible = false;
+				}
+			}
+		}
+
+		private void productCode_maskedTextBox_TextChanged(object sender, EventArgs e) {
+			string? searchText = (sender as MaskedTextBox)?.Text;
+
+			if(searchText == "   .  .") {
+				foreach(DataGridViewRow row in dataGridView1.Rows) {
+					row.Visible = true;
+				}
+			} else {
+				foreach(DataGridViewRow row in dataGridView1.Rows) {
+					string? productCode = row.Cells[3].Value.ToString();
+					if(!string.IsNullOrEmpty(productCode) && productCode.StartsWith(searchText)) {
+						row.Visible = true;
+					} else {
+						row.Visible = false;
+					}
 				}
 			}
 		}
@@ -179,9 +213,15 @@ namespace HarmonyBlend.Pages
 		}
 
 		private void CalculateTotalKDVForRow(int rowIndex) {
+			float temp_kdvPercent = 0f;
+
+			if(!float.TryParse(dataGridView1.Rows[rowIndex].Cells[10].Value.ToString(), out temp_kdvPercent)) {
+				MessageBox.Show("error!");
+			}
+
 			var totalPriceCell = dataGridView1.Rows[rowIndex].Cells[9];
 			if(totalPriceCell.Value != null) {
-				float total_KDV = totalPriceCell.Value.ToString().CurrencyToFloat() * 0.01f;
+				float total_KDV = totalPriceCell.Value.ToString().CurrencyToFloat() * (temp_kdvPercent / 100);
 				SetValueToCell(rowIndex, "KDV", total_KDV.FloatToCurrency());
 			}
 		}
@@ -193,7 +233,7 @@ namespace HarmonyBlend.Pages
 		private void UpdateOrderInformation(int rowIndex, bool IsDeclare) {
 			var row = dataGridView1.Rows[rowIndex];
 
-			int currentAmount = int.Parse(totalOrderCount_label.Text);
+			int currentAmount = int.Parse(totalOrderCount_label.Text.CurrencyToFloat().ToString());
 			float currentKDV = totalKDV_label.Text.CurrencyToFloat();
 			float currentTotalPrice = totalPayment_label.Text.CurrencyToFloat();
 
@@ -217,6 +257,7 @@ namespace HarmonyBlend.Pages
 		#endregion
 
 		private void AddAllProductsToCart_Button_Click(object sender, EventArgs e) {
+			int addedCount = 0;
 			for(int i = 0; i < dataGridView1.Rows.Count; i++) {
 				var currentRow = dataGridView1.Rows[i];
 				if((bool)currentRow.Cells[2].Value == true) {
@@ -225,24 +266,17 @@ namespace HarmonyBlend.Pages
 					if(!result.isSuccess) {
 						MessageBox.Show(result.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
+					addedCount++;
 				}
 			}
-			MessageBox.Show("All products added successfully.", "Added Successfully!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			if(addedCount > 0) {
+				MessageBox.Show("All products added successfully.", "Added Successfully!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			} else {
+				MessageBox.Show("Could't found any checked product.", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
 		}
 
 		private void getCartInfos_button_Click(object sender, EventArgs e) {
-			/*string allInfos = "__Informations__ \n";
-
-			if(CartManager.ListOfProducts is null) {
-				MessageBox.Show("Cart is Empty. ListOfProducts is null", "Cart Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-			} else {
-				foreach(var item in CartManager.ListOfProducts) {
-					allInfos += '\n' + item.GetDetailsAnItem();
-				}
-			}
-
-			MessageBox.Show('\n' + allInfos);*/
-
 			CartDetails cartDetails = new CartDetails();
 			cartDetails.ShowDialog();
 		}
@@ -266,7 +300,10 @@ namespace HarmonyBlend.Pages
 		}
 
 		private void clearCart_button_Click(object sender, EventArgs e) {
-			CartManager.ClearCart();
+			DialogResult dialogResult = MessageBox.Show("Are you sure about clear the cart?", "Clear the Cart", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+			if(dialogResult == DialogResult.Yes)
+				CartManager.ClearCart();
 		}
 
 		private void unselectOrders_button_Click(object sender, EventArgs e) {
@@ -274,13 +311,23 @@ namespace HarmonyBlend.Pages
 				SetValueToCell(row.Index, "Amount", null);
 			}
 
-			_ROW_BEFORE_EDITING["AMOUNT"] = 0f;
-			_ROW_BEFORE_EDITING["KDV"] = 0f;
-			_ROW_BEFORE_EDITING["TOTALPRICE"] = 0f;
+			_ROW_BEFORE_EDITING["AMOUNT"] = _ZERO;
+			_ROW_BEFORE_EDITING["KDV"] = _ZERO;
+			_ROW_BEFORE_EDITING["TOTALPRICE"] = _ZERO;
 
-			totalOrderCount_label.Text = 0.ToString();
-			totalKDV_label.Text = 0.ToString();
-			totalPayment_label.Text = 0.ToString();
+			totalOrderCount_label.Text = _ZERO.FloatToCurrency();
+			totalKDV_label.Text = _ZERO.FloatToCurrency();
+			totalPayment_label.Text = _ZERO.FloatToCurrency();
+		}
+
+		private void clearFilter_button_Click(object sender, EventArgs e) {
+			productCode_maskedTextBox.Text = null;
+			productName_textBox.Text = null;
+
+			for(int i = 0; i < categories_checkedListBox.Items.Count; i++)
+				categories_checkedListBox.SetItemCheckState(i, CheckState.Unchecked);
+
+			categories_checkedListBox.SetItemCheckState(0, CheckState.Checked);
 		}
 	}
 }

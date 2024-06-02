@@ -5,7 +5,7 @@ namespace HarmonyBlend.ORM
 {
 	public class Tools
 	{
-		private static SqlConnection _connection;
+		private static SqlConnection? _connection;
 
 		public static SqlConnection Connection {
 			get {
