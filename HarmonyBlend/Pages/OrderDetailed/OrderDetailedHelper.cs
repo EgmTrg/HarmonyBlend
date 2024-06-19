@@ -8,8 +8,8 @@ namespace HarmonyBlend.Pages.OrderDetailed
 	{
 		public Entity.OrderDetailed GetOrderDetailed(CartItem cartItem) {
 			Entity.OrderDetailed od = new Entity.OrderDetailed();
-			od.SellerID = Utility.CurrentUserID;
-			od.SellerName = Utility.CurrentUser;
+			od.SellerID = int.Parse(Utility.CurrentUserID ?? "-1");
+			od.SellerName = Utility.CurrentUserName;
 			od.ProductID = cartItem.ProductCode;
 			od.ProductName = cartItem.ProductName;
 			od.Amount = cartItem.Amount;

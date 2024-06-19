@@ -7,6 +7,7 @@
         public int SellerID { get; set; }
         public string? SellerName { get; set; }
         public decimal KDVPrice { get; set; }
+        public decimal TotalPrice { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

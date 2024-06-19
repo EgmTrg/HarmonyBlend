@@ -74,7 +74,10 @@ namespace HarmonyBlend.Pages.Order
 
 		private void confirm_button_Click(object sender, EventArgs e) {
 			if(totalPriceCheck_checkBox.Checked) {
-				PlaceTheOrder(CartManager.ListOfProducts);
+				var listofProducts = CartManager.ListOfProducts;
+				if(listofProducts is not null) {
+					PlaceTheOrder(listofProducts);
+				}
 			} else {
 				MessageBox.Show("Check the `Informations Check!` then confirm the order.");
 			}
@@ -86,7 +89,8 @@ namespace HarmonyBlend.Pages.Order
 				return;
 			}
 
-			new ORM.TableORMs.OrderDetailedORM().Insert_OrderUsingByCartManager(listOfProducts.ToArray())
+			// entity.order classini kullanarak http://193.162.43.110/Orders sayfasindaki gorunumu elde edebiliriz.
+			// herhangi bir order'in goruntule butonuna basarak http://193.162.43.110/Orders/Detail/22534 sayfasindaki gorunumu elde edebilriz. bunuda 
 		}
 	}
 }

@@ -29,6 +29,7 @@
 			panel_Control = new Panel();
 			sideBar_button = new Button();
 			panel8 = new Panel();
+			information_button = new Button();
 			minimize_button = new Button();
 			maximaze_button = new Button();
 			exit_button = new Button();
@@ -80,14 +81,30 @@
 			// 
 			// panel8
 			// 
+			panel8.Controls.Add(information_button);
 			panel8.Controls.Add(minimize_button);
 			panel8.Controls.Add(maximaze_button);
 			panel8.Controls.Add(exit_button);
 			panel8.Dock = DockStyle.Right;
-			panel8.Location = new Point(1312, 0);
+			panel8.Location = new Point(1278, 0);
 			panel8.Name = "panel8";
-			panel8.Size = new Size(91, 30);
+			panel8.Size = new Size(125, 30);
 			panel8.TabIndex = 0;
+			// 
+			// information_button
+			// 
+			information_button.BackColor = Color.FromArgb(40, 47, 58);
+			information_button.FlatAppearance.BorderSize = 0;
+			information_button.FlatStyle = FlatStyle.Flat;
+			information_button.Font = new Font("Microsoft Sans Serif", 10F);
+			information_button.ForeColor = SystemColors.Window;
+			information_button.Location = new Point(2, 0);
+			information_button.Name = "information_button";
+			information_button.Size = new Size(30, 30);
+			information_button.TabIndex = 8;
+			information_button.Text = "?";
+			information_button.UseVisualStyleBackColor = false;
+			information_button.Click += information_button_Click;
 			// 
 			// minimize_button
 			// 
@@ -97,7 +114,7 @@
 			minimize_button.Font = new Font("Microsoft Sans Serif", 10F);
 			minimize_button.ForeColor = SystemColors.WindowText;
 			minimize_button.Image = Properties.Resources.subminimize_16x16_White;
-			minimize_button.Location = new Point(1, 1);
+			minimize_button.Location = new Point(32, 1);
 			minimize_button.Name = "minimize_button";
 			minimize_button.Size = new Size(30, 30);
 			minimize_button.TabIndex = 7;
@@ -112,7 +129,7 @@
 			maximaze_button.Font = new Font("Microsoft Sans Serif", 10F);
 			maximaze_button.ForeColor = SystemColors.WindowText;
 			maximaze_button.Image = Properties.Resources.minimize_16x16_White;
-			maximaze_button.Location = new Point(31, 1);
+			maximaze_button.Location = new Point(62, 1);
 			maximaze_button.Name = "maximaze_button";
 			maximaze_button.Size = new Size(30, 30);
 			maximaze_button.TabIndex = 6;
@@ -127,7 +144,7 @@
 			exit_button.Font = new Font("Microsoft Sans Serif", 10F);
 			exit_button.ForeColor = SystemColors.WindowText;
 			exit_button.Image = Properties.Resources.close_16x16_White;
-			exit_button.Location = new Point(61, 1);
+			exit_button.Location = new Point(92, 1);
 			exit_button.Name = "exit_button";
 			exit_button.Size = new Size(30, 30);
 			exit_button.TabIndex = 5;
@@ -369,5 +386,6 @@
 		private Button exit_button;
 		private System.Windows.Forms.Timer sidebarTransition;
 		private Button sideBar_button;
+		private Button information_button;
 	}
 }

@@ -8,10 +8,12 @@ namespace HarmonyBlend
 	{
 		public bool MenuExpand { get; set; }
 
-		public MainForm(string user) {
+		public MainForm(string user, string id) {
 			InitializeComponent();
-			Utility.CurrentUser = user;
-			loggedInUsername_label.Text = Utility.CurrentUser + " | HarmonyBlend";
+			loggedInUsername_label.Text = "User: " + Utility.CurrentUserName +
+										 " | ID: " + Utility.CurrentUserID +
+										 " | Brand: " + Utility.UserBrand +
+										 " | HarmonyBlend";
 		}
 
 		#region ControlBox
@@ -32,6 +34,13 @@ namespace HarmonyBlend
 			}
 		}
 
+		private void information_button_Click(object sender, EventArgs e) {
+			MessageBox.Show(Utility.CurrentUserName + "\n" + 
+							Utility.CurrentUserID + "\n" + 
+							Utility.Password + "\n" + 
+							Utility.UserBrand + "\n" + 
+							Utility.UserType + "\n");
+		}
 		#endregion
 
 		#region ControlBox - Header
@@ -139,5 +148,7 @@ namespace HarmonyBlend
 
 
 		#endregion
+
+
 	}
 }

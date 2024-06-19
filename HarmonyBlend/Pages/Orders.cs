@@ -110,14 +110,16 @@ namespace HarmonyBlend.Pages
 
 		#region Events
 		private void productName_textBox_TextChanged(object sender, EventArgs e) {
-			string? searchText = (sender as TextBox).Text.ToUpper();
+			string? searchText = (sender as TextBox)?.Text.ToUpper();
 
-			foreach(DataGridViewRow row in dataGridView1.Rows) {
-				string? productName = row.Cells[4].Value.ToString();
-				if(!string.IsNullOrEmpty(productName) && productName.Contains(searchText)) {
-					row.Visible = true;
-				} else {
-					row.Visible = false;
+			if(searchText is not null) {
+				foreach(DataGridViewRow row in dataGridView1.Rows) {
+					string? productName = row.Cells[4].Value.ToString();
+					if(!string.IsNullOrEmpty(productName) && productName.Contains(searchText)) {
+						row.Visible = true;
+					} else {
+						row.Visible = false;
+					}
 				}
 			}
 		}
@@ -125,7 +127,7 @@ namespace HarmonyBlend.Pages
 		private void productCode_maskedTextBox_TextChanged(object sender, EventArgs e) {
 			string? searchText = (sender as MaskedTextBox)?.Text;
 
-			if(searchText == "   .  .") {
+			if((searchText == Utility.EMPTY_MASKEDTEXTBOX) || searchText is null) {
 				foreach(DataGridViewRow row in dataGridView1.Rows) {
 					row.Visible = true;
 				}
@@ -221,7 +223,7 @@ namespace HarmonyBlend.Pages
 
 			var totalPriceCell = dataGridView1.Rows[rowIndex].Cells[9];
 			if(totalPriceCell.Value != null) {
-				float total_KDV = totalPriceCell.Value.ToString().CurrencyToFloat() * (temp_kdvPercent / 100);
+				float total_KDV = (totalPriceCell.Value.ToString() ?? "-1").CurrencyToFloat() * (temp_kdvPercent / 100);
 				SetValueToCell(rowIndex, "KDV", total_KDV.FloatToCurrency());
 			}
 		}
@@ -239,12 +241,12 @@ namespace HarmonyBlend.Pages
 
 			if(IsDeclare) {
 				totalOrderCount_label.Text = (currentAmount - _ROW_BEFORE_EDITING["AMOUNT"]).ToString();
-				totalKDV_label.Text = (currentKDV - (float)_ROW_BEFORE_EDITING["KDV"]).FloatToCurrency();
-				totalPayment_label.Text = (currentTotalPrice - (float)_ROW_BEFORE_EDITING["TOTALPRICE"]).FloatToCurrency();
+				totalKDV_label.Text = (currentKDV - (float)(_ROW_BEFORE_EDITING["KDV"] ?? -1)).FloatToCurrency();
+				totalPayment_label.Text = (currentTotalPrice - (float)(_ROW_BEFORE_EDITING["TOTALPRICE"] ?? -1)).FloatToCurrency();
 			} else {
 				totalOrderCount_label.Text = (currentAmount + Convert.ToInt32(row.Cells[5].Value.ToString())).ToString();
-				totalKDV_label.Text = (currentKDV + row.Cells[8].Value.ToString().CurrencyToFloat()).FloatToCurrency();
-				totalPayment_label.Text = (currentTotalPrice + row.Cells[9].Value.ToString().CurrencyToFloat()).FloatToCurrency();
+				totalKDV_label.Text = (currentKDV + (row.Cells[8].Value.ToString() ?? "-1").CurrencyToFloat()).FloatToCurrency();
+				totalPayment_label.Text = (currentTotalPrice + (row.Cells[9].Value.ToString() ?? "-1").CurrencyToFloat()).FloatToCurrency();
 			}
 		}
 

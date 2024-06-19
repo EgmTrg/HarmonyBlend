@@ -16,11 +16,11 @@ namespace HarmonyBlend.Pages.Order
 			try {
 				this.ProductCode = row.Cells[3].Value.ToString() ?? "NULL";
 				this.ProductName = row.Cells[4].Value.ToString() ?? "NULL";
-				this.Amount = int.Parse(row.Cells[5].Value.ToString());
+				this.Amount = int.Parse(row.Cells[5].Value.ToString() ?? "0");
 				this.Unit = row.Cells[6].Value.ToString() ?? "NULL";
-				this.ListPrice = float.Parse(row.Cells[7].Value.ToString());
-				this.KDV = row.Cells[8].Value.ToString().CurrencyToFloat();
-				this.TotalPrice = row.Cells[9].Value.ToString().CurrencyToFloat();
+				this.ListPrice = float.Parse(row.Cells[7].Value.ToString() ?? "0");
+				this.KDV = (row.Cells[8].Value.ToString() ?? "0").CurrencyToFloat();
+				this.TotalPrice = (row.Cells[9].Value.ToString() ?? "0").CurrencyToFloat();
 			} catch(Exception ex) {
 				MessageBox.Show("Error: " + ex.Message);
 				throw;

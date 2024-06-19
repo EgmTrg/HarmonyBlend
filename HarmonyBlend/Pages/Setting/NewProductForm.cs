@@ -150,7 +150,7 @@ namespace HarmonyBlend.Pages.Setting
 			if(all_productCode.Contains(pcode_maskedTextBox.Text)) {
 				label5.Text = "Product Code NOT Avaliable!";
 				label5.ForeColor = Color.Red;
-			} else if(pcode_maskedTextBox.Text == "   .  .") {
+			} else if(pcode_maskedTextBox.Text == Utility.EMPTY_MASKEDTEXTBOX) {
 				label5.Text = "Product Code CAN NOT Empty!";
 				label5.ForeColor = Color.Red;
 			} else {
