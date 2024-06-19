@@ -113,7 +113,7 @@ namespace HarmonyBlend.Pages
 					Description = desc_textBox.Text
 				};
 				if(!changePCode_checkBox.Checked) {
-					result = new ORM.TableORMs.ProductsORM().Update(product, productCode_maskedTextBox.Text);
+					MessageBox.Show("Ürün kodu değiştirme daha yapılmadı. Yapım Aşamasında");
 				} else {
 					MessageBox.Show("Ürün kodu değiştirme daha yapılmadı. Yapım Aşamasında");
 				}

@@ -15,44 +15,32 @@ namespace HarmonyBlend.Utilities
 			ConfigurationManager.AppSettings[key] = value;
 		}
 
-		public static string? CurrentUserID {
+		#region App.Config Manager
+		public static string CurrentUserID {
 			get => GetAppSetting("CurrentUserID");
 			set => SetAppSetting("CurrentUserID", value);
 		}
 
-		public static string? CurrentUserName {
+		public static string CurrentUserName {
 			get => GetAppSetting("CurrentUserName");
 			set => SetAppSetting("CurrentUserName", value);
 		}
 
-		public static string? Password {
+		public static string Password {
 			get => GetAppSetting("Password");
 			set => SetAppSetting("Password", value);
 		}
 
-		public static string? UserType {
+		public static string UserType {
 			get => GetAppSetting("UserType");
 			set => SetAppSetting("UserType", value ?? "NONE");
 		}
 
-		public static string? UserBrand {
+		public static string UserBrand {
 			get => GetAppSetting("UserBrand");
 			set => SetAppSetting("UserBrand", value ?? "NONE");
 		}
-
-		public static Image ChangeColorOfObject(Image image, Color targetColor) {
-			string transparent_Code = "0";
-			Bitmap originalImage = (Bitmap)image;
-			for(int x = 0; x < originalImage.Width; x++) {
-				for(int y = 0; y < originalImage.Height; y++) {
-					var currentColor = originalImage.GetPixel(x, y).ToArgb().ToString();
-					if(currentColor != transparent_Code) {
-						originalImage.SetPixel(x, y, targetColor);
-					}
-				}
-			}
-			return originalImage;
-		}
+		#endregion
 
 		internal static float CurrencyToFloat(this string currency) {
 			string convertedValue = currency.Replace("₺", "").Replace(".", "").Replace(",", ".");

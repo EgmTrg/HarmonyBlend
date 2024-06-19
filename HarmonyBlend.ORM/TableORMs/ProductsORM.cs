@@ -1,10 +1,9 @@
-﻿using HarmonyBlend.Entity;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using System.Data;
 
 namespace HarmonyBlend.ORM.TableORMs
 {
-	public class ProductsORM : ORMBase<Products>
+	public class ProductsORM : ORMBase<Entity.Products>
 	{
 		public DataTable GetActiveProducts(bool? activePassive = null) {
 			// It will be revised with customized ExecuteNonQuery. (Tools.ExecuteNonQuery)

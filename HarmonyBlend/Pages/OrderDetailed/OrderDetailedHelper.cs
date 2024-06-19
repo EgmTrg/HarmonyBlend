@@ -10,7 +10,7 @@ namespace HarmonyBlend.Pages.OrderDetailed
 			Entity.OrderDetailed od = new Entity.OrderDetailed();
 			od.SellerID = int.Parse(Utility.CurrentUserID ?? "-1");
 			od.SellerName = Utility.CurrentUserName;
-			od.ProductID = cartItem.ProductCode;
+			od.ProductCode = cartItem.ProductCode;
 			od.ProductName = cartItem.ProductName;
 			od.Amount = cartItem.Amount;
 			od.KDV = decimal.Parse(cartItem.KDV.ToString());

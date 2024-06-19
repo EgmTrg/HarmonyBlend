@@ -7,9 +7,9 @@ namespace HarmonyBlend.ORM
 	interface IORM<tTable>
 	{
 		Result_ORM<DataTable> Select();
-		Result_ORM<bool> Insert(tTable table);
-		Result_ORM<bool> Update(tTable table, string ID);
-		Result_ORM<bool> Delete(int ID);
+		Result_ORM<object> Insert(tTable table, bool has_Output, string? outputVariableName = null);
+		Result_ORM<object> Update(tTable table, string ID);
+		Result_ORM<object> Delete(int ID);
 	}
 
 	public class ORMBase<tTable> : IORM<tTable> where tTable : class
@@ -39,7 +39,7 @@ namespace HarmonyBlend.ORM
 			};
 		}
 
-		public Result_ORM<bool> Insert(tTable table) {
+		public Result_ORM<object> Insert(tTable table, bool has_Output = false, string? outputVariableName = null) {
 			SqlCommand command = new SqlCommand();
 			command.CommandText = string.Format($"Insert{getPropertyType.Name}");
 			command.CommandType = CommandType.StoredProcedure;
@@ -47,16 +47,21 @@ namespace HarmonyBlend.ORM
 
 			PropertyInfo[] properties = getPropertyType.GetProperties();
 			foreach(PropertyInfo property in properties) {
-				if(property.Name == "PrimaryKey")
+				if(property.Name == "PrimaryKey" || property.Name == "ID")
 					continue;
 
 				command.Parameters.AddWithValue($"@{property.Name}", property.GetValue(table));
 			}
 
-			return Tools.ExecuteNonQuery(command);
+			if(has_Output) {
+				SqlParameter output = new SqlParameter($"@{outputVariableName}", SqlDbType.Int);
+				output.Direction = ParameterDirection.Output;
+				command.Parameters.Add(output);
+			}
+			return Tools.ExecuteNonQuery(command, has_Output, outputVariableName);
 		}
 
-		public Result_ORM<bool> Update(tTable table, string ID) {
+		public Result_ORM<object> Update(tTable table, string ID) {
 			// veritabaninda procedure olusturulmadi
 
 			SqlCommand cmd = new();
@@ -76,7 +81,7 @@ namespace HarmonyBlend.ORM
 			return Tools.ExecuteNonQuery(cmd);
 		}
 
-		public Result_ORM<bool> Delete(int ID) {
+		public Result_ORM<object> Delete(int ID) {
 			// veritabaninda procedure olusturulmadi.
 
 			tTable table = Activator.CreateInstance<tTable>();

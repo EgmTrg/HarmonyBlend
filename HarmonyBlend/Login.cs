@@ -58,7 +58,7 @@ namespace HarmonyBlend
 				var sellerRow = sellersTable?.AsEnumerable()
 											 .FirstOrDefault(row => row.Field<string>("Name") == name);
 				if(sellerRow != null) {
-					userID = sellerRow.Field<Int16>("ID").ToString() ?? "";
+					userID = sellerRow.Field<int>("ID").ToString() ?? "";
 					username = sellerRow.Field<string>("Name") ?? "";
 					password = sellerRow.Field<string>("Password") ?? "";
 					userType = "User"; // Satýcý türü belirtilmeli

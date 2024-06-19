@@ -21,21 +21,27 @@ namespace HarmonyBlend.ORM
 			private set { _connection = value; }
 		}
 
-		public static Result_ORM<bool> ExecuteNonQuery(SqlCommand command) {
+		public static Result_ORM<object> ExecuteNonQuery(SqlCommand command, bool hasOutput = false, string? outputVariableName = null) {
 			try {
 				if(command.Connection.State == ConnectionState.Closed)
 					command.Connection.Open();
 
 				int affectedRows = command.ExecuteNonQuery();
+				object data;
+				if(hasOutput) {
+					data = command.Parameters["@" + outputVariableName].Value; // `int` türünde
+				} else {
+					data = (affectedRows > 0); // `bool` türünde
+				}
 
-				return new Result_ORM<bool> {
+				return new Result_ORM<object> {
 					isSuccess = true,
 					Message = "Islem Basarili!",
-					Data = affectedRows > 0 ? true : false
+					Data = data
 				};
 
 			} catch(Exception exception) {
-				return new Result_ORM<bool> {
+				return new Result_ORM<object> {
 					isSuccess = false,
 					Message = exception.Message,
 				};

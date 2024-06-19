@@ -1,19 +1,13 @@
-﻿using HarmonyBlend.Entity;
-using System.Collections;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace HarmonyBlend.ORM.TableORMs
 {
-	public class OrderDetailedORM:ORMBase<OrderDetailed>
+	public class OrderDetailedORM : ORMBase<Entity.OrderDetailed>
 	{
-		public Result_ORM<bool> Insert_OrderUsingByCartManager(ArrayList? productsList) {
-			if(productsList == null) {
-				return new Result_ORM<bool>() {
-					isSuccess = false,
-					Message = "Product List Empty!",
-				};
-			};
 
-			throw new NotImplementedException();
-		}
 	}
 }

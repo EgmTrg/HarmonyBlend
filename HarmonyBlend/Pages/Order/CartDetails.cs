@@ -1,5 +1,4 @@
-﻿using HarmonyBlend.ORM;
-using HarmonyBlend.Utilities;
+﻿using HarmonyBlend.Utilities;
 using System.Runtime.InteropServices;
 
 namespace HarmonyBlend.Pages.Order
@@ -83,14 +82,76 @@ namespace HarmonyBlend.Pages.Order
 			}
 		}
 
-		private void PlaceTheOrder(List<CartItem> listOfProducts) {
+		private Result<bool> PlaceTheOrder(List<CartItem> listOfProducts) {
+			// entity.order classini kullanarak http://193.162.43.110/Orders sayfasindaki gorunumu elde edebiliriz.
+
+			if(listOfProducts is null) {
+				MessageBox.Show("Sepet boş olduğundan dolayı işleme devam edilemiyor", "Sepet Boş", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return new Result<bool>();
+			}
+			float calcKDVprice = 0f, calcTotalprice = 0f;
+
+			Entity.Order order = new Entity.Order();
+			order.SellerName = Utility.CurrentUserName;
+			order.SellerID = int.Parse(Utility.CurrentUserID);
+			order.CreatedAt = DateTime.Now;
+			foreach(var item in listOfProducts) {
+				calcKDVprice += item.KDV;
+				calcTotalprice += item.TotalPrice;
+			}
+			order.KDVPrice = (decimal)calcKDVprice;
+			order.TotalPrice = (decimal)calcTotalprice;
+
+			var result = new ORM.TableORMs.OrderORM().Insert(order, true, "NewID");
+			int orderID = (int)((result.Data) ?? -1);
+
+			if(result.isSuccess) {
+				MessageBox.Show("Siparişinizin özet görünümü oluşturulmuştur. Lütfen siparişlerim sayfasından kontrol ediniz.", "Sipariş Özeti Oluşturulması!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+				PlaceTheOrderOfDetails(listOfProducts, orderID);
+
+				MessageBox.Show("Siparişinizin detay görünümü oluşturulmuştur. Lütfen siparişlerim sayfasından detaylari kontrol ediniz.", "Sipariş Detay Oluşturulması!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+				return new Result<bool> {
+					isSuccess = true,
+					Message = "Siparişiniz oluşturulmuştur."
+				};
+			} else {
+				MessageBox.Show("Sipariş oluşturulken hata meydana geldi. Lütfen siparişlerim kısmından kontrol ediniz. Eğer sepetinizde bir problem yok ise adetleri kontrol ediniz.", "Hata!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+				return new Result<bool> {
+					isSuccess = false,
+					Message = "Sipariş özeti oluşturulken hata meydana geldi."
+				};
+			}
+		}
+
+		private void PlaceTheOrderOfDetails(List<CartItem> listOfProducts, int orderID) {
+			// http://193.162.43.110/Orders sitesinde herhangi bir order'in goruntule butonuna basarak http://193.162.43.110/Orders/Detail/22534 sayfasindaki gorunumu elde edebilriz. bunuda 
+
 			if(listOfProducts is null) {
 				MessageBox.Show("Sepet boş olduğundan dolayı işleme devam edilemiyor", "Sepet Boş", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 
-			// entity.order classini kullanarak http://193.162.43.110/Orders sayfasindaki gorunumu elde edebiliriz.
-			// herhangi bir order'in goruntule butonuna basarak http://193.162.43.110/Orders/Detail/22534 sayfasindaki gorunumu elde edebilriz. bunuda 
+			ORM.Result_ORM<object> result;
+
+			foreach(CartItem item in listOfProducts) {
+				Entity.OrderDetailed orderItem = new Entity.OrderDetailed();
+
+				orderItem.OrderID = orderID;
+				orderItem.SellerID = int.Parse(Utility.CurrentUserID);
+				orderItem.SellerName = Utility.CurrentUserName;
+				orderItem.ProductCode = item.ProductCode;
+				orderItem.ProductName = item.ProductName;
+				orderItem.Amount = item.Amount;
+				orderItem.KDV = (decimal)item.KDV;
+				orderItem.Price = (decimal)(item.ListPrice * item.Amount);
+				orderItem.TotalPrice = (decimal)item.TotalPrice;
+				orderItem.CreatedAt = DateTime.Now;
+
+				result = new ORM.TableORMs.OrderDetailedORM().Insert(orderItem);
+			}
 		}
 	}
 }
