@@ -1,4 +1,3 @@
-
 using HarmonyBlend.ORM;
 using HarmonyBlend.Utilities;
 using System.Data;
@@ -25,6 +24,7 @@ namespace HarmonyBlend
 						MainForm mainform = new MainForm(Utility.CurrentUserName.ToUpper(), Utility.CurrentUserID);
 						mainform.Show();
 						this.Hide();
+						Utility.SetOnlineOrOfflineStatus(true);
 					} else {
 						MessageBox.Show("Þifre yanlýþ.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
@@ -39,7 +39,7 @@ namespace HarmonyBlend
 		#endregion
 
 		public void GetUserDataByName(string name) {
-			string username = "", password = "", userID = "", userType = "", userBrand = "";
+			string userID = "", username = "", password = "", email = "", userType = "", userBrand = "", status = "";
 
 			var usersTable = new ORMBase<Entity.Users>().Select()?.Data;
 			var sellersTable = new ORMBase<Entity.Sellers>().Select()?.Data;
@@ -48,9 +48,11 @@ namespace HarmonyBlend
 			var userRow = usersTable?.AsEnumerable()
 									 .FirstOrDefault(row => row.Field<string>("Username") == name);
 			if(userRow != null) {
+				userID = userRow.Field<int>("ID").ToString() ?? "";
 				username = userRow.Field<string>("Username") ?? "";
 				password = userRow.Field<string>("Password") ?? "";
-				userID = userRow.Field<Int16>("UserID").ToString() ?? "";
+				email = userRow.Field<string>("Email") ?? "";
+				status = userRow.Field<bool>("Status").ToString() ?? "";
 				userType = "ADMIN"; // Kullanýcý türü belirtilmeli
 				userBrand = "MERKEZ"; // Kullanýcý markasý (varsayýlan olarak boþ)
 			} else {
@@ -59,10 +61,12 @@ namespace HarmonyBlend
 											 .FirstOrDefault(row => row.Field<string>("Name") == name);
 				if(sellerRow != null) {
 					userID = sellerRow.Field<int>("ID").ToString() ?? "";
+					userBrand = sellerRow.Field<string>("Brand") ?? "";
 					username = sellerRow.Field<string>("Name") ?? "";
 					password = sellerRow.Field<string>("Password") ?? "";
+					email = sellerRow.Field<string>("Email") ?? "";
+					status = sellerRow.Field<bool>("Status").ToString() ?? "";
 					userType = "User"; // Satýcý türü belirtilmeli
-					userBrand = sellerRow.Field<string>("Brand") ?? "";
 				}
 			}
 
@@ -70,8 +74,10 @@ namespace HarmonyBlend
 			Utility.CurrentUserID = userID;
 			Utility.CurrentUserName = username;
 			Utility.Password = password;
-			Utility.UserType= userType;
+			Utility.Email = email;
+			Utility.UserType = userType;
 			Utility.UserBrand = userBrand;
+			Utility.Status = status;
 		}
 
 

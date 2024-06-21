@@ -35,10 +35,10 @@ namespace HarmonyBlend
 		}
 
 		private void information_button_Click(object sender, EventArgs e) {
-			MessageBox.Show(Utility.CurrentUserName + "\n" + 
-							Utility.CurrentUserID + "\n" + 
-							Utility.Password + "\n" + 
-							Utility.UserBrand + "\n" + 
+			MessageBox.Show(Utility.CurrentUserName + "\n" +
+							Utility.CurrentUserID + "\n" +
+							Utility.Password + "\n" +
+							Utility.UserBrand + "\n" +
 							Utility.UserType + "\n");
 		}
 		#endregion
@@ -118,7 +118,7 @@ namespace HarmonyBlend
 			};
 
 			if(page == null)
-				Application.Restart();
+				Application.Exit();
 
 #pragma warning disable CS8603 // Possible null reference return.
 			return page;
@@ -146,9 +146,10 @@ namespace HarmonyBlend
 			(sender as Form)?.Dispose();
 		}
 
-
 		#endregion
 
-
+		private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
+			Utility.SetOnlineOrOfflineStatus(false);
+		}
 	}
 }

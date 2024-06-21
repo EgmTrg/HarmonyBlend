@@ -356,6 +356,7 @@
 			Name = "MainForm";
 			StartPosition = FormStartPosition.CenterScreen;
 			Text = "AppForm";
+			FormClosed += MainForm_FormClosed;
 			panel_Control.ResumeLayout(false);
 			panel_Control.PerformLayout();
 			panel8.ResumeLayout(false);

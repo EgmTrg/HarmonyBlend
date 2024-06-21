@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using HarmonyBlend.ORM;
+using System.Configuration;
 using System.Globalization;
 
 namespace HarmonyBlend.Utilities
@@ -40,6 +41,40 @@ namespace HarmonyBlend.Utilities
 			get => GetAppSetting("UserBrand");
 			set => SetAppSetting("UserBrand", value ?? "NONE");
 		}
+
+		public static string Status {
+			get => GetAppSetting("Status");
+			set => SetAppSetting("Status", value ?? "False");
+		}
+
+		public static string Email {
+			get => GetAppSetting("Email");
+			set => SetAppSetting("Email", value ?? "NONE");
+		}
+
+		public static Entity.Users GetUserInformations {
+			get {
+				return new Entity.Users() {
+					Username = CurrentUserName,
+					Password = Utility.Password,
+					Email = Utility.Email,
+					IsAdmin = UserType == "ADMIN" ? true : false,
+					Status = bool.Parse(Utility.Status)
+				};
+			}
+		}
+
+		public static Entity.Sellers GetSellerInformations {
+			get {
+				return new Entity.Sellers() {
+					Brand = UserBrand,
+					Name = CurrentUserName,
+					Password = Utility.Password,
+					Email = Utility.Email,
+					Status = bool.Parse(Utility.Status)
+				};
+			}
+		}
 		#endregion
 
 		internal static float CurrencyToFloat(this string currency) {
@@ -49,6 +84,18 @@ namespace HarmonyBlend.Utilities
 
 		internal static string FloatToCurrency(this float value) {
 			return value.ToString("C", new CultureInfo("tr-TR"));
+		}
+
+		internal static void SetOnlineOrOfflineStatus(bool isOnline) {
+			if(Utility.UserType == "ADMIN") {
+				Entity.Users userInfo = Utility.GetUserInformations;
+				userInfo.Status = isOnline;
+				new ORMBase<Entity.Users>().Update(userInfo, Utility.CurrentUserID);
+			} else {
+				Entity.Sellers sellerInfo = Utility.GetSellerInformations;
+				sellerInfo.Status = isOnline;
+				new ORMBase<Entity.Sellers>().Update(sellerInfo, Utility.CurrentUserID);
+			}
 		}
 	}
 }
