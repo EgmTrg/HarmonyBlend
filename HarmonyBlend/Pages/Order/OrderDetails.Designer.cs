@@ -1,6 +1,6 @@
 ﻿namespace HarmonyBlend.Pages.Order
 {
-	partial class CartDetails
+	partial class OrderDetails
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -25,10 +25,10 @@
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-			DataGridViewCellStyle dataGridViewCellStyle9 = new DataGridViewCellStyle();
-			DataGridViewCellStyle dataGridViewCellStyle10 = new DataGridViewCellStyle();
-			DataGridViewCellStyle dataGridViewCellStyle11 = new DataGridViewCellStyle();
-			DataGridViewCellStyle dataGridViewCellStyle12 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+			DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
 			panel_Control = new Panel();
 			panel8 = new Panel();
 			minimize_button = new Button();
@@ -36,6 +36,10 @@
 			exit_button = new Button();
 			loggedInUsername_label = new Label();
 			panel1 = new Panel();
+			totalPayment_label = new Label();
+			totalOrderCount_label = new Label();
+			label6 = new Label();
+			label5 = new Label();
 			totalPriceCheck_checkBox = new CheckBox();
 			edit_button = new Button();
 			confirm_button = new Button();
@@ -46,10 +50,6 @@
 			Unit = new DataGridViewTextBoxColumn();
 			ListPrice = new DataGridViewTextBoxColumn();
 			TotalPrice = new DataGridViewTextBoxColumn();
-			totalPayment_label = new Label();
-			totalOrderCount_label = new Label();
-			label6 = new Label();
-			label5 = new Label();
 			panel_Control.SuspendLayout();
 			panel8.SuspendLayout();
 			panel1.SuspendLayout();
@@ -133,9 +133,9 @@
 			loggedInUsername_label.ForeColor = Color.White;
 			loggedInUsername_label.Location = new Point(12, 7);
 			loggedInUsername_label.Name = "loggedInUsername_label";
-			loggedInUsername_label.Size = new Size(82, 22);
+			loggedInUsername_label.Size = new Size(31, 22);
 			loggedInUsername_label.TabIndex = 0;
-			loggedInUsername_label.Text = "| Cart Details";
+			loggedInUsername_label.Text = "Text";
 			loggedInUsername_label.UseCompatibleTextRendering = true;
 			// 
 			// panel1
@@ -152,6 +152,48 @@
 			panel1.Name = "panel1";
 			panel1.Size = new Size(906, 61);
 			panel1.TabIndex = 3;
+			// 
+			// totalPayment_label
+			// 
+			totalPayment_label.AutoSize = true;
+			totalPayment_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			totalPayment_label.Location = new Point(186, 30);
+			totalPayment_label.Name = "totalPayment_label";
+			totalPayment_label.Size = new Size(99, 23);
+			totalPayment_label.TabIndex = 7;
+			totalPayment_label.Text = "1234.56 TL";
+			// 
+			// totalOrderCount_label
+			// 
+			totalOrderCount_label.AutoSize = true;
+			totalOrderCount_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			totalOrderCount_label.Location = new Point(186, 6);
+			totalOrderCount_label.Name = "totalOrderCount_label";
+			totalOrderCount_label.Size = new Size(50, 23);
+			totalOrderCount_label.TabIndex = 8;
+			totalOrderCount_label.Text = "1234";
+			// 
+			// label6
+			// 
+			label6.AutoSize = true;
+			label6.Font = new Font("Segoe UI", 12.75F);
+			label6.ForeColor = SystemColors.ControlText;
+			label6.Location = new Point(12, 30);
+			label6.Name = "label6";
+			label6.Size = new Size(168, 23);
+			label6.TabIndex = 5;
+			label6.Text = "Sipariş Toplam Tutar:";
+			// 
+			// label5
+			// 
+			label5.AutoSize = true;
+			label5.Font = new Font("Segoe UI", 12.75F);
+			label5.ForeColor = SystemColors.ControlText;
+			label5.Location = new Point(17, 6);
+			label5.Name = "label5";
+			label5.Size = new Size(163, 23);
+			label5.TabIndex = 6;
+			label5.Text = "Sipariş Ürün Miktarı:";
 			// 
 			// totalPriceCheck_checkBox
 			// 
@@ -198,44 +240,44 @@
 			// 
 			dataGridView1.AllowUserToAddRows = false;
 			dataGridView1.AllowUserToDeleteRows = false;
-			dataGridViewCellStyle9.BackColor = Color.FromArgb(224, 224, 224);
-			dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle9;
+			dataGridViewCellStyle1.BackColor = Color.FromArgb(224, 224, 224);
+			dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
 			dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
 			dataGridView1.BackgroundColor = Color.DimGray;
 			dataGridView1.BorderStyle = BorderStyle.None;
 			dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-			dataGridViewCellStyle10.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			dataGridViewCellStyle10.BackColor = Color.FromArgb(54, 64, 78);
-			dataGridViewCellStyle10.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 162);
-			dataGridViewCellStyle10.ForeColor = SystemColors.Window;
-			dataGridViewCellStyle10.SelectionBackColor = Color.Silver;
-			dataGridViewCellStyle10.SelectionForeColor = SystemColors.HighlightText;
-			dataGridViewCellStyle10.WrapMode = DataGridViewTriState.True;
-			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle10;
+			dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle2.BackColor = Color.FromArgb(54, 64, 78);
+			dataGridViewCellStyle2.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 162);
+			dataGridViewCellStyle2.ForeColor = SystemColors.Window;
+			dataGridViewCellStyle2.SelectionBackColor = Color.Silver;
+			dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+			dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
 			dataGridView1.ColumnHeadersHeight = 30;
 			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { PName, Amount, Unit, ListPrice, TotalPrice });
-			dataGridViewCellStyle11.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle11.BackColor = Color.Gainsboro;
-			dataGridViewCellStyle11.Font = new Font("Segoe UI", 9F);
-			dataGridViewCellStyle11.ForeColor = SystemColors.ControlText;
-			dataGridViewCellStyle11.SelectionBackColor = SystemColors.Highlight;
-			dataGridViewCellStyle11.SelectionForeColor = SystemColors.HighlightText;
-			dataGridViewCellStyle11.WrapMode = DataGridViewTriState.False;
-			dataGridView1.DefaultCellStyle = dataGridViewCellStyle11;
+			dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle3.BackColor = Color.Gainsboro;
+			dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
+			dataGridViewCellStyle3.ForeColor = SystemColors.ControlText;
+			dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
+			dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+			dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+			dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
 			dataGridView1.Dock = DockStyle.Fill;
 			dataGridView1.Location = new Point(0, 0);
 			dataGridView1.MultiSelect = false;
 			dataGridView1.Name = "dataGridView1";
 			dataGridView1.ReadOnly = true;
-			dataGridViewCellStyle12.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			dataGridViewCellStyle12.BackColor = Color.FromArgb(54, 64, 78);
-			dataGridViewCellStyle12.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 162);
-			dataGridViewCellStyle12.ForeColor = SystemColors.Window;
-			dataGridViewCellStyle12.SelectionBackColor = SystemColors.Highlight;
-			dataGridViewCellStyle12.SelectionForeColor = SystemColors.HighlightText;
-			dataGridViewCellStyle12.WrapMode = DataGridViewTriState.True;
-			dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
+			dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle4.BackColor = Color.FromArgb(54, 64, 78);
+			dataGridViewCellStyle4.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			dataGridViewCellStyle4.ForeColor = SystemColors.Window;
+			dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
+			dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
+			dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
+			dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
 			dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 			dataGridView1.Size = new Size(906, 406);
 			dataGridView1.TabIndex = 1;
@@ -280,49 +322,7 @@
 			TotalPrice.Name = "TotalPrice";
 			TotalPrice.ReadOnly = true;
 			// 
-			// totalPayment_label
-			// 
-			totalPayment_label.AutoSize = true;
-			totalPayment_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
-			totalPayment_label.Location = new Point(186, 30);
-			totalPayment_label.Name = "totalPayment_label";
-			totalPayment_label.Size = new Size(99, 23);
-			totalPayment_label.TabIndex = 7;
-			totalPayment_label.Text = "1234.56 TL";
-			// 
-			// totalOrderCount_label
-			// 
-			totalOrderCount_label.AutoSize = true;
-			totalOrderCount_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
-			totalOrderCount_label.Location = new Point(186, 6);
-			totalOrderCount_label.Name = "totalOrderCount_label";
-			totalOrderCount_label.Size = new Size(50, 23);
-			totalOrderCount_label.TabIndex = 8;
-			totalOrderCount_label.Text = "1234";
-			// 
-			// label6
-			// 
-			label6.AutoSize = true;
-			label6.Font = new Font("Segoe UI", 12.75F);
-			label6.ForeColor = SystemColors.ControlText;
-			label6.Location = new Point(12, 30);
-			label6.Name = "label6";
-			label6.Size = new Size(168, 23);
-			label6.TabIndex = 5;
-			label6.Text = "Sipariş Toplam Tutar:";
-			// 
-			// label5
-			// 
-			label5.AutoSize = true;
-			label5.Font = new Font("Segoe UI", 12.75F);
-			label5.ForeColor = SystemColors.ControlText;
-			label5.Location = new Point(17, 6);
-			label5.Name = "label5";
-			label5.Size = new Size(163, 23);
-			label5.TabIndex = 6;
-			label5.Text = "Sipariş Ürün Miktarı:";
-			// 
-			// CartDetails
+			// OrderDetails
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
@@ -331,7 +331,7 @@
 			Controls.Add(panel1);
 			Controls.Add(panel_Control);
 			FormBorderStyle = FormBorderStyle.None;
-			Name = "CartDetails";
+			Name = "OrderDetails";
 			StartPosition = FormStartPosition.CenterScreen;
 			Text = "CartDetails";
 			Load += CartDetails_Load;
@@ -355,10 +355,7 @@
 		private Label loggedInUsername_label;
 		private Panel panel1;
 		private Panel panel2;
-		private Button edit_button;
-		private Button confirm_button;
 		private DataGridView dataGridView1;
-		private CheckBox totalPriceCheck_checkBox;
 		private DataGridViewTextBoxColumn PName;
 		private DataGridViewTextBoxColumn Amount;
 		private DataGridViewTextBoxColumn Unit;
@@ -368,5 +365,8 @@
 		private Label totalOrderCount_label;
 		private Label label6;
 		private Label label5;
+		internal Button edit_button;
+		internal Button confirm_button;
+		internal CheckBox totalPriceCheck_checkBox;
 	}
 }

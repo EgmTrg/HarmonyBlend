@@ -1,6 +1,7 @@
 ﻿using HarmonyBlend.ORM;
 using System.Configuration;
 using System.Globalization;
+using System.Windows.Forms;
 
 namespace HarmonyBlend.Utilities
 {
@@ -96,6 +97,49 @@ namespace HarmonyBlend.Utilities
 				sellerInfo.Status = isOnline;
 				new ORMBase<Entity.Sellers>().Update(sellerInfo, Utility.CurrentUserID);
 			}
+		}
+
+		internal static void DataGridStyle(DataGridView dataGridView1) {
+			Color KoyuRenk = Color.FromArgb(39, 47, 59);
+
+			// Başlık fontu ve kalın punto
+			dataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font(dataGridView1.Font.FontFamily, 13, FontStyle.Bold);
+			// Başlık arka plan rengi
+			dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = KoyuRenk;
+			// Başlık metin ortalama
+			dataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			// Başlık yazı rengi
+			dataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+
+			// Satır arka plan renkleri (sıradaki satır belirtilen renk, sıradışı satır ise hafif açık renk)
+			dataGridView1.RowsDefaultCellStyle.BackColor = Color.White;
+			dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.White;
+			//dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(KoyuRenk.R + 20, KoyuRenk.G + 20, KoyuRenk.B + 20);
+
+			// Kenarlık rengi
+			dataGridView1.GridColor = KoyuRenk;
+
+			// Seçili hücre rengi
+			dataGridView1.DefaultCellStyle.SelectionBackColor = Color.FromArgb(KoyuRenk.R + 10, KoyuRenk.G + 10, KoyuRenk.B + 10);
+			dataGridView1.DefaultCellStyle.SelectionForeColor = Color.WhiteSmoke;
+
+			// Tüm metinlerin ortalama hizalanması
+			dataGridView1.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			dataGridView1.DefaultCellStyle.ForeColor = Color.FromArgb(KoyuRenk.R + 20, KoyuRenk.G + 20, KoyuRenk.B + 20);
+			dataGridView1.DefaultCellStyle.Font = new Font(dataGridView1.Font.FontFamily, 11);
+		}
+
+		internal static void DataGridBehaviorAndLayoutProps(DataGridView dataGridView1) {
+			// BEHAVIOR
+			dataGridView1.AllowUserToAddRows = false;
+			dataGridView1.AllowUserToDeleteRows = false;
+			dataGridView1.MultiSelect = false;
+			dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+			
+			// LAYOUT
+			dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+			dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
+			dataGridView1.ScrollBars = ScrollBars.Vertical;
 		}
 	}
 }

@@ -13,6 +13,7 @@ namespace HarmonyBlend.Pages.OrderDetailed
 			od.ProductCode = cartItem.ProductCode;
 			od.ProductName = cartItem.ProductName;
 			od.Amount = cartItem.Amount;
+			od.Unit = cartItem.Unit;
 			od.KDV = decimal.Parse(cartItem.KDV.ToString());
 			od.Price = decimal.Parse(cartItem.ListPrice.ToString()) * decimal.Parse(cartItem.Amount.ToString());
 			od.TotalPrice = decimal.Parse(cartItem.TotalPrice.ToString());

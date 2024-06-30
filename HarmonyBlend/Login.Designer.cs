@@ -109,6 +109,7 @@
 			// 
 			// loginAnonymous_button
 			// 
+			loginAnonymous_button.Enabled = false;
 			loginAnonymous_button.Location = new Point(14, 278);
 			loginAnonymous_button.Name = "loginAnonymous_button";
 			loginAnonymous_button.Size = new Size(273, 23);

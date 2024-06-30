@@ -16,7 +16,7 @@ namespace HarmonyBlend.Pages
 		}
 
 		private void Order_Load(object sender, EventArgs e) {
-			DataGridStyle();
+			Utility.DataGridStyle(dataGridView1);
 			CreateRows();
 			DataGridSettings();
 
@@ -74,36 +74,6 @@ namespace HarmonyBlend.Pages
 			dataGridView1.Columns["ListPrice"].ReadOnly = true;
 			dataGridView1.Columns["KDV"].ReadOnly = true;
 			dataGridView1.Columns["TotalPrice"].ReadOnly = true;
-		}
-
-		private void DataGridStyle() {
-			Color KoyuRenk = Color.FromArgb(39, 47, 59);
-
-			// Başlık fontu ve kalın punto
-			dataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font(dataGridView1.Font.FontFamily, 13, FontStyle.Bold);
-			// Başlık arka plan rengi
-			dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = KoyuRenk;
-			// Başlık metin ortalama
-			dataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			// Başlık yazı rengi
-			dataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-
-			// Satır arka plan renkleri (sıradaki satır belirtilen renk, sıradışı satır ise hafif açık renk)
-			dataGridView1.RowsDefaultCellStyle.BackColor = Color.White;
-			dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.White;
-			//dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(KoyuRenk.R + 20, KoyuRenk.G + 20, KoyuRenk.B + 20);
-
-			// Kenarlık rengi
-			dataGridView1.GridColor = KoyuRenk;
-
-			// Seçili hücre rengi
-			dataGridView1.DefaultCellStyle.SelectionBackColor = Color.FromArgb(KoyuRenk.R + 10, KoyuRenk.G + 10, KoyuRenk.B + 10);
-			dataGridView1.DefaultCellStyle.SelectionForeColor = Color.WhiteSmoke;
-
-			// Tüm metinlerin ortalama hizalanması
-			dataGridView1.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			dataGridView1.DefaultCellStyle.ForeColor = Color.FromArgb(KoyuRenk.R + 20, KoyuRenk.G + 20, KoyuRenk.B + 20);
-			dataGridView1.DefaultCellStyle.Font = new Font(dataGridView1.Font.FontFamily, 11);
 		}
 
 		#endregion
@@ -279,7 +249,7 @@ namespace HarmonyBlend.Pages
 		}
 
 		private void getCartInfos_button_Click(object sender, EventArgs e) {
-			CartDetails cartDetails = new CartDetails();
+			OrderDetails cartDetails = new OrderDetails("Cart Details");
 			cartDetails.ShowDialog();
 		}
 

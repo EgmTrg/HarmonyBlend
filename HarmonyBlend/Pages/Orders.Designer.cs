@@ -316,7 +316,6 @@
 			// 
 			dataGridView1.AllowUserToAddRows = false;
 			dataGridView1.AllowUserToDeleteRows = false;
-			dataGridView1.AllowUserToOrderColumns = true;
 			dataGridViewCellStyle1.BackColor = Color.FromArgb(224, 224, 224);
 			dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
 			dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;

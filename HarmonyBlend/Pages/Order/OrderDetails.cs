@@ -1,15 +1,24 @@
 ﻿using HarmonyBlend.Utilities;
+using System.Data;
 using System.Runtime.InteropServices;
 
 namespace HarmonyBlend.Pages.Order
 {
-	public partial class CartDetails : Form
+	public partial class OrderDetails : Form
 	{
 		private float TOTALPRICE_ALLPRODUCTS = 0F;
 		private int TOTALORDERCOUNT_ALLPRODUCTS = 0;
+		private int _ORDER_ID = 0;
 
-		public CartDetails() {
+		public OrderDetails(string name) {
 			InitializeComponent();
+			loggedInUsername_label.Text = " | " + name;
+		}
+
+		public OrderDetails(string name, int orderID) {
+			InitializeComponent();
+			loggedInUsername_label.Text = " | " + name;
+			_ORDER_ID = orderID;
 		}
 
 		#region ControlBox
@@ -48,6 +57,18 @@ namespace HarmonyBlend.Pages.Order
 		#endregion
 
 		private void CartDetails_Load(object sender, EventArgs e) {
+			if(loggedInUsername_label.Text.Contains("Cart Details")) {
+				UsingByCartDetailed();
+			}
+
+			if(loggedInUsername_label.Text.Contains("Order Details")) {
+				UsingByOrderDetailed(_ORDER_ID);
+			}
+		}
+
+		#region Cart Detailed
+
+		private void UsingByCartDetailed() {
 			if(CartManager.ListOfProducts != null) {
 				foreach(var item in CartManager.ListOfProducts) {
 					DataGridViewRow row = new DataGridViewRow();
@@ -145,6 +166,7 @@ namespace HarmonyBlend.Pages.Order
 				orderItem.ProductCode = item.ProductCode;
 				orderItem.ProductName = item.ProductName;
 				orderItem.Amount = item.Amount;
+				orderItem.Unit = item.Unit;
 				orderItem.KDV = (decimal)item.KDV;
 				orderItem.Price = (decimal)(item.ListPrice * item.Amount);
 				orderItem.TotalPrice = (decimal)item.TotalPrice;
@@ -153,5 +175,29 @@ namespace HarmonyBlend.Pages.Order
 				result = new ORM.TableORMs.OrderDetailedORM().Insert(orderItem);
 			}
 		}
+		#endregion
+
+		#region Order Detailed
+
+		private void UsingByOrderDetailed(int orderID) {
+			var orderDetailed = new ORM.TableORMs.OrderDetailedORM();
+			DataTable data = orderDetailed.GetDetailedOrder(orderID, Utility.CurrentUserID);
+
+			if(data is not null) {
+				foreach(DataRow orderedRow in data.Rows) {
+					DataGridViewRow row = new DataGridViewRow();
+					if(orderedRow != null) {
+						row.CreateCells(dataGridView1);
+						row.Cells[0].Value = orderedRow.ItemArray[4]?.ToString();
+						row.Cells[1].Value = orderedRow.ItemArray[5]?.ToString();
+						row.Cells[2].Value = orderedRow.ItemArray[6]?.ToString();
+						row.Cells[3].Value = orderedRow.ItemArray[9]?.ToString();
+						row.Cells[4].Value = orderedRow.ItemArray[10]?.ToString();
+					}
+					dataGridView1.Rows.Add(row);
+				}
+			}
+		}
+		#endregion
 	}
 }
