@@ -62,7 +62,7 @@
 			ListPrice = new DataGridViewTextBoxColumn();
 			KDV = new DataGridViewTextBoxColumn();
 			TotalPrice = new DataGridViewTextBoxColumn();
-			KDV_Percent = new DataGridViewTextBoxColumn();
+			KDVPercent = new DataGridViewTextBoxColumn();
 			orderPage_panel.SuspendLayout();
 			information_groupBox.SuspendLayout();
 			filters_groupBox.SuspendLayout();
@@ -110,7 +110,6 @@
 			clearSelected_button.TabIndex = 1;
 			clearSelected_button.Text = "Seçilenleri Temizle";
 			clearSelected_button.UseVisualStyleBackColor = true;
-			clearSelected_button.Click += unselectOrders_button_Click;
 			// 
 			// clearCart_button
 			// 
@@ -332,7 +331,7 @@
 			dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
 			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
 			dataGridView1.ColumnHeadersHeight = 30;
-			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Image, Favorite, Check, PCode, PName, Amount, Unit, ListPrice, KDV, TotalPrice, KDV_Percent });
+			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Image, Favorite, Check, PCode, PName, Amount, Unit, ListPrice, KDV, TotalPrice, KDVPercent });
 			dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			dataGridViewCellStyle3.BackColor = Color.Gainsboro;
 			dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
@@ -357,7 +356,6 @@
 			dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 			dataGridView1.Size = new Size(1243, 421);
 			dataGridView1.TabIndex = 0;
-			dataGridView1.CellBeginEdit += dataGridView1_CellBeginEdit;
 			dataGridView1.CellValueChanged += dataGridView1_CellValueChanged;
 			dataGridView1.EditingControlShowing += dataGridView1_EditingControlShowing;
 			// 
@@ -431,12 +429,11 @@
 			TotalPrice.MinimumWidth = 200;
 			TotalPrice.Name = "TotalPrice";
 			// 
-			// KDV_Percent
+			// KDVPercent
 			// 
-			KDV_Percent.HeaderText = "KDV_Percent";
-			KDV_Percent.MinimumWidth = 100;
-			KDV_Percent.Name = "KDV_Percent";
-			KDV_Percent.Visible = false;
+			KDVPercent.HeaderText = "KDVPercent";
+			KDVPercent.MinimumWidth = 100;
+			KDVPercent.Name = "KDVPercent";
 			// 
 			// Orders
 			// 
@@ -497,6 +494,6 @@
 		private DataGridViewTextBoxColumn ListPrice;
 		private DataGridViewTextBoxColumn KDV;
 		private DataGridViewTextBoxColumn TotalPrice;
-		private DataGridViewTextBoxColumn KDV_Percent;
+		private DataGridViewTextBoxColumn KDVPercent;
 	}
 }

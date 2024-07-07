@@ -3,13 +3,13 @@ using HarmonyBlend.Properties;
 using System.Data;
 using System.Globalization;
 using HarmonyBlend.Utilities;
+using Microsoft.Identity.Client.NativeInterop;
 
 namespace HarmonyBlend.Pages
 {
 	public partial class Orders : Form, IPages_Mdi
 	{
-		private Dictionary<string, float?> _ROW_BEFORE_EDITING = new();
-		private float _ZERO = 0f;
+		private bool _ARE_PULLEDDATAS { get; set; }
 
 		public Orders() {
 			InitializeComponent();
@@ -18,17 +18,7 @@ namespace HarmonyBlend.Pages
 		private void Order_Load(object sender, EventArgs e) {
 			Utility.DataGridStyle(dataGridView1);
 			CreateRows();
-			DataGridSettings();
-
-			totalOrderCount_label.Text = _ZERO.FloatToCurrency();
-			totalKDV_label.Text = _ZERO.FloatToCurrency();
-			totalPayment_label.Text = _ZERO.FloatToCurrency();
-
-			_ROW_BEFORE_EDITING.Add("AMOUNT", null);
-			_ROW_BEFORE_EDITING.Add("KDV", null);
-			_ROW_BEFORE_EDITING.Add("TOTALPRICE", null);
-
-			categories_checkedListBox.SetItemCheckState(0, CheckState.Checked);
+			DataGridReadOnlySettings();
 		}
 
 		private void CreateRows() {
@@ -39,32 +29,37 @@ namespace HarmonyBlend.Pages
 				DataGridViewRow row = new DataGridViewRow();
 				if(product != null) {
 					row.CreateCells(dataGridView1);
-					row.Cells[0].Value = Resources.no_image_64x64;
-					row.Cells[1].Value = false;
-					row.Cells[2].Value = false;
-					row.Cells[3].Value = product.ItemArray[0]?.ToString();
-					row.Cells[4].Value = product.ItemArray[1]?.ToString();
-					row.Cells[6].Value = product.ItemArray[4]?.ToString();
-					row.Cells[7].Value = product.ItemArray[3]?.ToString();
-					row.Cells[10].Value = product.ItemArray[7]?.ToString();
+					row.Cells[dataGridView1.Columns["Image"].Index].Value = Resources.no_image_64x64;
+					row.Cells[dataGridView1.Columns["Favorite"].Index].Value = false;
+					row.Cells[dataGridView1.Columns["Check"].Index].Value = false;
+					row.Cells[dataGridView1.Columns["PCode"].Index].Value = product.ItemArray[0]?.ToString();
+					row.Cells[dataGridView1.Columns["PName"].Index].Value = product.ItemArray[1]?.ToString();
+					row.Cells[dataGridView1.Columns["Unit"].Index].Value = product.ItemArray[4]?.ToString();
+					row.Cells[dataGridView1.Columns["ListPrice"].Index].Value = product.ItemArray[3]?.ToString();
+					row.Cells[dataGridView1.Columns["KDVPercent"].Index].Value = product.ItemArray[7]?.ToString();
 
-					string? category = product.ItemArray[6]?.ToString();
-					bool categoryFound = false;
-					foreach(string item in categories_checkedListBox.Items) {
-						if(item == category) {
-							categoryFound = true;
-						}
-					}
-					if(!categoryFound && category is not null) {
-						categories_checkedListBox.Items.Add(category);
-					}
+					SeperateCategories(product);
 				}
 				dataGridView1.Rows.Add(row);
 			}
+			_ARE_PULLEDDATAS = true;
 		}
 
-		#region DataGridView Style And Settings
-		private void DataGridSettings() {
+		private void SeperateCategories(DataRow product) {
+			string? category = product.ItemArray[6]?.ToString();
+			bool categoryFound = false;
+			foreach(string item in categories_checkedListBox.Items) {
+				if(item == category) {
+					categoryFound = true;
+				}
+			}
+			if(!categoryFound && category is not null) {
+				categories_checkedListBox.Items.Add(category);
+			}
+		}
+
+		#region DataGridView Custom Settings
+		private void DataGridReadOnlySettings() {
 			dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter;
 
 			dataGridView1.Columns["Image"].ReadOnly = true;
@@ -74,6 +69,7 @@ namespace HarmonyBlend.Pages
 			dataGridView1.Columns["ListPrice"].ReadOnly = true;
 			dataGridView1.Columns["KDV"].ReadOnly = true;
 			dataGridView1.Columns["TotalPrice"].ReadOnly = true;
+			dataGridView1.Columns["KDVPercent"].ReadOnly = true;
 		}
 
 		#endregion
@@ -126,108 +122,6 @@ namespace HarmonyBlend.Pages
 		}
 		#endregion
 
-		#region Control for Amount Value
-
-		#region Detect Column
-		private bool IsInvalidRowIndex(int rowIndex) {
-			return rowIndex < 0 || rowIndex >= dataGridView1.Rows.Count;
-		}
-
-		private bool IsAmountColumn(int columnIndex) {
-			return columnIndex == 5;
-		}
-
-		private bool IsCheckColumn(int columnIndex) {
-			return columnIndex == 2;
-		}
-		#endregion
-
-		private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
-			if(IsInvalidRowIndex(e.RowIndex) || dataGridView1.Rows[e.RowIndex].IsNewRow)
-				return;
-
-			int columnIndex = e.ColumnIndex;
-
-			if(IsAmountColumn(columnIndex) || IsCheckColumn(columnIndex))
-				HandleAmountOrCheckColumnChange(e);
-		}
-
-		private void HandleAmountOrCheckColumnChange(DataGridViewCellEventArgs e) {
-			int rowIndex = e.RowIndex;
-
-			if(IsAmountColumn(e.ColumnIndex))
-				CalculateTotalPriceAndKDV(rowIndex);
-		}
-
-		private void CalculateTotalPriceAndKDV(int rowIndex) {
-			DataGridViewCell amountCell = dataGridView1.Rows[rowIndex].Cells[5];
-			if(amountCell.Value != null && Convert.ToInt32(amountCell.Value.ToString()) != 0f) {
-				CalculateTotalPriceForRow(rowIndex);
-				CalculateTotalKDVForRow(rowIndex);
-				UpdateOrderInformation(rowIndex, false);
-				SetValueToCell(rowIndex, "Check", true);
-			} else {
-				ClearCorrespondingRow(rowIndex);
-				UpdateOrderInformation(rowIndex, true);
-			}
-		}
-
-		private void CalculateTotalPriceForRow(int rowIndex) {
-			float unitPrice = 0f;
-			float.TryParse(dataGridView1.Rows[rowIndex].Cells[7].Value.ToString(), CultureInfo.InvariantCulture.NumberFormat, out unitPrice);
-			float amount = 0f;
-			float.TryParse(dataGridView1.Rows[rowIndex].Cells[5].Value.ToString(), CultureInfo.InvariantCulture.NumberFormat, out amount);
-
-			if(unitPrice != 0f && amount != 0f) {
-				float total_Price = amount * unitPrice;
-				SetValueToCell(rowIndex, "TotalPrice", total_Price.ToString("C", new CultureInfo("tr-TR")));
-			}
-		}
-
-		private void CalculateTotalKDVForRow(int rowIndex) {
-			float temp_kdvPercent = 0f;
-
-			if(!float.TryParse(dataGridView1.Rows[rowIndex].Cells[10].Value.ToString(), out temp_kdvPercent)) {
-				MessageBox.Show("error!");
-			}
-
-			var totalPriceCell = dataGridView1.Rows[rowIndex].Cells[9];
-			if(totalPriceCell.Value != null) {
-				float total_KDV = (totalPriceCell.Value.ToString() ?? "-1").CurrencyToFloat() * (temp_kdvPercent / 100);
-				SetValueToCell(rowIndex, "KDV", total_KDV.FloatToCurrency());
-			}
-		}
-
-		private void SetValueToCell(int rowIndex, string columnName, object? newValue) {
-			dataGridView1.Rows[rowIndex].Cells[columnName].Value = newValue;
-		}
-
-		private void UpdateOrderInformation(int rowIndex, bool IsDeclare) {
-			var row = dataGridView1.Rows[rowIndex];
-
-			int currentAmount = int.Parse(totalOrderCount_label.Text.CurrencyToFloat().ToString());
-			float currentKDV = totalKDV_label.Text.CurrencyToFloat();
-			float currentTotalPrice = totalPayment_label.Text.CurrencyToFloat();
-
-			if(IsDeclare) {
-				totalOrderCount_label.Text = (currentAmount - _ROW_BEFORE_EDITING["AMOUNT"]).ToString();
-				totalKDV_label.Text = (currentKDV - (float)(_ROW_BEFORE_EDITING["KDV"] ?? -1)).FloatToCurrency();
-				totalPayment_label.Text = (currentTotalPrice - (float)(_ROW_BEFORE_EDITING["TOTALPRICE"] ?? -1)).FloatToCurrency();
-			} else {
-				totalOrderCount_label.Text = (currentAmount + Convert.ToInt32(row.Cells[5].Value.ToString())).ToString();
-				totalKDV_label.Text = (currentKDV + (row.Cells[8].Value.ToString() ?? "-1").CurrencyToFloat()).FloatToCurrency();
-				totalPayment_label.Text = (currentTotalPrice + (row.Cells[9].Value.ToString() ?? "-1").CurrencyToFloat()).FloatToCurrency();
-			}
-		}
-
-		private void ClearCorrespondingRow(int rowIndex) {
-			SetValueToCell(rowIndex, "Amount", null);
-			SetValueToCell(rowIndex, "Check", false);
-			SetValueToCell(rowIndex, "TotalPrice", null);
-			SetValueToCell(rowIndex, "KDV", null);
-		}
-		#endregion
-
 		private void AddAllProductsToCart_Button_Click(object sender, EventArgs e) {
 			int addedCount = 0;
 			for(int i = 0; i < dataGridView1.Rows.Count; i++) {
@@ -253,24 +147,6 @@ namespace HarmonyBlend.Pages
 			cartDetails.ShowDialog();
 		}
 
-		private void dataGridView1_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e) {
-			var row = dataGridView1.Rows[e.RowIndex];
-			if(row.Cells[5].Value == null) {
-				_ROW_BEFORE_EDITING["AMOUNT"] = 0f;
-			} else
-				_ROW_BEFORE_EDITING["AMOUNT"] = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[5].Value);
-
-			if(row.Cells[8].Value == null) {
-				_ROW_BEFORE_EDITING["KDV"] = 0f;
-			} else
-				_ROW_BEFORE_EDITING["KDV"] = dataGridView1.Rows[e.RowIndex].Cells[8]?.Value?.ToString()?.CurrencyToFloat();
-
-			if(row.Cells[9].Value == null) {
-				_ROW_BEFORE_EDITING["TOTALPRICE"] = 0f;
-			} else
-				_ROW_BEFORE_EDITING["TOTALPRICE"] = dataGridView1.Rows[e.RowIndex].Cells[9]?.Value?.ToString()?.CurrencyToFloat();
-		}
-
 		private void clearCart_button_Click(object sender, EventArgs e) {
 			DialogResult dialogResult = MessageBox.Show("Are you sure about clear the cart?", "Clear the Cart", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
@@ -278,27 +154,51 @@ namespace HarmonyBlend.Pages
 				CartManager.ClearCart();
 		}
 
-		private void unselectOrders_button_Click(object sender, EventArgs e) {
-			foreach(DataGridViewRow row in dataGridView1.Rows) {
-				SetValueToCell(row.Index, "Amount", null);
+		private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
+			if(_ARE_PULLEDDATAS) {
+				if(e.ColumnIndex == dataGridView1.Columns["Amount"].Index) {
+					CalculatePriceAndKDV(e.RowIndex);
+					UpdateLabels();
+				}
 			}
+		}
 
-			_ROW_BEFORE_EDITING["AMOUNT"] = _ZERO;
-			_ROW_BEFORE_EDITING["KDV"] = _ZERO;
-			_ROW_BEFORE_EDITING["TOTALPRICE"] = _ZERO;
+		private void CalculatePriceAndKDV(int rowIndex) {
+			DataGridViewRow row = dataGridView1.Rows[rowIndex];
 
-			totalOrderCount_label.Text = _ZERO.FloatToCurrency();
-			totalKDV_label.Text = _ZERO.FloatToCurrency();
-			totalPayment_label.Text = _ZERO.FloatToCurrency();
+			int amountValue = Convert.ToInt32(row.Cells["Amount"].Value);
+			int kdvPercent = Convert.ToInt32(row.Cells["KDVPercent"].Value);
+			decimal listPrice = Convert.ToDecimal(row.Cells["ListPrice"].Value);
+
+			float totalPrice = (float)listPrice * amountValue;
+			float kdv = totalPrice * kdvPercent / 100f;
+
+			row.Cells["TotalPrice"].Value = totalPrice.FloatToCurrency();
+			row.Cells["KDV"].Value = kdv.FloatToCurrency();
+
+			// Checks the check column if new amount is upper than zero
+			dataGridView1.Rows[rowIndex].Cells["Check"].Value = amountValue > 0;
+		}
+
+		private void UpdateLabels() {
+			decimal total_Amount = 0m, total_Price = 0m, total_KDV = 0m;
+			foreach(DataGridViewRow row in dataGridView1.Rows) {
+				if(row.Cells["Amount"].Value != null && Convert.ToInt32(row.Cells["Amount"].Value) > 0) {
+					total_Amount += Convert.ToDecimal(row.Cells["Amount"].Value);
+					total_Price += Convert.ToDecimal(row.Cells["TotalPrice"].Value?.ToString()?.CurrencyToFloat());
+					total_KDV += Convert.ToDecimal(row.Cells["KDV"].Value?.ToString()?.CurrencyToFloat());
+				}
+			}
+			totalOrderCount_label.Text = total_Amount.ToString();
+			totalPayment_label.Text = total_Price.ToString("C");
+			totalKDV_label.Text = total_KDV.ToString("C");
 		}
 
 		private void clearFilter_button_Click(object sender, EventArgs e) {
-			productCode_maskedTextBox.Text = null;
-			productName_textBox.Text = null;
-
-			for(int i = 0; i < categories_checkedListBox.Items.Count; i++)
+			productName_textBox.Clear();
+			for(int i = 0; i < categories_checkedListBox.Items.Count; i++) {
 				categories_checkedListBox.SetItemCheckState(i, CheckState.Unchecked);
-
+			}
 			categories_checkedListBox.SetItemCheckState(0, CheckState.Checked);
 		}
 	}
