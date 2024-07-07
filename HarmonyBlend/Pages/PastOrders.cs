@@ -11,6 +11,13 @@ namespace HarmonyBlend.Pages
 			InitializeComponent();
 		}
 
+		private void PastOrders_Load(object sender, EventArgs e) {
+			Utility.DataGridStyle(dataGridView1);
+			Utility.DataGridBehaviorAndLayoutProps(dataGridView1);
+			dateTimePicker2.Value = DateTime.Now.AddDays(1);
+			RefreshDataView();
+		}
+
 		private void RefreshDataView() {
 			DateTime beginDate = dateTimePicker1.Value;
 			DateTime endDate = dateTimePicker2.Value;
@@ -30,12 +37,6 @@ namespace HarmonyBlend.Pages
 			}
 		}
 
-		private void PastOrders_Load(object sender, EventArgs e) {
-			Utility.DataGridStyle(dataGridView1);
-			Utility.DataGridBehaviorAndLayoutProps(dataGridView1);
-			RefreshDataView();
-		}
-
 		private void CreateRows(DataTable pastOrders) {
 			foreach(DataRow order in pastOrders.Rows) {
 				DataGridViewRow row = new DataGridViewRow();
@@ -52,14 +53,15 @@ namespace HarmonyBlend.Pages
 		}
 
 		private void GetPastOrderDatas_button_Click(object sender, EventArgs e) {
+			dataGridView1.Rows.Clear();
 			RefreshDataView();
 		}
 
 		private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) {
-			if(e.ColumnIndex != 4)
+			if(dataGridView1.Columns[e.ColumnIndex].Name != "ShowDetailed")
 				return;
 
-			int orderID = int.Parse(dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString() ?? "-1");
+			int orderID = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells["OrderID"].Value);
 
 			if(orderID != -1) {
 				var detailedOrder = new OrderDetails("Order Details", orderID);

@@ -111,7 +111,7 @@ namespace HarmonyBlend
 			IPages_Mdi? page = buttonText switch {
 				"Dashboard" => new Dashboard(),
 				"Sipariş Ver" => new Orders(),
-				"Sub Menu 2" => new PastOrders(),
+				"Siparişlerim" => new PastOrders(),
 				"Settings" => new Settings(),
 				"About" => new About(),
 				_ => null

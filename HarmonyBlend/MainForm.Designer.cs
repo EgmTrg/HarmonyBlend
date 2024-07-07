@@ -275,7 +275,7 @@
 			menu_sub2_button.Padding = new Padding(25, 0, 0, 0);
 			menu_sub2_button.Size = new Size(176, 50);
 			menu_sub2_button.TabIndex = 0;
-			menu_sub2_button.Text = "Sub Menu 2";
+			menu_sub2_button.Text = "Siparişlerim";
 			menu_sub2_button.UseVisualStyleBackColor = false;
 			menu_sub2_button.Click += OpenPage_button_Click;
 			// 

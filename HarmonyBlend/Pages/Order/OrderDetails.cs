@@ -96,7 +96,9 @@ namespace HarmonyBlend.Pages.Order
 			if(totalPriceCheck_checkBox.Checked) {
 				var listofProducts = CartManager.ListOfProducts;
 				if(listofProducts is not null) {
-					PlaceTheOrder(listofProducts);
+					var result = PlaceTheOrder(listofProducts);
+					if(result.isSuccess)
+						MessageBox.Show("Sipariş başarıyla oluşturulmuştur. Lütfen geçmiş siparişlerim sayfasına giderek siparişlerinizi kontrol ediniz.", "Sipariş Oluşturuldu!", MessageBoxButtons.OK, MessageBoxIcon.Information);
 				}
 			} else {
 				MessageBox.Show("Check the `Informations Check!` then confirm the order.");
@@ -108,7 +110,7 @@ namespace HarmonyBlend.Pages.Order
 
 			if(listOfProducts is null) {
 				MessageBox.Show("Sepet boş olduğundan dolayı işleme devam edilemiyor", "Sepet Boş", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				return new Result<bool>();
+				return new Result<bool>() { isSuccess = false, };
 			}
 			float calcKDVprice = 0f, calcTotalprice = 0f;
 
@@ -127,11 +129,7 @@ namespace HarmonyBlend.Pages.Order
 			int orderID = (int)((result.Data) ?? -1);
 
 			if(result.isSuccess) {
-				MessageBox.Show("Siparişinizin özet görünümü oluşturulmuştur. Lütfen siparişlerim sayfasından kontrol ediniz.", "Sipariş Özeti Oluşturulması!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
 				PlaceTheOrderOfDetails(listOfProducts, orderID);
-
-				MessageBox.Show("Siparişinizin detay görünümü oluşturulmuştur. Lütfen siparişlerim sayfasından detaylari kontrol ediniz.", "Sipariş Detay Oluşturulması!", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 				return new Result<bool> {
 					isSuccess = true,
