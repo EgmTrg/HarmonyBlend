@@ -110,6 +110,7 @@
 			clearSelected_button.TabIndex = 1;
 			clearSelected_button.Text = "Seçilenleri Temizle";
 			clearSelected_button.UseVisualStyleBackColor = true;
+			clearSelected_button.Click += clearSelected_button_Click;
 			// 
 			// clearCart_button
 			// 
@@ -151,9 +152,9 @@
 			totalPayment_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
 			totalPayment_label.Location = new Point(158, 90);
 			totalPayment_label.Name = "totalPayment_label";
-			totalPayment_label.Size = new Size(99, 23);
+			totalPayment_label.Size = new Size(44, 23);
 			totalPayment_label.TabIndex = 4;
-			totalPayment_label.Text = "1234.56 TL";
+			totalPayment_label.Text = "0 TL";
 			// 
 			// totalKDV_label
 			// 
@@ -161,9 +162,9 @@
 			totalKDV_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
 			totalKDV_label.Location = new Point(158, 56);
 			totalKDV_label.Name = "totalKDV_label";
-			totalKDV_label.Size = new Size(69, 23);
+			totalKDV_label.Size = new Size(44, 23);
 			totalKDV_label.TabIndex = 4;
-			totalKDV_label.Text = "1,23 TL";
+			totalKDV_label.Text = "0 TL";
 			// 
 			// totalOrderCount_label
 			// 
@@ -171,9 +172,9 @@
 			totalOrderCount_label.Font = new Font("Segoe UI", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
 			totalOrderCount_label.Location = new Point(158, 22);
 			totalOrderCount_label.Name = "totalOrderCount_label";
-			totalOrderCount_label.Size = new Size(50, 23);
+			totalOrderCount_label.Size = new Size(20, 23);
 			totalOrderCount_label.TabIndex = 4;
-			totalOrderCount_label.Text = "1234";
+			totalOrderCount_label.Text = "0";
 			// 
 			// label6
 			// 
@@ -391,7 +392,7 @@
 			// 
 			PName.FillWeight = 771.5736F;
 			PName.HeaderText = "PName";
-			PName.MinimumWidth = 200;
+			PName.MinimumWidth = 150;
 			PName.Name = "PName";
 			// 
 			// Amount
@@ -434,6 +435,7 @@
 			KDVPercent.HeaderText = "KDVPercent";
 			KDVPercent.MinimumWidth = 100;
 			KDVPercent.Name = "KDVPercent";
+			KDVPercent.Visible = false;
 			// 
 			// Orders
 			// 

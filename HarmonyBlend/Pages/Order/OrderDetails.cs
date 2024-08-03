@@ -12,12 +12,10 @@ namespace HarmonyBlend.Pages.Order
 
 		public OrderDetails(string name) {
 			InitializeComponent();
-			loggedInUsername_label.Text = " | " + name;
 		}
 
 		public OrderDetails(string name, int orderID) {
 			InitializeComponent();
-			loggedInUsername_label.Text = " | " + name;
 			_ORDER_ID = orderID;
 		}
 
@@ -57,17 +55,21 @@ namespace HarmonyBlend.Pages.Order
 		#endregion
 
 		private void CartDetails_Load(object sender, EventArgs e) {
-			if(loggedInUsername_label.Text.Contains("Cart Details")) {
+			/*if(loggedInUsername_label.Text.Contains("Cart Details")) {
 				UsingByCartDetailed();
 			}
 
-			if(loggedInUsername_label.Text.Contains("Order Details")) {
+			if(loggedInUsername_label.Text.Contains("OrderDetails")) {
 				UsingByOrderDetailed(_ORDER_ID);
-			}
+
+				richTextBox1.Text = "placeholderText";
+				richTextBox1.ForeColor = Color.Gray;
+				richTextBox1.Enter += RichTextBox1_Enter;
+				richTextBox1.Leave += RichTextBox1_Leave;
+			}*/
 		}
 
 		#region Cart Detailed
-
 		private void UsingByCartDetailed() {
 			if(CartManager.ListOfProducts != null) {
 				foreach(var item in CartManager.ListOfProducts) {
@@ -99,6 +101,7 @@ namespace HarmonyBlend.Pages.Order
 					var result = PlaceTheOrder(listofProducts);
 					if(result.isSuccess)
 						MessageBox.Show("Sipariş başarıyla oluşturulmuştur. Lütfen geçmiş siparişlerim sayfasına giderek siparişlerinizi kontrol ediniz.", "Sipariş Oluşturuldu!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					this.Close();
 				}
 			} else {
 				MessageBox.Show("Check the `Informations Check!` then confirm the order.");
@@ -166,11 +169,25 @@ namespace HarmonyBlend.Pages.Order
 				orderItem.Amount = item.Amount;
 				orderItem.Unit = item.Unit;
 				orderItem.KDV = (decimal)item.KDV;
-				orderItem.Price = (decimal)(item.ListPrice * item.Amount);
+				orderItem.Price = (decimal)item.ListPrice;
 				orderItem.TotalPrice = (decimal)item.TotalPrice;
 				orderItem.CreatedAt = DateTime.Now;
 
 				result = new ORM.TableORMs.OrderDetailedORM().Insert(orderItem);
+			}
+		}
+
+		private void RichTextBox1_Enter(object? sender, EventArgs e) {
+			if(string.IsNullOrWhiteSpace(richTextBox1.Text)) {
+				richTextBox1.Text = "";
+				richTextBox1.ForeColor = Color.Gray;
+			}
+		}
+
+		private void RichTextBox1_Leave(object? sender, EventArgs e) {
+			if(richTextBox1.Text == "Notlar için burayı kullanınız!") {
+				richTextBox1.Text = "";
+				richTextBox1.ForeColor = Color.Black;
 			}
 		}
 		#endregion
@@ -189,13 +206,15 @@ namespace HarmonyBlend.Pages.Order
 						row.Cells[0].Value = orderedRow.ItemArray[4]?.ToString();
 						row.Cells[1].Value = orderedRow.ItemArray[5]?.ToString();
 						row.Cells[2].Value = orderedRow.ItemArray[6]?.ToString();
-						row.Cells[3].Value = orderedRow.ItemArray[9]?.ToString();
-						row.Cells[4].Value = orderedRow.ItemArray[10]?.ToString();
+						row.Cells[3].Value = orderedRow.ItemArray[8]?.ToString();
+						row.Cells[4].Value = orderedRow.ItemArray[9]?.ToString();
 					}
 					dataGridView1.Rows.Add(row);
 				}
 			}
 		}
+
+
 		#endregion
 	}
 }

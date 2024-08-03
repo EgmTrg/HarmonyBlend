@@ -99,7 +99,7 @@ namespace HarmonyBlend.Pages
 				}
 			} else {
 				foreach(DataGridViewRow row in dataGridView1.Rows) {
-					string? productCode = row.Cells[3].Value.ToString();
+					string? productCode = row.Cells[dataGridView1.Columns["PCode"].Index].Value.ToString();
 					if(!string.IsNullOrEmpty(productCode) && productCode.StartsWith(searchText)) {
 						row.Visible = true;
 					} else {
@@ -145,6 +145,9 @@ namespace HarmonyBlend.Pages
 		private void getCartInfos_button_Click(object sender, EventArgs e) {
 			OrderDetails cartDetails = new OrderDetails("Cart Details");
 			cartDetails.ShowDialog();
+
+			CartManager.ClearCart();
+			clearSelected_button.PerformClick();
 		}
 
 		private void clearCart_button_Click(object sender, EventArgs e) {
@@ -200,6 +203,13 @@ namespace HarmonyBlend.Pages
 				categories_checkedListBox.SetItemCheckState(i, CheckState.Unchecked);
 			}
 			categories_checkedListBox.SetItemCheckState(0, CheckState.Checked);
+		}
+
+		private void clearSelected_button_Click(object sender, EventArgs e) {
+			foreach(DataGridViewRow row in dataGridView1.Rows) {
+				row.Cells["Amount"].Value = null;
+				row.Cells["Check"].Value = CheckState.Unchecked;
+			}
 		}
 	}
 }
