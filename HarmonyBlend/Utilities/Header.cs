@@ -8,8 +8,6 @@ namespace HarmonyBlend.Utilities
 
 		public Header() {
 			InitializeComponent();
-			this.Load += Header_Load;
-			this.MouseDown += HeaderMouseDown_Event;
 		}
 
 		private void Header_Load(object? sender, EventArgs e) {

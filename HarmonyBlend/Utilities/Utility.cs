@@ -135,7 +135,7 @@ namespace HarmonyBlend.Utilities
 			dataGridView1.AllowUserToDeleteRows = false;
 			dataGridView1.MultiSelect = false;
 			dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-			
+
 			// LAYOUT
 			dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 			dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;

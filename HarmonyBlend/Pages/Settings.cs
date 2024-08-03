@@ -153,5 +153,17 @@ namespace HarmonyBlend.Pages
 				productCode_maskedTextBox.Enabled = false;
 			}
 		}
+
+		private void connectionTestDB_button_Click(object sender, EventArgs e) {
+			try {
+				var result = ORM.Tools.ConnectionTest();
+				if(result)
+					MessageBox.Show("Veritabanına başarıyla bağlandı.", "Bağlantı Denemesi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				else
+					MessageBox.Show("Veritabanı bağlantısı başarısız oldu.", "Bağlantı Denemesi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			} catch(Exception ex) {
+				Console.WriteLine("Veritabanı bağlantı test edilirken hata meydana geldi: \n\n" + ex.Message, "Bağlantı Denemesi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
 	}
 }

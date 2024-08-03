@@ -71,6 +71,7 @@ namespace HarmonyBlend
 			}
 
 			// Save user informations to app.config using by ConfiguteManager
+			
 			Utility.CurrentUserID = userID;
 			Utility.CurrentUserName = username;
 			Utility.Password = password;

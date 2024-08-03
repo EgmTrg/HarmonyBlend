@@ -46,6 +46,7 @@
 			panel_Control.Name = "panel_Control";
 			panel_Control.Size = new Size(784, 30);
 			panel_Control.TabIndex = 3;
+			panel_Control.MouseDown += HeaderMouseDown_Event;
 			// 
 			// panel8
 			// 
@@ -122,6 +123,7 @@
 			Controls.Add(panel_Control);
 			Name = "Header";
 			Size = new Size(784, 30);
+			Load += Header_Load;
 			panel_Control.ResumeLayout(false);
 			panel_Control.PerformLayout();
 			panel8.ResumeLayout(false);

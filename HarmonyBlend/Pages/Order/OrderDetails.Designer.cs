@@ -43,10 +43,16 @@
 			edit_button = new Button();
 			label6 = new Label();
 			totalPriceCheck_checkBox = new CheckBox();
+			panel_Control = new Panel();
+			panel8 = new Panel();
+			minimize_button = new Button();
+			maximaze_button = new Button();
+			exit_button = new Button();
+			header_label = new Label();
 			panel2 = new Panel();
 			dataGridView1 = new DataGridView();
 			Check = new DataGridViewCheckBoxColumn();
-			PName = new DataGridViewTextBoxColumn();
+			ProductName = new DataGridViewTextBoxColumn();
 			Amount = new DataGridViewTextBoxColumn();
 			Unit = new DataGridViewTextBoxColumn();
 			ListPrice = new DataGridViewTextBoxColumn();
@@ -54,6 +60,8 @@
 			panel1.SuspendLayout();
 			OrderDetailed_groupBox.SuspendLayout();
 			CartDetails_groupBox.SuspendLayout();
+			panel_Control.SuspendLayout();
+			panel8.SuspendLayout();
 			panel2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
 			SuspendLayout();
@@ -63,9 +71,9 @@
 			panel1.Controls.Add(OrderDetailed_groupBox);
 			panel1.Controls.Add(CartDetails_groupBox);
 			panel1.Dock = DockStyle.Bottom;
-			panel1.Location = new Point(0, 273);
+			panel1.Location = new Point(0, 366);
 			panel1.Name = "panel1";
-			panel1.Size = new Size(906, 263);
+			panel1.Size = new Size(906, 170);
 			panel1.TabIndex = 3;
 			// 
 			// OrderDetailed_groupBox
@@ -74,7 +82,8 @@
 			OrderDetailed_groupBox.Controls.Add(button3);
 			OrderDetailed_groupBox.Controls.Add(button1);
 			OrderDetailed_groupBox.Controls.Add(button2);
-			OrderDetailed_groupBox.Location = new Point(0, 100);
+			OrderDetailed_groupBox.Dock = DockStyle.Bottom;
+			OrderDetailed_groupBox.Location = new Point(0, -2);
 			OrderDetailed_groupBox.Name = "OrderDetailed_groupBox";
 			OrderDetailed_groupBox.Size = new Size(906, 100);
 			OrderDetailed_groupBox.TabIndex = 10;
@@ -127,9 +136,10 @@
 			CartDetails_groupBox.Controls.Add(edit_button);
 			CartDetails_groupBox.Controls.Add(label6);
 			CartDetails_groupBox.Controls.Add(totalPriceCheck_checkBox);
-			CartDetails_groupBox.Location = new Point(0, 0);
+			CartDetails_groupBox.Dock = DockStyle.Bottom;
+			CartDetails_groupBox.Location = new Point(0, 98);
 			CartDetails_groupBox.Name = "CartDetails_groupBox";
-			CartDetails_groupBox.Size = new Size(906, 100);
+			CartDetails_groupBox.Size = new Size(906, 72);
 			CartDetails_groupBox.TabIndex = 9;
 			CartDetails_groupBox.TabStop = false;
 			// 
@@ -156,6 +166,7 @@
 			// 
 			// confirm_button
 			// 
+			confirm_button.Enabled = false;
 			confirm_button.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 162);
 			confirm_button.Location = new Point(715, 15);
 			confirm_button.Name = "confirm_button";
@@ -206,15 +217,97 @@
 			totalPriceCheck_checkBox.TabIndex = 2;
 			totalPriceCheck_checkBox.Text = "Informations Checked!";
 			totalPriceCheck_checkBox.UseVisualStyleBackColor = true;
+			totalPriceCheck_checkBox.CheckedChanged += totalPriceCheck_checkBox_CheckedChanged;
+			// 
+			// panel_Control
+			// 
+			panel_Control.BackColor = Color.DimGray;
+			panel_Control.Controls.Add(panel8);
+			panel_Control.Controls.Add(header_label);
+			panel_Control.Dock = DockStyle.Top;
+			panel_Control.ForeColor = Color.White;
+			panel_Control.Location = new Point(0, 0);
+			panel_Control.Name = "panel_Control";
+			panel_Control.Size = new Size(906, 30);
+			panel_Control.TabIndex = 5;
+			panel_Control.MouseDown += HeaderMouseDown_Event;
+			// 
+			// panel8
+			// 
+			panel8.Controls.Add(minimize_button);
+			panel8.Controls.Add(maximaze_button);
+			panel8.Controls.Add(exit_button);
+			panel8.Dock = DockStyle.Right;
+			panel8.Location = new Point(815, 0);
+			panel8.Name = "panel8";
+			panel8.Size = new Size(91, 30);
+			panel8.TabIndex = 0;
+			// 
+			// minimize_button
+			// 
+			minimize_button.BackColor = Color.DimGray;
+			minimize_button.FlatAppearance.BorderSize = 0;
+			minimize_button.FlatStyle = FlatStyle.Flat;
+			minimize_button.Font = new Font("Microsoft Sans Serif", 10F);
+			minimize_button.ForeColor = SystemColors.WindowText;
+			minimize_button.Image = Properties.Resources.subminimize_16x16_White;
+			minimize_button.Location = new Point(1, 1);
+			minimize_button.Name = "minimize_button";
+			minimize_button.Size = new Size(30, 30);
+			minimize_button.TabIndex = 7;
+			minimize_button.UseVisualStyleBackColor = false;
+			minimize_button.Click += minimize_button_Click;
+			// 
+			// maximaze_button
+			// 
+			maximaze_button.BackColor = Color.DimGray;
+			maximaze_button.FlatAppearance.BorderSize = 0;
+			maximaze_button.FlatStyle = FlatStyle.Flat;
+			maximaze_button.Font = new Font("Microsoft Sans Serif", 10F);
+			maximaze_button.ForeColor = SystemColors.WindowText;
+			maximaze_button.Image = Properties.Resources.minimize_16x16_White;
+			maximaze_button.Location = new Point(31, 1);
+			maximaze_button.Name = "maximaze_button";
+			maximaze_button.Size = new Size(30, 30);
+			maximaze_button.TabIndex = 6;
+			maximaze_button.UseVisualStyleBackColor = false;
+			maximaze_button.Click += maximaze_button_Click;
+			// 
+			// exit_button
+			// 
+			exit_button.BackColor = Color.DimGray;
+			exit_button.FlatAppearance.BorderSize = 0;
+			exit_button.FlatStyle = FlatStyle.Flat;
+			exit_button.Font = new Font("Microsoft Sans Serif", 10F);
+			exit_button.ForeColor = SystemColors.WindowText;
+			exit_button.Image = Properties.Resources.close_16x16_White;
+			exit_button.Location = new Point(61, 1);
+			exit_button.Name = "exit_button";
+			exit_button.Size = new Size(30, 30);
+			exit_button.TabIndex = 5;
+			exit_button.UseVisualStyleBackColor = false;
+			exit_button.Click += exit_button_Click;
+			// 
+			// header_label
+			// 
+			header_label.AutoSize = true;
+			header_label.Font = new Font("Segoe UI Semibold", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 162);
+			header_label.ForeColor = Color.White;
+			header_label.Location = new Point(12, 5);
+			header_label.Name = "header_label";
+			header_label.Size = new Size(31, 22);
+			header_label.TabIndex = 0;
+			header_label.Text = "Text";
+			header_label.UseCompatibleTextRendering = true;
 			// 
 			// panel2
 			// 
 			panel2.Controls.Add(dataGridView1);
 			panel2.Dock = DockStyle.Fill;
-			panel2.Location = new Point(0, 0);
+			panel2.Location = new Point(0, 30);
 			panel2.Name = "panel2";
-			panel2.Size = new Size(906, 273);
-			panel2.TabIndex = 4;
+			panel2.Size = new Size(906, 336);
+			panel2.TabIndex = 6;
 			// 
 			// dataGridView1
 			// 
@@ -236,7 +329,7 @@
 			dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
 			dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
 			dataGridView1.ColumnHeadersHeight = 30;
-			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Check, PName, Amount, Unit, ListPrice, TotalPrice });
+			dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Check, ProductName, Amount, Unit, ListPrice, TotalPrice });
 			dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			dataGridViewCellStyle3.BackColor = Color.Gainsboro;
 			dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
@@ -245,7 +338,8 @@
 			dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
 			dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
 			dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
-			dataGridView1.Location = new Point(0, 78);
+			dataGridView1.Dock = DockStyle.Fill;
+			dataGridView1.Location = new Point(0, 0);
 			dataGridView1.MultiSelect = false;
 			dataGridView1.Name = "dataGridView1";
 			dataGridView1.ReadOnly = true;
@@ -258,7 +352,7 @@
 			dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
 			dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
 			dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-			dataGridView1.Size = new Size(906, 195);
+			dataGridView1.Size = new Size(906, 336);
 			dataGridView1.TabIndex = 1;
 			// 
 			// Check
@@ -271,16 +365,16 @@
 			Check.ReadOnly = true;
 			Check.Width = 30;
 			// 
-			// PName
+			// ProductName
 			// 
-			PName.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-			PName.FillWeight = 771.5736F;
-			PName.Frozen = true;
-			PName.HeaderText = "PName";
-			PName.MinimumWidth = 200;
-			PName.Name = "PName";
-			PName.ReadOnly = true;
-			PName.Width = 415;
+			ProductName.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+			ProductName.FillWeight = 771.5736F;
+			ProductName.Frozen = true;
+			ProductName.HeaderText = "ProductName";
+			ProductName.MinimumWidth = 200;
+			ProductName.Name = "ProductName";
+			ProductName.ReadOnly = true;
+			ProductName.Width = 415;
 			// 
 			// Amount
 			// 
@@ -301,7 +395,7 @@
 			// ListPrice
 			// 
 			ListPrice.FillWeight = 25.3807087F;
-			ListPrice.HeaderText = "List Price";
+			ListPrice.HeaderText = "ListPrice";
 			ListPrice.MinimumWidth = 100;
 			ListPrice.Name = "ListPrice";
 			ListPrice.ReadOnly = true;
@@ -309,7 +403,7 @@
 			// TotalPrice
 			// 
 			TotalPrice.FillWeight = 25.3807087F;
-			TotalPrice.HeaderText = "Total Price";
+			TotalPrice.HeaderText = "TotalPrice";
 			TotalPrice.MinimumWidth = 200;
 			TotalPrice.Name = "TotalPrice";
 			TotalPrice.ReadOnly = true;
@@ -320,6 +414,7 @@
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(906, 536);
 			Controls.Add(panel2);
+			Controls.Add(panel_Control);
 			Controls.Add(panel1);
 			FormBorderStyle = FormBorderStyle.None;
 			Name = "OrderDetails";
@@ -330,6 +425,9 @@
 			OrderDetailed_groupBox.ResumeLayout(false);
 			CartDetails_groupBox.ResumeLayout(false);
 			CartDetails_groupBox.PerformLayout();
+			panel_Control.ResumeLayout(false);
+			panel_Control.PerformLayout();
+			panel8.ResumeLayout(false);
 			panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
 			ResumeLayout(false);
@@ -337,8 +435,6 @@
 
 		#endregion
 		private Panel panel1;
-		private Panel panel2;
-		private DataGridView dataGridView1;
 		private Label totalPayment_label;
 		private Label totalOrderCount_label;
 		private Label label6;
@@ -351,12 +447,20 @@
 		internal Button button3;
 		internal Button button1;
 		internal Button button2;
+		private RichTextBox richTextBox1;
+		private Panel panel_Control;
+		private Panel panel8;
+		private Button minimize_button;
+		private Button maximaze_button;
+		private Button exit_button;
+		private Label header_label;
+		private Panel panel2;
+		private DataGridView dataGridView1;
 		private DataGridViewCheckBoxColumn Check;
-		private DataGridViewTextBoxColumn PName;
+		private DataGridViewTextBoxColumn ProductName;
 		private DataGridViewTextBoxColumn Amount;
 		private DataGridViewTextBoxColumn Unit;
 		private DataGridViewTextBoxColumn ListPrice;
 		private DataGridViewTextBoxColumn TotalPrice;
-		private RichTextBox richTextBox1;
 	}
 }

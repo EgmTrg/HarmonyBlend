@@ -126,7 +126,7 @@ namespace HarmonyBlend.Pages
 			int addedCount = 0;
 			for(int i = 0; i < dataGridView1.Rows.Count; i++) {
 				var currentRow = dataGridView1.Rows[i];
-				if((bool)currentRow.Cells[2].Value == true) {
+				if((bool)currentRow.Cells[2].Value == true /*&& int.Parse(currentRow.Cells["Amount"].Value) > 0*/) {
 					CartItem item = new CartItem(currentRow);
 					var result = CartManager.AddToCart(item);
 					if(!result.isSuccess) {
@@ -146,8 +146,11 @@ namespace HarmonyBlend.Pages
 			OrderDetails cartDetails = new OrderDetails("Cart Details");
 			cartDetails.ShowDialog();
 
-			CartManager.ClearCart();
-			clearSelected_button.PerformClick();
+			DialogResult = MessageBox.Show("Sepetiniz Temizlensin mi?", "Sepet", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+			if(DialogResult == DialogResult.Yes) {
+				CartManager.ClearCart();
+				clearSelected_button.PerformClick();
+			}
 		}
 
 		private void clearCart_button_Click(object sender, EventArgs e) {

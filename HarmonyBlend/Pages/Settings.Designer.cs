@@ -70,6 +70,7 @@
 			activeProducts_dataGridView = new DataGridView();
 			label7 = new Label();
 			label1 = new Label();
+			connectionTestDB_button = new Button();
 			groupBox1.SuspendLayout();
 			tableLayoutPanel1.SuspendLayout();
 			groupBox3.SuspendLayout();
@@ -607,12 +608,27 @@
 			label1.TabIndex = 2;
 			label1.Text = "SETTINGS PAGE";
 			// 
+			// connectionTestDB_button
+			// 
+			connectionTestDB_button.BackColor = Color.FromArgb(39, 47, 59);
+			connectionTestDB_button.FlatStyle = FlatStyle.Flat;
+			connectionTestDB_button.Font = new Font("Segoe UI", 12F);
+			connectionTestDB_button.ForeColor = Color.White;
+			connectionTestDB_button.Location = new Point(294, 10);
+			connectionTestDB_button.Name = "connectionTestDB_button";
+			connectionTestDB_button.Size = new Size(239, 35);
+			connectionTestDB_button.TabIndex = 18;
+			connectionTestDB_button.Text = "Veritabanı Bağlantısını Test Et";
+			connectionTestDB_button.UseVisualStyleBackColor = false;
+			connectionTestDB_button.Click += connectionTestDB_button_Click;
+			// 
 			// Settings
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			BackColor = Color.FromArgb(39, 47, 59);
 			ClientSize = new Size(1180, 850);
+			Controls.Add(connectionTestDB_button);
 			Controls.Add(label1);
 			Controls.Add(groupBox1);
 			FormBorderStyle = FormBorderStyle.None;
@@ -677,5 +693,6 @@
 		private Label label15;
 		private TextBox desc_textBox;
 		private CheckBox changePCode_checkBox;
+		private Button connectionTestDB_button;
 	}
 }

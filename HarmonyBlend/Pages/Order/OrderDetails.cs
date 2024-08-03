@@ -12,10 +12,12 @@ namespace HarmonyBlend.Pages.Order
 
 		public OrderDetails(string name) {
 			InitializeComponent();
+			header_label.Text = name;
 		}
 
 		public OrderDetails(string name, int orderID) {
 			InitializeComponent();
+			header_label.Text = name;
 			_ORDER_ID = orderID;
 		}
 
@@ -55,18 +57,18 @@ namespace HarmonyBlend.Pages.Order
 		#endregion
 
 		private void CartDetails_Load(object sender, EventArgs e) {
-			/*if(loggedInUsername_label.Text.Contains("Cart Details")) {
+			if(header_label.Text.Contains("Cart Details")) {
 				UsingByCartDetailed();
 			}
 
-			if(loggedInUsername_label.Text.Contains("OrderDetails")) {
+			if(header_label.Text.Contains("Order Details")) {
 				UsingByOrderDetailed(_ORDER_ID);
 
 				richTextBox1.Text = "placeholderText";
 				richTextBox1.ForeColor = Color.Gray;
 				richTextBox1.Enter += RichTextBox1_Enter;
 				richTextBox1.Leave += RichTextBox1_Leave;
-			}*/
+			}
 		}
 
 		#region Cart Detailed
@@ -76,11 +78,11 @@ namespace HarmonyBlend.Pages.Order
 					DataGridViewRow row = new DataGridViewRow();
 					row.CreateCells(dataGridView1);
 
-					row.Cells[0].Value = item.ProductName;
-					row.Cells[1].Value = item.Amount;
-					row.Cells[2].Value = item.Unit;
-					row.Cells[3].Value = item.ListPrice;
-					row.Cells[4].Value = item.TotalPrice;
+					row.Cells[1].Value = item.ProductName;
+					row.Cells[2].Value = item.Amount;
+					row.Cells[3].Value = item.Unit;
+					row.Cells[4].Value = item.ListPrice;
+					row.Cells[5].Value = item.TotalPrice;
 
 					TOTALPRICE_ALLPRODUCTS += item.TotalPrice;
 					TOTALORDERCOUNT_ALLPRODUCTS += item.Amount;
@@ -176,6 +178,29 @@ namespace HarmonyBlend.Pages.Order
 				result = new ORM.TableORMs.OrderDetailedORM().Insert(orderItem);
 			}
 		}
+		#endregion
+
+		#region Order Detailed
+		private void UsingByOrderDetailed(int orderID) {
+			var orderDetailed = new ORM.TableORMs.OrderDetailedORM();
+			DataTable data = orderDetailed.GetDetailedOrder(orderID, Utility.CurrentUserID);
+
+			if(data is not null) {
+				foreach(DataRow orderedRow in data.Rows) {
+					DataGridViewRow row = new DataGridViewRow();
+					if(orderedRow != null) {
+						row.CreateCells(dataGridView1);
+						row.Cells[1].Value = orderedRow.ItemArray[4]?.ToString();
+						row.Cells[2].Value = orderedRow.ItemArray[5]?.ToString();
+						row.Cells[3].Value = orderedRow.ItemArray[6]?.ToString();
+						row.Cells[4].Value = orderedRow.ItemArray[8]?.ToString();
+						row.Cells[5].Value = orderedRow.ItemArray[9]?.ToString();
+					}
+					dataGridView1.Rows.Add(row);
+				}
+			}
+		}
+		#endregion
 
 		private void RichTextBox1_Enter(object? sender, EventArgs e) {
 			if(string.IsNullOrWhiteSpace(richTextBox1.Text)) {
@@ -190,31 +215,10 @@ namespace HarmonyBlend.Pages.Order
 				richTextBox1.ForeColor = Color.Black;
 			}
 		}
-		#endregion
 
-		#region Order Detailed
-
-		private void UsingByOrderDetailed(int orderID) {
-			var orderDetailed = new ORM.TableORMs.OrderDetailedORM();
-			DataTable data = orderDetailed.GetDetailedOrder(orderID, Utility.CurrentUserID);
-
-			if(data is not null) {
-				foreach(DataRow orderedRow in data.Rows) {
-					DataGridViewRow row = new DataGridViewRow();
-					if(orderedRow != null) {
-						row.CreateCells(dataGridView1);
-						row.Cells[0].Value = orderedRow.ItemArray[4]?.ToString();
-						row.Cells[1].Value = orderedRow.ItemArray[5]?.ToString();
-						row.Cells[2].Value = orderedRow.ItemArray[6]?.ToString();
-						row.Cells[3].Value = orderedRow.ItemArray[8]?.ToString();
-						row.Cells[4].Value = orderedRow.ItemArray[9]?.ToString();
-					}
-					dataGridView1.Rows.Add(row);
-				}
-			}
+		private void totalPriceCheck_checkBox_CheckedChanged(object sender, EventArgs e) {
+			if(totalPriceCheck_checkBox.CheckState == CheckState.Checked) { confirm_button.Enabled = true; } 
+			else { confirm_button.Enabled = false; }
 		}
-
-
-		#endregion
 	}
 }

@@ -5,20 +5,43 @@ namespace HarmonyBlend.ORM
 {
 	public class Tools
 	{
-		private static SqlConnection? _connection;
+		#region Local Connection Defination
+		/*private static SqlConnection? _local_connection;
 
-		public static SqlConnection Connection {
+		public static SqlConnection LocalConnection {
 			get {
-				if(_connection == null) {
+				if(_local_connection == null) {
 					// The connection string will be implement.
-					_connection = new SqlConnection("Server=EGEMENPC\\SQLEXPRESS;" +
+					_local_connection = new SqlConnection("Server=EGEMENPC\\SQLEXPRESS;" +
 													"Database=HarmonyBlend;" +
 													"Trusted_Connection=True;" +
 													"TrustServerCertificate=true");
 				}
-				return _connection;
+				return _local_connection;
 			}
-			private set { _connection = value; }
+			private set { _local_connection = value; }
+		}*/
+		#endregion
+
+		private static SqlConnection? _online_connection;
+
+		public static SqlConnection Connection {
+			get {
+				if(_online_connection == null) {
+					// The connection string will be implement.
+					_online_connection = new SqlConnection(
+											"Server=tcp:harmonyblend.database.windows.net,1433;" +
+											"Initial Catalog=HarmonyBlend;" +
+											"Persist Security Info=False;" +
+											"User ID=egmtrg;Password=343636Egemen;" +
+											"MultipleActiveResultSets=False;" +
+											"Encrypt=True;" +
+											"TrustServerCertificate=False;" +
+											"Connection Timeout=30;");
+				}
+				return _online_connection;
+			}
+			private set { _online_connection = value; }
 		}
 
 		public static Result_ORM<object> ExecuteNonQuery(SqlCommand command, bool hasOutput = false, string? outputVariableName = null) {
