@@ -10,7 +10,7 @@ namespace HarmonyBlend.Utilities
 		internal static string EMPTY_MASKEDTEXTBOX { get { return "   .  ."; } }
 
 		private static string GetAppSetting(string key) {
-			return ConfigurationManager.AppSettings[key];
+			return ConfigurationManager.AppSettings[key] ?? "NONE";
 		}
 
 		private static void SetAppSetting(string key, string value) {

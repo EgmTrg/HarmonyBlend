@@ -1,4 +1,4 @@
-﻿using HarmonyBlend.Pages.Order;
+﻿using HarmonyBlend.Pages.Cart;
 using HarmonyBlend.Properties;
 using System.Data;
 using System.Globalization;
@@ -143,7 +143,7 @@ namespace HarmonyBlend.Pages
 		}
 
 		private void getCartInfos_button_Click(object sender, EventArgs e) {
-			OrderDetails cartDetails = new OrderDetails("Cart Details");
+			CartDetails cartDetails = new CartDetails("Cart Details");
 			cartDetails.ShowDialog();
 
 			DialogResult = MessageBox.Show("Sepetiniz Temizlensin mi?", "Sepet", MessageBoxButtons.YesNo, MessageBoxIcon.Question);

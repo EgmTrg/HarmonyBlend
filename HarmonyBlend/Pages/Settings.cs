@@ -1,6 +1,6 @@
 ﻿using HarmonyBlend.Entity;
 using HarmonyBlend.ORM;
-using HarmonyBlend.Pages.Order;
+using HarmonyBlend.Pages.Cart;
 using HarmonyBlend.Pages.Setting;
 using HarmonyBlend.Utilities;
 using System.Data;

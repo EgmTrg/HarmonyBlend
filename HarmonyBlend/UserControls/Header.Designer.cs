@@ -1,4 +1,4 @@
-﻿namespace HarmonyBlend.Utilities
+﻿namespace HarmonyBlend.UserControls
 {
 	partial class Header
 	{
@@ -26,6 +26,7 @@
 		/// </summary>
 		private void InitializeComponent() {
 			panel_Control = new Panel();
+			button1 = new Button();
 			panel8 = new Panel();
 			minimize_button = new Button();
 			maximaze_button = new Button();
@@ -38,15 +39,28 @@
 			// panel_Control
 			// 
 			panel_Control.BackColor = Color.DimGray;
+			panel_Control.Controls.Add(button1);
 			panel_Control.Controls.Add(panel8);
 			panel_Control.Controls.Add(header_label);
 			panel_Control.Dock = DockStyle.Top;
 			panel_Control.ForeColor = Color.White;
 			panel_Control.Location = new Point(0, 0);
 			panel_Control.Name = "panel_Control";
-			panel_Control.Size = new Size(784, 30);
-			panel_Control.TabIndex = 3;
+			panel_Control.Size = new Size(796, 30);
+			panel_Control.TabIndex = 6;
 			panel_Control.MouseDown += HeaderMouseDown_Event;
+			// 
+			// button1
+			// 
+			button1.FlatStyle = FlatStyle.Flat;
+			button1.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
+			button1.Location = new Point(571, 3);
+			button1.Name = "button1";
+			button1.Size = new Size(127, 23);
+			button1.TabIndex = 1;
+			button1.Text = "BaseForm Control!";
+			button1.UseVisualStyleBackColor = true;
+			button1.Click += button1_Click;
 			// 
 			// panel8
 			// 
@@ -54,7 +68,7 @@
 			panel8.Controls.Add(maximaze_button);
 			panel8.Controls.Add(exit_button);
 			panel8.Dock = DockStyle.Right;
-			panel8.Location = new Point(693, 0);
+			panel8.Location = new Point(705, 0);
 			panel8.Name = "panel8";
 			panel8.Size = new Size(91, 30);
 			panel8.TabIndex = 0;
@@ -122,8 +136,8 @@
 			AutoScaleMode = AutoScaleMode.Font;
 			Controls.Add(panel_Control);
 			Name = "Header";
-			Size = new Size(784, 30);
-			Load += Header_Load;
+			Size = new Size(796, 30);
+			Paint += Header_Paint;
 			panel_Control.ResumeLayout(false);
 			panel_Control.PerformLayout();
 			panel8.ResumeLayout(false);
@@ -138,5 +152,6 @@
 		private Button maximaze_button;
 		private Button exit_button;
 		private Label header_label;
+		private Button button1;
 	}
 }

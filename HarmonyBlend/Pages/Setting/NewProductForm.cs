@@ -1,6 +1,4 @@
-﻿using HarmonyBlend.ORM.TableORMs;
-using HarmonyBlend.Utilities;
-using System.Diagnostics;
+﻿using HarmonyBlend.Utilities;
 using System.Runtime.InteropServices;
 
 namespace HarmonyBlend.Pages.Setting

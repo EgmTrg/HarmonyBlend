@@ -1,5 +1,4 @@
 ﻿using HarmonyBlend.Pages.Order;
-using HarmonyBlend.Properties;
 using HarmonyBlend.Utilities;
 using System.Data;
 
@@ -64,10 +63,7 @@ namespace HarmonyBlend.Pages
 			int orderID = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells["OrderID"].Value);
 
 			if(orderID != -1) {
-				var detailedOrder = new OrderDetails("Order Details", orderID);
-				detailedOrder.totalPriceCheck_checkBox.Checked = false;
-				detailedOrder.edit_button.Enabled = false;
-				detailedOrder.confirm_button.Enabled = false;
+				var detailedOrder = new OrderDetails(orderID);
 				detailedOrder.ShowDialog();
 			}
 		}

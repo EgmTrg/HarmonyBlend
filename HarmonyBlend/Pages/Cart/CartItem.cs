@@ -1,6 +1,6 @@
 ﻿using HarmonyBlend.Utilities;
 
-namespace HarmonyBlend.Pages.Order
+namespace HarmonyBlend.Pages.Cart
 {
 	internal class CartItem
 	{
