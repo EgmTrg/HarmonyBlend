@@ -10,11 +10,11 @@ namespace HarmonyBlend.Pages
 	{
 		enum OpenAblePages
         {
-            About,
-            Dashboard,
-            Sub1,
-            Sub2,
-            Settings
-        }
-    }
+			Dashboard,
+			Orders,
+			PastOrders,
+			Settings,
+			About
+		}
+	}
 }

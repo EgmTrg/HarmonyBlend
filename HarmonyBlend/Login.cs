@@ -24,7 +24,7 @@ namespace HarmonyBlend
 						MainForm mainform = new MainForm(Utility.CurrentUserName.ToUpper(), Utility.CurrentUserID);
 						mainform.Show();
 						this.Hide();
-						Utility.SetOnlineOrOfflineStatus(true);
+						Utility.SetUserOnlineOrOffline(true);
 					} else {
 						MessageBox.Show("Þifre yanlýþ.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}

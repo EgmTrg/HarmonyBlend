@@ -83,6 +83,10 @@ namespace HarmonyBlend
 			if(MenuExpand == true)
 				menuButtonTransition.Start();
 		}
+		
+		private void menu_button_Click(object sender, EventArgs e) {
+			menuButtonTransition.Start();
+		}
 
 		private void menuTransition_Tick(object sender, EventArgs e) {
 			if(MenuExpand == false) {
@@ -98,10 +102,6 @@ namespace HarmonyBlend
 					MenuExpand = false;
 				}
 			}
-		}
-
-		private void menu_button_Click(object sender, EventArgs e) {
-			menuButtonTransition.Start();
 		}
 		#endregion
 
@@ -145,11 +145,16 @@ namespace HarmonyBlend
 		private void OnFormClosed(object? sender, FormClosedEventArgs e) {
 			(sender as Form)?.Dispose();
 		}
-
 		#endregion
 
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
-			Utility.SetOnlineOrOfflineStatus(false);
+			Utility.SetUserOnlineOrOffline(false);
+		}
+
+		private void MainForm_Load(object sender, EventArgs e) {
+			if(Utility.UserType == "User") {
+				settings_button.Visible = false;
+			}
 		}
 	}
 }

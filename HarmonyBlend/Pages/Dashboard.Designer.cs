@@ -173,9 +173,9 @@
 			// tableLayoutPanel2
 			// 
 			tableLayoutPanel2.ColumnCount = 3;
-			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 291F));
+			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle());
+			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle());
+			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle());
 			tableLayoutPanel2.Controls.Add(panel2, 2, 0);
 			tableLayoutPanel2.Controls.Add(panel5, 1, 0);
 			tableLayoutPanel2.Controls.Add(panel6, 0, 0);
@@ -189,9 +189,9 @@
 			tableLayoutPanel2.Location = new Point(0, 77);
 			tableLayoutPanel2.Name = "tableLayoutPanel2";
 			tableLayoutPanel2.RowCount = 3;
-			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 122F));
+			tableLayoutPanel2.RowStyles.Add(new RowStyle());
+			tableLayoutPanel2.RowStyles.Add(new RowStyle());
+			tableLayoutPanel2.RowStyles.Add(new RowStyle());
 			tableLayoutPanel2.Size = new Size(800, 373);
 			tableLayoutPanel2.TabIndex = 3;
 			// 

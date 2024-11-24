@@ -87,7 +87,7 @@ namespace HarmonyBlend.Utilities
 			return value.ToString("C", new CultureInfo("tr-TR"));
 		}
 
-		internal static void SetOnlineOrOfflineStatus(bool isOnline) {
+		internal static void SetUserOnlineOrOffline(bool isOnline) {
 			if(Utility.UserType == "ADMIN") {
 				Entity.Users userInfo = Utility.GetUserInformations;
 				userInfo.Status = isOnline;

@@ -169,10 +169,10 @@
 			sidebar_flowLayoutPanel.BackColor = Color.FromArgb(40, 47, 58);
 			sidebar_flowLayoutPanel.Controls.Add(pictureBox2);
 			sidebar_flowLayoutPanel.Controls.Add(dashboard_button);
-			sidebar_flowLayoutPanel.Controls.Add(menuButton_flowLayoutPanel);
 			sidebar_flowLayoutPanel.Controls.Add(about_button);
 			sidebar_flowLayoutPanel.Controls.Add(settings_button);
 			sidebar_flowLayoutPanel.Controls.Add(logout_button);
+			sidebar_flowLayoutPanel.Controls.Add(menuButton_flowLayoutPanel);
 			sidebar_flowLayoutPanel.Dock = DockStyle.Left;
 			sidebar_flowLayoutPanel.Location = new Point(0, 30);
 			sidebar_flowLayoutPanel.Name = "sidebar_flowLayoutPanel";
@@ -217,9 +217,9 @@
 			menuButton_flowLayoutPanel.Controls.Add(menu_button);
 			menuButton_flowLayoutPanel.Controls.Add(menu_sub1_Order_button);
 			menuButton_flowLayoutPanel.Controls.Add(menu_sub2_button);
-			menuButton_flowLayoutPanel.Location = new Point(3, 144);
+			menuButton_flowLayoutPanel.Location = new Point(3, 312);
 			menuButton_flowLayoutPanel.Name = "menuButton_flowLayoutPanel";
-			menuButton_flowLayoutPanel.Size = new Size(177, 50);
+			menuButton_flowLayoutPanel.Size = new Size(177, 177);
 			menuButton_flowLayoutPanel.TabIndex = 3;
 			// 
 			// menu_button
@@ -288,7 +288,7 @@
 			about_button.ForeColor = Color.White;
 			about_button.Image = Properties.Resources.information_32x32_White;
 			about_button.ImageAlign = ContentAlignment.MiddleLeft;
-			about_button.Location = new Point(3, 200);
+			about_button.Location = new Point(3, 144);
 			about_button.Name = "about_button";
 			about_button.Padding = new Padding(10, 0, 0, 0);
 			about_button.Size = new Size(176, 50);
@@ -306,7 +306,7 @@
 			settings_button.ForeColor = Color.White;
 			settings_button.Image = Properties.Resources.settings_32x32_White;
 			settings_button.ImageAlign = ContentAlignment.MiddleLeft;
-			settings_button.Location = new Point(3, 256);
+			settings_button.Location = new Point(3, 200);
 			settings_button.Name = "settings_button";
 			settings_button.Padding = new Padding(10, 0, 0, 0);
 			settings_button.Size = new Size(176, 50);
@@ -324,7 +324,7 @@
 			logout_button.ForeColor = Color.White;
 			logout_button.Image = Properties.Resources.logout_32x32_White;
 			logout_button.ImageAlign = ContentAlignment.MiddleLeft;
-			logout_button.Location = new Point(3, 312);
+			logout_button.Location = new Point(3, 256);
 			logout_button.Name = "logout_button";
 			logout_button.Padding = new Padding(10, 0, 0, 0);
 			logout_button.Size = new Size(176, 50);
@@ -358,6 +358,7 @@
 			Text = "AppForm";
 			WindowState = FormWindowState.Maximized;
 			FormClosed += MainForm_FormClosed;
+			Load += MainForm_Load;
 			panel_Control.ResumeLayout(false);
 			panel_Control.PerformLayout();
 			panel8.ResumeLayout(false);
