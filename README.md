@@ -2,10 +2,6 @@
 
 ### All processes on a single platform.
 
-<p align="center">
-  <img src="./assets/logo.png" width="160" />
-</p>
-
 <p align="center"><b>
 A unified management platform that connects branches, operation teams, and factories through a modern order and communication system.
 </b></p>
