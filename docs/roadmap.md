@@ -66,8 +66,9 @@ ve durum makinesi.
 - `order_status_history` ile denetim izi
 - Toast bildirim sistemi (sipariş oluşturuldu / ödeme başarısız gibi
   başarı-hata mesajları için — `alert()`/`confirm()` yerine)
-- Dark mode toggle + erişilebilirlik dokunuşları (`focus-visible` odak
-  halkası, `prefers-reduced-motion` desteği)
+- Erişilebilirlik dokunuşları (`focus-visible` odak halkası,
+  `prefers-reduced-motion` desteği)
+- Sidebar menüsünü açılır/kapanır (daraltılabilir) yapma
 
 **Çıkış kriteri —** üç ödeme tipiyle de uçtan uca sipariş oluşturulabiliyor;
 admin panelde durum geçişleri izlenebiliyor.
