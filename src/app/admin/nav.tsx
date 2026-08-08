@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Building2,
   ClipboardList,
   CreditCard,
   LayoutDashboard,
@@ -12,10 +11,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
+const NAV_ITEMS: { href: string; label: string; icon: LucideIcon; matchPrefixes?: string[] }[] = [
   { href: "/admin", label: "Genel Bakış", icon: LayoutDashboard },
-  { href: "/admin/brands", label: "Markalar", icon: Tags },
-  { href: "/admin/dealers", label: "Bayiler", icon: Building2 },
+  {
+    href: "/admin/brands",
+    label: "Markalar & Bayiler",
+    icon: Tags,
+    matchPrefixes: ["/admin/brands", "/admin/dealers"],
+  },
   { href: "/admin/products", label: "Ürünler", icon: Package },
   { href: "/admin/orders", label: "Siparişler", icon: ClipboardList },
   { href: "/admin/payment-methods", label: "Ödeme Yöntemleri", icon: CreditCard },
@@ -28,7 +31,9 @@ export function AdminNav({ collapsed = false }: { collapsed?: boolean }) {
     <nav className="flex flex-col gap-1">
       {NAV_ITEMS.map((item) => {
         const isActive =
-          item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+          item.href === "/admin"
+            ? pathname === "/admin"
+            : (item.matchPrefixes ?? [item.href]).some((prefix) => pathname.startsWith(prefix));
         const Icon = item.icon;
         return (
           <Link

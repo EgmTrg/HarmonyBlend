@@ -21,7 +21,7 @@ export async function createDealer(formData: FormData) {
     address: address || null,
   });
 
-  revalidatePath("/admin/dealers");
+  revalidatePath("/admin/brands");
 }
 
 export async function updateDealer(id: string, formData: FormData) {
@@ -36,7 +36,7 @@ export async function updateDealer(id: string, formData: FormData) {
     .set({ name, taxNo: taxNo || null, address: address || null })
     .where(and(eq(dealers.id, id), eq(dealers.companyId, session.user.companyId)));
 
-  revalidatePath("/admin/dealers");
+  revalidatePath("/admin/brands");
   revalidatePath(`/admin/dealers/${id}`);
 }
 
@@ -47,7 +47,7 @@ export async function deleteDealer(id: string, _formData: FormData) {
     .delete(dealers)
     .where(and(eq(dealers.id, id), eq(dealers.companyId, session.user.companyId)));
 
-  revalidatePath("/admin/dealers");
+  revalidatePath("/admin/brands");
 }
 
 export async function createDealerUser(dealerId: string, formData: FormData) {
