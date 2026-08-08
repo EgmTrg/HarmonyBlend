@@ -1,0 +1,19 @@
+{
+  "name": "siparis-sistemi-docs",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "B2B Sipariş & Bayi Yönetim Sistemi roadmap dokümanının PDF/Word üretim hattı",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "diagrams": "node scripts/render-diagrams.mjs",
+    "pdf": "node scripts/generate-pdf.mjs",
+    "docx": "node scripts/generate-docx.mjs"
+  },
+  "dependencies": {
+    "docx": "^9.1.0",
+    "marked": "^12.0.2",
+    "mermaid": "^11.4.1",
+    "puppeteer-core": "^23.9.0"
+  }
+}
