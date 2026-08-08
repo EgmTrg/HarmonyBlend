@@ -69,6 +69,15 @@ ve durum makinesi.
 - Erişilebilirlik dokunuşları (`focus-visible` odak halkası,
   `prefers-reduced-motion` desteği)
 - Sidebar menüsünü açılır/kapanır (daraltılabilir) yapma
+- Sidebar'ı sticky yapma — sayfa aşağı kaydırılsa bile kenar çubuğundaki
+  öğeler sabit kalsın, içerikle birlikte yukarı/aşağı kaymasın
+- Bayi listesinde "Düzenle" butonu — şu an düzenleme ayrı bir sayfada
+  (`/admin/dealers/[id]`) yapılıyor; "Ekle" ile aynı 3 sekmeli modal
+  açılıp mevcut bayinin ayarlarının (bir kısmının veya tamamının)
+  aynı yerden değiştirilebilmesi
+- "Ekle" modalındaki maksimum bakiye limiti alanını para birimi
+  formatlı yapma — düz sayı (`200000`) yerine otomatik binlik ayraç ve
+  ₺ sembolüyle (`200.000₺`) gösterilsin
 
 **Çıkış kriteri —** üç ödeme tipiyle de uçtan uca sipariş oluşturulabiliyor;
 admin panelde durum geçişleri izlenebiliyor.
