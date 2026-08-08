@@ -45,11 +45,6 @@ katmanında kurulması.
 - Bayi CRUD'u + `dealer_brands` ataması
 - Kategori/ürün CRUD'u — marka bazlı stok ve ambalaj alanlarıyla
 - `payment_methods` tanımları ve bayi/marka bazlı aktivasyon
-- **[Eksik — sonradan eklendi]** Bayi kullanıcı hesabı oluşturma ekranı:
-  admin'in bir bayiye kullanıcı adı/e-posta + şifre tanımlayıp `dealer_user`
-  rolüyle giriş yapabilecek bir hesap açması. Şu an bu yalnızca elle
-  (seed script) yapılabiliyor — bayi CRUD'una eklenmeden bir bayi gerçekte
-  panele giriş yapamaz.
 
 **Çıkış kriteri —** bir admin yeni bir bayiyi bir markaya bağlayıp, o bayinin
 sadece o markanın kataloğunu gördüğünü doğrulayabiliyor.
@@ -59,6 +54,11 @@ sadece o markanın kataloğunu gördüğünü doğrulayabiliyor.
 Hedef: Bayi tarafında sepetten siparişe; ödeme tipine göre dallanan checkout
 ve durum makinesi.
 
+- Bayi kullanıcı hesabı oluşturma ekranı: admin'in bir bayiye kullanıcı
+  adı/e-posta + şifre tanımlayıp `dealer_user` rolüyle giriş yapabilecek
+  bir hesap açması. Şu an bu yalnızca elle (seed script) yapılabiliyor —
+  eklenmeden bir bayi gerçekte panele giriş yapamaz; checkout akışının
+  test edilebilmesi için bu fazın ilk adımı olmalı.
 - Sepet ve checkout ekranı (marka bazlı katalog)
 - Ödeme tipine göre dinamik checkout adımları
 - `orders` / `order_items` oluşturma, durum makinesi implementasyonu
