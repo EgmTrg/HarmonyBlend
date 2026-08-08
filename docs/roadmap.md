@@ -45,6 +45,11 @@ katmanında kurulması.
 - Bayi CRUD'u + `dealer_brands` ataması
 - Kategori/ürün CRUD'u — marka bazlı stok ve ambalaj alanlarıyla
 - `payment_methods` tanımları ve bayi/marka bazlı aktivasyon
+- **[Eksik — sonradan eklendi]** Bayi kullanıcı hesabı oluşturma ekranı:
+  admin'in bir bayiye kullanıcı adı/e-posta + şifre tanımlayıp `dealer_user`
+  rolüyle giriş yapabilecek bir hesap açması. Şu an bu yalnızca elle
+  (seed script) yapılabiliyor — bayi CRUD'una eklenmeden bir bayi gerçekte
+  panele giriş yapamaz.
 
 **Çıkış kriteri —** bir admin yeni bir bayiyi bir markaya bağlayıp, o bayinin
 sadece o markanın kataloğunu gördüğünü doğrulayabiliyor.
@@ -59,6 +64,10 @@ ve durum makinesi.
 - `orders` / `order_items` oluşturma, durum makinesi implementasyonu
 - `PaymentProvider` arayüzü + `MockPosProvider`
 - `order_status_history` ile denetim izi
+- Toast bildirim sistemi (sipariş oluşturuldu / ödeme başarısız gibi
+  başarı-hata mesajları için — `alert()`/`confirm()` yerine)
+- Dark mode toggle + erişilebilirlik dokunuşları (`focus-visible` odak
+  halkası, `prefers-reduced-motion` desteği)
 
 **Çıkış kriteri —** üç ödeme tipiyle de uçtan uca sipariş oluşturulabiliyor;
 admin panelde durum geçişleri izlenebiliyor.
