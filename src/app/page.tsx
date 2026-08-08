@@ -1,11 +1,19 @@
 import Link from "next/link";
+import { BUTTON_PRIMARY } from "@/lib/ui";
 
 export default function HomePage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col items-start justify-center gap-3 px-4">
-      <h1 className="text-2xl font-semibold">HarmonyBlend</h1>
-      <p className="text-sm text-neutral-600">B2B Sipariş & Bayi Yönetim Sistemi</p>
-      <Link href="/login" className="text-sm font-medium underline underline-offset-4">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-navy-950 px-4 text-center">
+      <div className="flex items-center gap-2">
+        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-600 text-lg font-bold text-white">
+          H
+        </span>
+        <span className="text-xl font-semibold text-white">
+          Harmony<span className="text-accent-500">Blend</span>
+        </span>
+      </div>
+      <p className="max-w-sm text-sm text-white/50">B2B Sipariş &amp; Bayi Yönetim Sistemi</p>
+      <Link href="/login" className={BUTTON_PRIMARY}>
         Giriş yap →
       </Link>
     </main>

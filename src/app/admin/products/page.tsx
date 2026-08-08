@@ -1,8 +1,19 @@
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { brands, categories, products } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
+import {
+  BUTTON_GHOST_DANGER,
+  BUTTON_PRIMARY,
+  CARD,
+  INPUT,
+  LABEL,
+  TABLE_HEAD,
+  TABLE_ROW,
+  badgeClass,
+} from "@/lib/ui";
 import {
   createCategory,
   createProduct,
@@ -28,11 +39,11 @@ export default async function ProductsPage({
   if (companyBrands.length === 0) {
     return (
       <div className="flex flex-col gap-3">
-        <h1 className="text-xl font-semibold">Ürünler</h1>
-        <p className="text-sm text-neutral-600">
+        <h1 className="text-2xl font-semibold text-ink-900">Ürünler</h1>
+        <p className="text-sm text-ink-400">
           Kategori ve ürün eklemek için önce bir marka oluşturmalısınız.
         </p>
-        <Link href="/admin/brands" className="self-start text-sm text-neutral-900 underline">
+        <Link href="/admin/brands" className="self-start text-sm font-medium text-accent-600 hover:underline">
           Marka oluştur
         </Link>
       </div>
@@ -58,10 +69,10 @@ export default async function ProductsPage({
   const categoryNameById = new Map(brandCategories.map((c) => [c.id, c.name]));
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-xl font-semibold">Ürünler</h1>
-        <p className="text-sm text-neutral-600">Marka bazlı kategori ve ürün kataloğu.</p>
+        <h1 className="text-2xl font-semibold text-ink-900">Ürünler</h1>
+        <p className="text-sm text-ink-400">Marka bazlı kategori ve ürün kataloğu.</p>
       </div>
 
       <nav className="flex flex-wrap gap-2">
@@ -70,10 +81,10 @@ export default async function ProductsPage({
             key={brand.id}
             href={`/admin/products?brand=${brand.id}`}
             className={
-              "rounded-full border px-3 py-1 text-sm " +
+              "rounded-full border px-3.5 py-1.5 text-sm font-medium transition " +
               (brand.id === selectedBrand.id
-                ? "border-neutral-900 bg-neutral-900 text-white"
-                : "border-neutral-300 text-neutral-600")
+                ? "border-accent-600 bg-accent-600 text-white"
+                : "border-border bg-card text-ink-600 hover:border-accent-500 hover:text-accent-600")
             }
           >
             {brand.name}
@@ -82,215 +93,193 @@ export default async function ProductsPage({
       </nav>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Kategoriler</h2>
-        <form
-          action={createCategory.bind(null, selectedBrand.id)}
-          className="flex flex-wrap items-end gap-3"
-        >
-          <div className="flex flex-col gap-1">
-            <label htmlFor="cat-name" className="text-xs text-neutral-500">
-              Kategori adı
-            </label>
-            <input
-              id="cat-name"
-              name="name"
-              required
-              className="rounded border border-neutral-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="cat-parent" className="text-xs text-neutral-500">
-              Üst kategori
-            </label>
-            <select
-              id="cat-parent"
-              name="parentId"
-              className="rounded border border-neutral-300 px-3 py-2 text-sm"
-            >
-              <option value="">— Yok —</option>
-              {brandCategories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            type="submit"
-            className="rounded bg-neutral-900 px-3 py-2 text-sm font-medium text-white"
+        <h2 className="text-lg font-semibold text-ink-900">Kategoriler</h2>
+        <div className={CARD}>
+          <form
+            action={createCategory.bind(null, selectedBrand.id)}
+            className="flex flex-wrap items-end gap-3"
           >
-            Ekle
-          </button>
-        </form>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="cat-name" className={LABEL}>
+                Kategori adı
+              </label>
+              <input id="cat-name" name="name" required className={INPUT} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="cat-parent" className={LABEL}>
+                Üst kategori
+              </label>
+              <select id="cat-parent" name="parentId" className={INPUT}>
+                <option value="">— Yok —</option>
+                {brandCategories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" className={BUTTON_PRIMARY}>
+              <Plus className="mr-1.5 h-4 w-4" strokeWidth={2} />
+              Ekle
+            </button>
+          </form>
+        </div>
 
-        <ul className="flex flex-col divide-y divide-neutral-100 rounded border border-neutral-200">
-          {brandCategories.map((category) => (
-            <li key={category.id} className="flex items-center justify-between px-3 py-2 text-sm">
-              <span>
-                {category.name}
-                {category.parentId && (
-                  <span className="text-neutral-400">
-                    {" "}
-                    — üst: {categoryNameById.get(category.parentId) ?? "—"}
-                  </span>
-                )}
-              </span>
-              <form action={deleteCategory.bind(null, category.id, selectedBrand.id)}>
-                <button type="submit" className="text-xs text-red-600 hover:underline">
-                  Sil
-                </button>
-              </form>
-            </li>
-          ))}
-          {brandCategories.length === 0 && (
-            <li className="px-3 py-6 text-center text-sm text-neutral-400">
-              Bu markada henüz kategori yok.
-            </li>
-          )}
-        </ul>
+        <div className={`${CARD} p-0`}>
+          <ul className="flex flex-col divide-y divide-border">
+            {brandCategories.map((category) => (
+              <li
+                key={category.id}
+                className="flex items-center justify-between px-6 py-3 text-sm"
+              >
+                <span className="text-ink-900">
+                  {category.name}
+                  {category.parentId && (
+                    <span className="text-ink-400">
+                      {" "}
+                      — üst: {categoryNameById.get(category.parentId) ?? "—"}
+                    </span>
+                  )}
+                </span>
+                <form action={deleteCategory.bind(null, category.id, selectedBrand.id)}>
+                  <button type="submit" className={BUTTON_GHOST_DANGER}>
+                    Sil
+                  </button>
+                </form>
+              </li>
+            ))}
+            {brandCategories.length === 0 && (
+              <li className="px-6 py-10 text-center text-sm text-ink-400">
+                Bu markada henüz kategori yok.
+              </li>
+            )}
+          </ul>
+        </div>
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Ürünler</h2>
-        <form
-          action={createProduct.bind(null, selectedBrand.id)}
-          className="flex flex-wrap items-end gap-3"
-        >
-          <div className="flex flex-col gap-1">
-            <label htmlFor="p-name" className="text-xs text-neutral-500">
-              Ürün adı
-            </label>
-            <input
-              id="p-name"
-              name="name"
-              required
-              className="rounded border border-neutral-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="p-sku" className="text-xs text-neutral-500">
-              SKU
-            </label>
-            <input
-              id="p-sku"
-              name="sku"
-              required
-              className="w-28 rounded border border-neutral-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="p-unit" className="text-xs text-neutral-500">
-              Birim
-            </label>
-            <input
-              id="p-unit"
-              name="unit"
-              placeholder="koli / kg / adet"
-              required
-              className="w-28 rounded border border-neutral-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="p-price" className="text-xs text-neutral-500">
-              Birim fiyat
-            </label>
-            <input
-              id="p-price"
-              name="unitPrice"
-              type="number"
-              step="0.01"
-              min="0"
-              required
-              className="w-28 rounded border border-neutral-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="p-category" className="text-xs text-neutral-500">
-              Kategori
-            </label>
-            <select
-              id="p-category"
-              name="categoryId"
-              className="rounded border border-neutral-300 px-3 py-2 text-sm"
-            >
-              <option value="">— Yok —</option>
-              {brandCategories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            type="submit"
-            className="rounded bg-neutral-900 px-3 py-2 text-sm font-medium text-white"
+        <h2 className="text-lg font-semibold text-ink-900">Ürünler</h2>
+        <div className={CARD}>
+          <form
+            action={createProduct.bind(null, selectedBrand.id)}
+            className="flex flex-wrap items-end gap-3"
           >
-            Ekle
-          </button>
-        </form>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="p-name" className={LABEL}>
+                Ürün adı
+              </label>
+              <input id="p-name" name="name" required className={INPUT} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="p-sku" className={LABEL}>
+                SKU
+              </label>
+              <input id="p-sku" name="sku" required className={`w-28 ${INPUT}`} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="p-unit" className={LABEL}>
+                Birim
+              </label>
+              <input
+                id="p-unit"
+                name="unit"
+                placeholder="koli / kg / adet"
+                required
+                className={`w-32 ${INPUT}`}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="p-price" className={LABEL}>
+                Birim fiyat
+              </label>
+              <input
+                id="p-price"
+                name="unitPrice"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                className={`w-28 ${INPUT}`}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="p-category" className={LABEL}>
+                Kategori
+              </label>
+              <select id="p-category" name="categoryId" className={INPUT}>
+                <option value="">— Yok —</option>
+                {brandCategories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" className={BUTTON_PRIMARY}>
+              <Plus className="mr-1.5 h-4 w-4" strokeWidth={2} />
+              Ekle
+            </button>
+          </form>
+        </div>
 
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-neutral-200 text-left text-neutral-500">
-              <th className="py-2 font-medium">Ad</th>
-              <th className="py-2 font-medium">SKU</th>
-              <th className="py-2 font-medium">Kategori</th>
-              <th className="py-2 font-medium">Birim fiyat</th>
-              <th className="py-2 font-medium">Durum</th>
-              <th className="py-2" />
-            </tr>
-          </thead>
-          <tbody>
-            {brandProducts.map((product) => (
-              <tr key={product.id} className="border-b border-neutral-100">
-                <td className="py-2">{product.name}</td>
-                <td className="py-2 text-neutral-500">{product.sku}</td>
-                <td className="py-2 text-neutral-500">
-                  {product.categoryId ? (categoryNameById.get(product.categoryId) ?? "—") : "—"}
-                </td>
-                <td className="py-2 text-neutral-500">
-                  {product.unit} — {product.unitPrice}
-                </td>
-                <td className="py-2">
-                  <form
-                    action={toggleProductActive.bind(
-                      null,
-                      product.id,
-                      selectedBrand.id,
-                      !product.isActive
-                    )}
-                  >
-                    <button
-                      type="submit"
-                      className={
-                        "rounded-full px-2 py-0.5 text-xs " +
-                        (product.isActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-neutral-200 text-neutral-500")
-                      }
+        <div className={CARD}>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className={TABLE_HEAD}>
+                <th className="pb-3 font-medium">Ad</th>
+                <th className="pb-3 font-medium">SKU</th>
+                <th className="pb-3 font-medium">Kategori</th>
+                <th className="pb-3 font-medium">Birim fiyat</th>
+                <th className="pb-3 font-medium">Durum</th>
+                <th className="pb-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {brandProducts.map((product) => (
+                <tr key={product.id} className={TABLE_ROW}>
+                  <td className="py-3 font-medium text-ink-900">{product.name}</td>
+                  <td className="py-3 text-ink-400">{product.sku}</td>
+                  <td className="py-3 text-ink-400">
+                    {product.categoryId
+                      ? (categoryNameById.get(product.categoryId) ?? "—")
+                      : "—"}
+                  </td>
+                  <td className="py-3 text-ink-600">
+                    {product.unit} — {product.unitPrice}
+                  </td>
+                  <td className="py-3">
+                    <form
+                      action={toggleProductActive.bind(
+                        null,
+                        product.id,
+                        selectedBrand.id,
+                        !product.isActive
+                      )}
                     >
-                      {product.isActive ? "Aktif" : "Pasif"}
-                    </button>
-                  </form>
-                </td>
-                <td className="py-2 text-right">
-                  <form action={deleteProduct.bind(null, product.id, selectedBrand.id)}>
-                    <button type="submit" className="text-xs text-red-600 hover:underline">
-                      Sil
-                    </button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-            {brandProducts.length === 0 && (
-              <tr>
-                <td colSpan={6} className="py-6 text-center text-neutral-400">
-                  Bu markada henüz ürün yok.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                      <button type="submit" className={badgeClass(product.isActive ? "success" : "neutral")}>
+                        {product.isActive ? "Aktif" : "Pasif"}
+                      </button>
+                    </form>
+                  </td>
+                  <td className="py-3 text-right">
+                    <form action={deleteProduct.bind(null, product.id, selectedBrand.id)}>
+                      <button type="submit" className={BUTTON_GHOST_DANGER}>
+                        Sil
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+              {brandProducts.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-10 text-center text-ink-400">
+                    Bu markada henüz ürün yok.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );

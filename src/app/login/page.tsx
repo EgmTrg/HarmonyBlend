@@ -1,5 +1,6 @@
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
+import { BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
 
 export default function LoginPage({
   searchParams,
@@ -7,13 +8,21 @@ export default function LoginPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4">
-      <div>
-        <h1 className="text-xl font-semibold">HarmonyBlend</h1>
-        <p className="text-sm text-neutral-500">Yönetici / bayi girişi</p>
+    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-navy-950 px-4">
+      <div className="flex items-center gap-2">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-600 text-base font-bold text-white">
+          H
+        </span>
+        <span className="text-lg font-semibold text-white">
+          Harmony<span className="text-accent-500">Blend</span>
+        </span>
       </div>
 
-      <LoginForm searchParams={searchParams} />
+      <div className={`w-full max-w-sm ${CARD}`}>
+        <h1 className="text-lg font-semibold text-ink-900">Giriş yap</h1>
+        <p className="mb-6 text-sm text-ink-400">Yönetici / bayi girişi</p>
+        <LoginForm searchParams={searchParams} />
+      </div>
     </main>
   );
 }
@@ -42,26 +51,21 @@ async function LoginForm({
   }
 
   return (
-    <form action={authenticate} className="flex flex-col gap-3">
-      <input
-        name="email"
-        type="email"
-        placeholder="E-posta"
-        required
-        className="rounded border border-neutral-300 px-3 py-2 text-sm"
-      />
-      <input
-        name="password"
-        type="password"
-        placeholder="Şifre"
-        required
-        className="rounded border border-neutral-300 px-3 py-2 text-sm"
-      />
-      {error && <p className="text-sm text-red-600">E-posta veya şifre hatalı.</p>}
-      <button
-        type="submit"
-        className="rounded bg-neutral-900 px-3 py-2 text-sm font-medium text-white"
-      >
+    <form action={authenticate} className="flex flex-col gap-4">
+      <label className="flex flex-col gap-1">
+        <span className={LABEL}>E-posta</span>
+        <input name="email" type="email" placeholder="ornek@harmonyblend.dev" required className={INPUT} />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className={LABEL}>Şifre</span>
+        <input name="password" type="password" placeholder="••••••••" required className={INPUT} />
+      </label>
+      {error && (
+        <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger-fg">
+          E-posta veya şifre hatalı.
+        </p>
+      )}
+      <button type="submit" className={`justify-center ${BUTTON_PRIMARY}`}>
         Giriş yap
       </button>
     </form>

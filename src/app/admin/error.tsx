@@ -8,12 +8,12 @@ export default function AdminError({
   retry: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded border border-red-200 bg-red-50 p-4 text-sm">
-      <p className="font-medium text-red-800">Bir hata oluştu</p>
-      <p className="text-red-700">{error.message}</p>
+    <div className="flex flex-col gap-3 rounded-2xl border border-danger-fg/20 bg-danger-bg p-6 text-sm shadow-sm">
+      <p className="font-medium text-danger-fg">Bir hata oluştu</p>
+      <p className="text-danger-fg/80">{error.message}</p>
       <button
         onClick={() => retry()}
-        className="self-start rounded border border-red-300 px-3 py-1.5 text-xs text-red-800"
+        className="self-start rounded-lg border border-danger-fg/30 px-3 py-1.5 text-xs font-medium text-danger-fg"
       >
         Tekrar dene
       </button>

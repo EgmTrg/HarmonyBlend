@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { brands } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
+import { BUTTON_GHOST_DANGER, BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
 import { updateBrand, deleteBrand } from "../actions";
 
 export default async function BrandDetailPage({
@@ -23,28 +24,22 @@ export default async function BrandDetailPage({
 
   return (
     <div className="flex max-w-md flex-col gap-6">
-      <h1 className="text-xl font-semibold">Marka düzenle</h1>
+      <h1 className="text-2xl font-semibold text-ink-900">Marka düzenle</h1>
 
-      <form action={updateBrand.bind(null, brand.id)} className="flex flex-col gap-3">
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-xs text-neutral-500">Marka adı</span>
-          <input
-            name="name"
-            defaultValue={brand.name}
-            required
-            className="rounded border border-neutral-300 px-3 py-2 text-sm"
-          />
-        </label>
-        <button
-          type="submit"
-          className="self-start rounded bg-neutral-900 px-3 py-2 text-sm font-medium text-white"
-        >
-          Kaydet
-        </button>
-      </form>
+      <div className={CARD}>
+        <form action={updateBrand.bind(null, brand.id)} className="flex flex-col gap-4">
+          <label className="flex flex-col gap-1">
+            <span className={LABEL}>Marka adı</span>
+            <input name="name" defaultValue={brand.name} required className={INPUT} />
+          </label>
+          <button type="submit" className={`self-start ${BUTTON_PRIMARY}`}>
+            Kaydet
+          </button>
+        </form>
+      </div>
 
       <form action={deleteBrand.bind(null, brand.id)}>
-        <button type="submit" className="text-sm text-red-600 hover:underline">
+        <button type="submit" className={BUTTON_GHOST_DANGER}>
           Markayı sil
         </button>
       </form>
