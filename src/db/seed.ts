@@ -1,3 +1,6 @@
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import { hash } from "bcryptjs";
 import { db } from "./index";
 import { companies, users } from "./schema";
