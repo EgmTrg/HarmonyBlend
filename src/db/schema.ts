@@ -15,6 +15,9 @@ import { PAYMENT_METHOD_CODES } from "@/lib/payment-methods";
 
 export const userRole = pgEnum("user_role", USER_ROLES);
 export const paymentMethodCode = pgEnum("payment_method_code", PAYMENT_METHOD_CODES);
+export const paymentType = pgEnum("payment_type", ["order_payment", "standalone_collection"]);
+export const paymentProvider = pgEnum("payment_provider", ["mock", "iyzico", "paytr"]);
+export const paymentStatus = pgEnum("payment_status", ["pending", "success", "failed", "refunded"]);
 
 export const companies = pgTable("companies", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -152,3 +155,67 @@ export const dealerPaymentMethods = pgTable(
     ),
   ]
 );
+
+export const orders = pgTable("orders", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  dealerId: uuid("dealer_id")
+    .notNull()
+    .references(() => dealers.id, { onDelete: "cascade" }),
+  brandId: uuid("brand_id")
+    .notNull()
+    .references(() => brands.id, { onDelete: "cascade" }),
+  paymentMethodId: uuid("payment_method_id")
+    .notNull()
+    .references(() => paymentMethods.id),
+  // Free text, not a DB enum — the valid values and transitions differ per
+  // payment method flow (see src/lib/order-status.ts), which would make a
+  // single shared Postgres enum either too broad or need frequent ALTER TYPE.
+  status: text("status").notNull().default("submitted"),
+  totalAmount: numeric("total_amount", { precision: 14, scale: 2 }).notNull(),
+  createdBy: uuid("created_by")
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const orderItems = pgTable("order_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orderId: uuid("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  productId: uuid("product_id")
+    .notNull()
+    .references(() => products.id),
+  quantity: numeric("quantity", { precision: 10, scale: 2 }).notNull(),
+  unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+  lineTotal: numeric("line_total", { precision: 14, scale: 2 }).notNull(),
+});
+
+export const orderStatusHistory = pgTable("order_status_history", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orderId: uuid("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  fromStatus: text("from_status"),
+  toStatus: text("to_status").notNull(),
+  // NULL if system-triggered (e.g. mock payment result) rather than a user action.
+  changedBy: uuid("changed_by").references(() => users.id, { onDelete: "set null" }),
+  note: text("note"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const payments = pgTable("payments", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  dealerId: uuid("dealer_id")
+    .notNull()
+    .references(() => dealers.id, { onDelete: "cascade" }),
+  // NULL means a standalone collection not tied to an order (Phase 4).
+  orderId: uuid("order_id").references(() => orders.id, { onDelete: "cascade" }),
+  type: paymentType("type").notNull(),
+  provider: paymentProvider("provider").notNull(),
+  amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+  status: paymentStatus("status").notNull().default("pending"),
+  providerRef: text("provider_ref"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

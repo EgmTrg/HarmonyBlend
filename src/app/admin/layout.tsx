@@ -1,9 +1,12 @@
-import Link from "next/link";
-import { LogOut } from "lucide-react";
 import { signOut } from "@/auth";
 import { requireAdminSession } from "@/lib/session";
 import { ROLE_LABELS } from "@/lib/roles";
-import { AdminNav } from "./nav";
+import { AdminSidebar } from "./sidebar";
+
+async function signOutAction() {
+  "use server";
+  await signOut({ redirectTo: "/login" });
+}
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAdminSession();
@@ -19,37 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-screen bg-content">
-      <aside className="flex w-64 shrink-0 flex-col justify-between bg-navy-950 px-4 py-6">
-        <div className="flex flex-col gap-8">
-          <Link href="/admin" className="flex items-center gap-2 px-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-600 text-sm font-bold text-white">
-              H
-            </span>
-            <span className="text-sm font-semibold text-white">
-              Harmony<span className="text-accent-500">Blend</span>
-            </span>
-          </Link>
-          <AdminNav />
-        </div>
-
-        <div className="flex flex-col gap-3 border-t border-navy-border pt-4">
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/login" });
-            }}
-          >
-            <button
-              type="submit"
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white"
-            >
-              <LogOut className="h-4 w-4" strokeWidth={2} />
-              Çıkış yap
-            </button>
-          </form>
-          <p className="px-3 text-xs text-white/30">© 2026 HarmonyBlend</p>
-        </div>
-      </aside>
+      <AdminSidebar signOutAction={signOutAction} />
 
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-navy-border bg-navy-950 px-8 py-4">

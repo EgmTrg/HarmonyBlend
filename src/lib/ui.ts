@@ -16,8 +16,16 @@ export const TABLE_HEAD = "border-b border-border text-left text-xs font-medium 
 
 export const TABLE_ROW = "border-b border-border/70 last:border-0";
 
-export function badgeClass(tone: "success" | "neutral") {
-  return tone === "success"
-    ? "rounded-full bg-success-bg px-2.5 py-0.5 text-xs font-medium text-success-fg"
-    : "rounded-full bg-content px-2.5 py-0.5 text-xs font-medium text-ink-400";
+export type BadgeTone = "success" | "neutral" | "info" | "warning" | "danger";
+
+const BADGE_TONE_CLASSES: Record<BadgeTone, string> = {
+  success: "bg-success-bg text-success-fg",
+  info: "bg-info-bg text-info-fg",
+  warning: "bg-warning-bg text-warning-fg",
+  danger: "bg-danger-bg text-danger-fg",
+  neutral: "bg-content text-ink-400",
+};
+
+export function badgeClass(tone: BadgeTone) {
+  return `rounded-full px-2.5 py-0.5 text-xs font-medium ${BADGE_TONE_CLASSES[tone]}`;
 }

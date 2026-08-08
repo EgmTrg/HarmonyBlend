@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { hash } from "bcryptjs";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, dealerBrands, dealerPaymentMethods, dealers, paymentMethods } from "@/db/schema";
+import { brands, dealerBrands, dealerPaymentMethods, dealers, paymentMethods, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 
 export async function createDealer(formData: FormData) {
@@ -47,6 +48,56 @@ export async function deleteDealer(id: string, _formData: FormData) {
     .where(and(eq(dealers.id, id), eq(dealers.companyId, session.user.companyId)));
 
   revalidatePath("/admin/dealers");
+}
+
+export async function createDealerUser(dealerId: string, formData: FormData) {
+  const session = await requireAdminSession();
+
+  const [dealer] = await db
+    .select({ id: dealers.id })
+    .from(dealers)
+    .where(and(eq(dealers.id, dealerId), eq(dealers.companyId, session.user.companyId)))
+    .limit(1);
+  if (!dealer) throw new Error("Bayi bulunamadı.");
+
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  if (!email) throw new Error("E-posta zorunlu.");
+  if (password.length < 8) throw new Error("Şifre en az 8 karakter olmalı.");
+
+  const passwordHash = await hash(password, 10);
+
+  try {
+    await db.insert(users).values({
+      companyId: session.user.companyId,
+      dealerId,
+      email,
+      role: "dealer_user",
+      passwordHash,
+    });
+  } catch {
+    throw new Error("Bu e-posta zaten kullanılıyor.");
+  }
+
+  revalidatePath(`/admin/dealers/${dealerId}`);
+}
+
+export async function deleteDealerUser(userId: string, dealerId: string, _formData: FormData) {
+  const session = await requireAdminSession();
+
+  await db
+    .delete(users)
+    .where(
+      and(
+        eq(users.id, userId),
+        eq(users.dealerId, dealerId),
+        eq(users.companyId, session.user.companyId)
+      )
+    );
+
+  revalidatePath(`/admin/dealers/${dealerId}`);
 }
 
 async function assertCompanyOwnsDealerAndBrand(
