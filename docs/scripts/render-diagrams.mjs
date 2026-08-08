@@ -57,14 +57,12 @@ async function renderOne(page, code, outFile) {
 
   const svg = await page.evaluate(
     async (diagramCode, themeVariables) => {
-      // eslint-disable-next-line no-undef
       mermaid.initialize({
         startOnLoad: false,
         theme: "base",
         themeVariables,
         securityLevel: "strict",
       });
-      // eslint-disable-next-line no-undef
       const { svg } = await mermaid.render("diagram-svg", diagramCode);
       return svg;
     },

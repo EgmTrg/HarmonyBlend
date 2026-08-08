@@ -21,7 +21,6 @@ import {
 import {
   loadRoadmap,
   replaceMermaidBlocks,
-  diagramToken,
   diagramPngPath,
   OUTPUT_DIR,
 } from "./markdown-source.mjs";
