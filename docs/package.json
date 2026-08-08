@@ -1,9 +1,9 @@
 {
-  "name": "siparis-sistemi-docs",
+  "name": "harmonyblend-docs",
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "B2B Sipariş & Bayi Yönetim Sistemi roadmap dokümanının PDF/Word üretim hattı",
+  "description": "HarmonyBlend (HB) roadmap dokümanının PDF/Word üretim hattı",
   "scripts": {
     "build": "node scripts/build.mjs",
     "diagrams": "node scripts/render-diagrams.mjs",

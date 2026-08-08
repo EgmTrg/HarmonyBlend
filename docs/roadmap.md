@@ -1,13 +1,13 @@
 ---
-title: B2B Sipariş & Bayi Yönetim Sistemi
-subtitle: Sistem Mimarisi, Veri Modeli ve Fazlandırılmış Yol Haritası
+title: HarmonyBlend (HB)
+subtitle: B2B Sipariş & Bayi Yönetim Sistemi — Sistem Mimarisi, Veri Modeli ve Fazlandırılmış Yol Haritası
 ---
 
-# B2B Sipariş & Bayi Yönetim Sistemi
+# HarmonyBlend (HB)
 
 Fabrika/genel merkez ile franchise bayiler arasındaki sipariş, ödeme ve cari
-tahsilat süreçlerini yöneten çok markalı bayi portalı için mimari, veri
-modeli, iş akışı, teknoloji ve ekran planı.
+tahsilat süreçlerini yöneten çok markalı bayi portalı. Bu doküman mimari,
+veri modeli, iş akışı, teknoloji ve ekran planını içerir.
 
 - **Kapsam** — Tunam çatısı altında çoklu alt marka (Musluoğlu, Dilim Börek)
 - **Veritabanı** — Neon Postgres, ilk günden sabit

@@ -192,7 +192,7 @@ export function pageHtml(meta, bodyHtml) {
 <body>
   <section class="cover">
     <p class="eyebrow">Sistem Mimarisi &amp; Yol Haritası Dokümanı</p>
-    <h1>${meta.title || "B2B Sipariş &amp; Bayi Yönetim Sistemi"}</h1>
+    <h1>${meta.title || "HarmonyBlend (HB)"}</h1>
     <p class="subtitle">${meta.subtitle || ""}</p>
     <p class="meta">Oluşturulma tarihi: ${generatedOn}<br/>docs/roadmap.md kaynağından otomatik üretildi</p>
   </section>
@@ -224,7 +224,7 @@ export async function generatePdf() {
       displayHeaderFooter: true,
       headerTemplate: `<div></div>`,
       footerTemplate: `<div style="font-size:7.5pt;color:#9aa7ae;width:100%;text-align:center;font-family:Consolas,monospace;">
-        B2B Sipariş &amp; Bayi Yönetim Sistemi — <span class="pageNumber"></span> / <span class="totalPages"></span>
+        HarmonyBlend (HB) — <span class="pageNumber"></span> / <span class="totalPages"></span>
       </div>`,
     });
   } finally {

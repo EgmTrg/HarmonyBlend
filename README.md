@@ -1,6 +1,6 @@
-# B2B Sipariş & Bayi Yönetim Sistemi
+# HarmonyBlend
 
-A B2B dealer portal connecting a factory/head office with its franchise dealers through a unified order, payment, and current-account (cari) management system.
+**HB** — a B2B dealer portal connecting a factory/head office with its franchise dealers through a unified order, payment, and current-account (cari) management system.
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Planning-orange?style=flat-square">
@@ -23,7 +23,7 @@ A B2B dealer portal connecting a factory/head office with its franchise dealers 
 
 ## Overview
 
-This platform manages the full order-to-cash cycle between a head office and its franchise dealers: multi-brand product catalogs, configurable checkout/payment flows, standalone current-account (cari) collections, and filterable reporting with export.
+HarmonyBlend (HB) manages the full order-to-cash cycle between a head office and its franchise dealers: multi-brand product catalogs, configurable checkout/payment flows, standalone current-account (cari) collections, and filterable reporting with export.
 
 It is designed around four constraints that shape most of the architecture:
 

@@ -315,7 +315,7 @@ function coverParagraphs(meta) {
       spacing: { after: 200 },
       children: [
         new TextRun({
-          text: meta.title || "B2B Sipariş & Bayi Yönetim Sistemi",
+          text: meta.title || "HarmonyBlend (HB)",
           bold: true,
           size: 52,
           color: INK,
