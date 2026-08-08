@@ -45,8 +45,13 @@ export const dealers = pgTable("dealers", {
     .notNull()
     .references(() => companies.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
-  taxNo: text("tax_no"),
-  address: text("address"),
+  taxNo: text("tax_no"), // VKN
+  // Serbest metin — il/ilçe listesi sabitlenmedi, filtreleme amaçlı.
+  il: text("il"),
+  bolge: text("bolge"),
+  // NULL = limitsiz. Cari akışında currentBalance + yeni sipariş tutarı bunu
+  // aşarsa cari ödeme seçeneği reddedilir (bkz. src/app/dealer/actions.ts).
+  maxBalanceLimit: numeric("max_balance_limit", { precision: 14, scale: 2 }),
   // Denormalized cache — source of truth is ledger_entries (added in a later phase).
   currentBalance: numeric("current_balance", { precision: 14, scale: 2 })
     .notNull()
@@ -78,8 +83,12 @@ export const users = pgTable(
       .references(() => companies.id, { onDelete: "cascade" }),
     // NULL means a head-office employee rather than a dealer user.
     dealerId: uuid("dealer_id").references(() => dealers.id, { onDelete: "cascade" }),
+    // Nullable at the DB level only because pre-existing rows predate this
+    // column; the create-user form requires it.
+    name: text("name"),
     email: text("email").notNull(),
     role: userRole("role").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
     passwordHash: text("password_hash").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

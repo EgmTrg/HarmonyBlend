@@ -17,6 +17,7 @@ async function main() {
     .insert(users)
     .values({
       companyId: company.id,
+      name: "Demo Admin",
       email: "admin@harmonyblend.dev",
       role: "company_admin",
       passwordHash,

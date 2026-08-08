@@ -6,6 +6,7 @@ import { db } from "@/db";
 import {
   dealerBrands,
   dealerPaymentMethods,
+  dealers,
   orderItems,
   orderStatusHistory,
   orders,
@@ -96,6 +97,23 @@ export async function createOrder(
 
   const totalAmount = lineItems.reduce((sum, li) => sum + Number(li.lineTotal), 0).toFixed(2);
   const startStatus = initialOrderStatus(paymentCode);
+
+  if (paymentCode === "cari") {
+    const [dealer] = await db
+      .select({ currentBalance: dealers.currentBalance, maxBalanceLimit: dealers.maxBalanceLimit })
+      .from(dealers)
+      .where(eq(dealers.id, dealerId))
+      .limit(1);
+    if (
+      dealer?.maxBalanceLimit !== null &&
+      dealer?.maxBalanceLimit !== undefined &&
+      Number(dealer.currentBalance) + Number(totalAmount) > Number(dealer.maxBalanceLimit)
+    ) {
+      throw new Error(
+        "Bakiye limitiniz aşılıyor, cari ile ödeme yapamazsınız. Lütfen nakit/kapıda ödeme seçin."
+      );
+    }
+  }
 
   // NOT: @neondatabase/serverless'ın HTTP sürücüsü gerçek db.transaction()
   // desteklemiyor (her sorgu ayrı bir HTTP isteği) — bu yüzden adımlar sırayla

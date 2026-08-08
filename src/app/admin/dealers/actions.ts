@@ -2,23 +2,76 @@
 
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { brands, dealerBrands, dealerPaymentMethods, dealers, paymentMethods, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
+import { USER_ROLES, type AppRole } from "@/lib/roles";
 
-export async function createDealer(formData: FormData) {
+export async function createDealerOrUser(formData: FormData) {
   const session = await requireAdminSession();
-  const name = String(formData.get("name") ?? "").trim();
-  const taxNo = String(formData.get("taxNo") ?? "").trim();
-  const address = String(formData.get("address") ?? "").trim();
-  if (!name) throw new Error("Bayi adı zorunlu.");
 
-  await db.insert(dealers).values({
+  const role = String(formData.get("role") ?? "");
+  if (!USER_ROLES.includes(role as AppRole)) throw new Error("Geçersiz rol.");
+
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const isActive = formData.get("isActive") === "true";
+
+  if (!name) throw new Error("Kullanıcı adı zorunlu.");
+  if (!email) throw new Error("E-posta zorunlu.");
+  if (password.length < 8) throw new Error("Şifre en az 8 karakter olmalı.");
+
+  // neon-http sürücüsü gerçek transaction desteklemiyor (bkz. src/app/dealer/actions.ts
+  // içindeki not) — e-posta çakışmasını bayi satırını oluşturmadan ÖNCE kontrol
+  // ederek kullanıcısız (yetim) bir bayi kaydı kalma riskini azaltıyoruz.
+  const [existingUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+  if (existingUser) throw new Error("Bu e-posta zaten kullanılıyor.");
+
+  let dealerId: string | null = null;
+
+  if (role === "dealer_user") {
+    const taxNo = String(formData.get("taxNo") ?? "").trim() || null;
+    const il = String(formData.get("il") ?? "").trim() || null;
+    const bolge = String(formData.get("bolge") ?? "").trim() || null;
+    const maxBalanceLimit = String(formData.get("maxBalanceLimit") ?? "").trim() || null;
+
+    const [dealer] = await db
+      .insert(dealers)
+      .values({ companyId: session.user.companyId, name, taxNo, il, bolge, maxBalanceLimit })
+      .returning();
+    dealerId = dealer.id;
+
+    const brandIds = formData.getAll("brandIds").map(String);
+    if (brandIds.length > 0) {
+      const validBrands = await db
+        .select({ id: brands.id })
+        .from(brands)
+        .where(and(eq(brands.companyId, session.user.companyId), inArray(brands.id, brandIds)));
+      if (validBrands.length > 0) {
+        await db
+          .insert(dealerBrands)
+          .values(validBrands.map((brand) => ({ dealerId: dealer.id, brandId: brand.id })));
+      }
+    }
+  }
+
+  const passwordHash = await hash(password, 10);
+  await db.insert(users).values({
     companyId: session.user.companyId,
+    dealerId,
     name,
-    taxNo: taxNo || null,
-    address: address || null,
+    email,
+    role: role as AppRole,
+    isActive,
+    passwordHash,
   });
 
   revalidatePath("/admin/brands");
@@ -27,13 +80,15 @@ export async function createDealer(formData: FormData) {
 export async function updateDealer(id: string, formData: FormData) {
   const session = await requireAdminSession();
   const name = String(formData.get("name") ?? "").trim();
-  const taxNo = String(formData.get("taxNo") ?? "").trim();
-  const address = String(formData.get("address") ?? "").trim();
+  const taxNo = String(formData.get("taxNo") ?? "").trim() || null;
+  const il = String(formData.get("il") ?? "").trim() || null;
+  const bolge = String(formData.get("bolge") ?? "").trim() || null;
+  const maxBalanceLimit = String(formData.get("maxBalanceLimit") ?? "").trim() || null;
   if (!name) throw new Error("Bayi adı zorunlu.");
 
   await db
     .update(dealers)
-    .set({ name, taxNo: taxNo || null, address: address || null })
+    .set({ name, taxNo, il, bolge, maxBalanceLimit })
     .where(and(eq(dealers.id, id), eq(dealers.companyId, session.user.companyId)));
 
   revalidatePath("/admin/brands");

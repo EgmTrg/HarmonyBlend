@@ -26,6 +26,12 @@ export default async function PaymentMethodsPage() {
         </p>
       </div>
 
+      <p className="rounded-xl border border-warning-fg/20 bg-warning-bg px-4 py-3 text-sm text-warning-fg">
+        Not: Bu ekran şu an yalnızca ödeme tipi ve etiket tanımlamaya yarıyor — limit, gecikme
+        kuralı gibi ek ayarlar (bkz. maksimum bakiye limiti bayi tarafında) bu seviyede henüz
+        uygulanmıyor. İhtiyaca göre ileride kaldırılabilir veya genişletilebilir.
+      </p>
+
       <div className={CARD}>
         <form action={createPaymentMethod} className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1">

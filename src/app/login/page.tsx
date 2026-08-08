@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
 import { BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
@@ -44,7 +45,7 @@ async function LoginForm({
       });
     } catch (err) {
       if (err instanceof AuthError) {
-        throw new Error("CredentialsSignin");
+        redirect("/login?error=CredentialsSignin");
       }
       throw err;
     }

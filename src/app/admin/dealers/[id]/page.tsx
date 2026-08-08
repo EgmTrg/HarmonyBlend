@@ -68,12 +68,30 @@ export default async function DealerDetailPage({
               <input name="name" defaultValue={dealer.name} required className={INPUT} />
             </label>
             <label className="flex flex-col gap-1">
-              <span className={LABEL}>Vergi no</span>
+              <span className={LABEL}>VKN</span>
               <input name="taxNo" defaultValue={dealer.taxNo ?? ""} className={INPUT} />
             </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1">
+                <span className={LABEL}>İl</span>
+                <input name="il" defaultValue={dealer.il ?? ""} className={INPUT} />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className={LABEL}>Bölge</span>
+                <input name="bolge" defaultValue={dealer.bolge ?? ""} className={INPUT} />
+              </label>
+            </div>
             <label className="flex flex-col gap-1">
-              <span className={LABEL}>Adres</span>
-              <input name="address" defaultValue={dealer.address ?? ""} className={INPUT} />
+              <span className={LABEL}>Maksimum bakiye limiti</span>
+              <input
+                name="maxBalanceLimit"
+                type="number"
+                step="0.01"
+                min="0"
+                defaultValue={dealer.maxBalanceLimit ?? ""}
+                placeholder="Boş bırakılırsa limitsiz"
+                className={INPUT}
+              />
             </label>
             <button type="submit" className={`self-start ${BUTTON_PRIMARY}`}>
               Kaydet

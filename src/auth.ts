@@ -22,12 +22,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
         if (!user) return null;
+        if (!user.isActive) return null;
 
         const passwordMatches = await compare(password, user.passwordHash);
         if (!passwordMatches) return null;
 
         return {
           id: user.id,
+          name: user.name,
           email: user.email,
           role: user.role,
           companyId: user.companyId,
@@ -39,6 +41,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
+        token.name = user.name;
         token.role = user.role;
         token.companyId = user.companyId;
         token.dealerId = user.dealerId;
@@ -47,6 +50,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     session({ session, token }) {
       session.user.id = token.sub as string;
+      session.user.name = (token.name as string | null) ?? null;
       session.user.role = token.role as AppRole;
       session.user.companyId = token.companyId as string;
       session.user.dealerId = (token.dealerId as string | null) ?? null;
