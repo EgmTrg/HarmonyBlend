@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
 import { and, eq, inArray } from "drizzle-orm";
@@ -7,6 +8,7 @@ import { db } from "@/db";
 import { brands, dealerBrands, dealerPaymentMethods, dealers, paymentMethods, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { USER_ROLES, type AppRole } from "@/lib/roles";
+import { unstable_update } from "@/auth";
 
 export async function createDealerOrUser(formData: FormData) {
   const session = await requireAdminSession();
@@ -93,6 +95,89 @@ export async function updateDealer(id: string, formData: FormData) {
 
   revalidatePath("/admin/brands");
   revalidatePath(`/admin/dealers/${id}`);
+}
+
+export async function updateDealerAndBrands(id: string, formData: FormData) {
+  const session = await requireAdminSession();
+
+  const [dealer] = await db
+    .select({ id: dealers.id })
+    .from(dealers)
+    .where(and(eq(dealers.id, id), eq(dealers.companyId, session.user.companyId)))
+    .limit(1);
+  if (!dealer) throw new Error("Bayi bulunamadı.");
+
+  const name = String(formData.get("name") ?? "").trim();
+  const taxNo = String(formData.get("taxNo") ?? "").trim() || null;
+  const il = String(formData.get("il") ?? "").trim() || null;
+  const bolge = String(formData.get("bolge") ?? "").trim() || null;
+  const maxBalanceLimit = String(formData.get("maxBalanceLimit") ?? "").trim() || null;
+  if (!name) throw new Error("Bayi adı zorunlu.");
+
+  await db
+    .update(dealers)
+    .set({ name, taxNo, il, bolge, maxBalanceLimit })
+    .where(eq(dealers.id, id));
+
+  const requestedBrandIds = formData.getAll("brandIds").map(String);
+  const validBrands =
+    requestedBrandIds.length > 0
+      ? await db
+          .select({ id: brands.id })
+          .from(brands)
+          .where(and(eq(brands.companyId, session.user.companyId), inArray(brands.id, requestedBrandIds)))
+      : [];
+  const nextBrandIds = new Set(validBrands.map((b) => b.id));
+
+  const currentRows = await db.select().from(dealerBrands).where(eq(dealerBrands.dealerId, id));
+  const currentBrandIds = new Set(currentRows.map((row) => row.brandId));
+
+  const toAdd = [...nextBrandIds].filter((brandId) => !currentBrandIds.has(brandId));
+  const toRemove = [...currentBrandIds].filter((brandId) => !nextBrandIds.has(brandId));
+
+  if (toAdd.length > 0) {
+    await db.insert(dealerBrands).values(toAdd.map((brandId) => ({ dealerId: id, brandId })));
+  }
+  if (toRemove.length > 0) {
+    await db
+      .delete(dealerBrands)
+      .where(and(eq(dealerBrands.dealerId, id), inArray(dealerBrands.brandId, toRemove)));
+  }
+
+  revalidatePath("/admin/brands");
+  revalidatePath(`/admin/dealers/${id}`);
+}
+
+export async function impersonateDealerUser(userId: string, _formData: FormData) {
+  const session = await requireAdminSession();
+
+  const [target] = await db
+    .select({
+      id: users.id,
+      companyId: users.companyId,
+      role: users.role,
+      isActive: users.isActive,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (
+    !target ||
+    target.companyId !== session.user.companyId ||
+    target.role !== "dealer_user" ||
+    !target.isActive
+  ) {
+    throw new Error("Bu kullanıcıyla giriş yapılamıyor.");
+  }
+
+  // unstable_update()'in tipi yalnızca Session alanlarını kabul ediyor;
+  // impersonateUserId, jwt callback'indeki "update" trigger'ına özel bir
+  // sinyal — bkz. src/auth.ts.
+  await unstable_update({ impersonateUserId: userId } as unknown as Parameters<
+    typeof unstable_update
+  >[0]);
+  redirect("/dealer");
 }
 
 export async function deleteDealer(id: string, _formData: FormData) {

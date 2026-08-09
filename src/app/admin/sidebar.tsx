@@ -17,7 +17,7 @@ export function AdminSidebar({ signOutAction }: { signOutAction: () => Promise<v
   return (
     <aside
       className={
-        "flex shrink-0 flex-col justify-between bg-navy-950 px-3 py-6 transition-[width] duration-200 motion-reduce:transition-none " +
+        "sticky top-0 flex h-screen shrink-0 flex-col justify-between overflow-y-auto bg-navy-950 px-3 py-6 transition-[width] duration-200 motion-reduce:transition-none " +
         (collapsed ? "w-20" : "w-64")
       }
     >

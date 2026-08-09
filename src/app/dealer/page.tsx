@@ -36,7 +36,7 @@ export default async function DealerCatalogPage() {
   }
 
   return (
-    <>
+    <div className="flex flex-col gap-10">
       <div>
         <h1 className="text-2xl font-semibold text-ink-900">Ürün Kataloğu</h1>
         <p className="text-sm text-ink-400">Erişiminiz olan markaların ürünleri.</p>
@@ -66,6 +66,6 @@ export default async function DealerCatalogPage() {
           </section>
         );
       })}
-    </>
+    </div>
   );
 }

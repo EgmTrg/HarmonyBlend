@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { brands, dealerBrands, dealerPaymentMethods, dealers, paymentMethods, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { BUTTON_GHOST, BUTTON_GHOST_DANGER, BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
+import { CurrencyInput } from "@/components/currency-input";
 import {
   assignDealerBrand,
   createDealerUser,
@@ -83,14 +84,10 @@ export default async function DealerDetailPage({
             </div>
             <label className="flex flex-col gap-1">
               <span className={LABEL}>Maksimum bakiye limiti</span>
-              <input
+              <CurrencyInput
                 name="maxBalanceLimit"
-                type="number"
-                step="0.01"
-                min="0"
-                defaultValue={dealer.maxBalanceLimit ?? ""}
+                defaultValue={dealer.maxBalanceLimit}
                 placeholder="Boş bırakılırsa limitsiz"
-                className={INPUT}
               />
             </label>
             <button type="submit" className={`self-start ${BUTTON_PRIMARY}`}>

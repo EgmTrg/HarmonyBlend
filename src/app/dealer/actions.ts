@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
@@ -18,6 +19,7 @@ import { requireDealerSession } from "@/lib/session";
 import { initialOrderStatus } from "@/lib/order-status";
 import { mockPosProvider } from "@/lib/payments/mock-provider";
 import type { PaymentMethodCode } from "@/lib/payment-methods";
+import { unstable_update } from "@/auth";
 
 interface CreateOrderItemInput {
   productId: string;
@@ -180,4 +182,14 @@ export async function createOrder(
 
   revalidatePath("/dealer/orders");
   return { orderId: order.id };
+}
+
+export async function stopImpersonation() {
+  const session = await requireDealerSession();
+  if (!session.user.impersonatorEmail) throw new Error("Aktif bir impersonation oturumu yok.");
+
+  await unstable_update({ stopImpersonation: true } as unknown as Parameters<
+    typeof unstable_update
+  >[0]);
+  redirect("/admin");
 }

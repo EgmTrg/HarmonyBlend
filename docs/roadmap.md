@@ -22,7 +22,7 @@ kurgulandı. Sanal POS entegrasyonu bilerek en sona bırakıldı — mock sağla
 arayüzü Faz 3'te kurulduğu için Faz 6 bir "değiştirme" işlemi, yeniden yazma
 değil.
 
-### Faz 1 — Temel Altyapı & Veri Modeli Kurulumu
+### Faz 1 — Temel Altyapı & Veri Modeli Kurulumu ✅ Tamamlandı
 
 Hedef: Neon DB bağlantısı, ORM ve auth iskeleti — projenin geri kalanının
 üstüne oturacağı zemin.
@@ -36,7 +36,7 @@ Hedef: Neon DB bağlantısı, ORM ve auth iskeleti — projenin geri kalanının
 **Çıkış kriteri —** boş fakat çalışan bir admin girişi; veritabanına
 yazma/okuma uçtan uca doğrulanmış.
 
-### Faz 2 — Marka, Bayi ve Ürün Yönetimi
+### Faz 2 — Marka, Bayi ve Ürün Yönetimi ✅ Tamamlandı
 
 Hedef: Admin panelin çekirdek CRUD ekranları; marka bazlı ayrışmanın veri
 katmanında kurulması.
@@ -49,16 +49,15 @@ katmanında kurulması.
 **Çıkış kriteri —** bir admin yeni bir bayiyi bir markaya bağlayıp, o bayinin
 sadece o markanın kataloğunu gördüğünü doğrulayabiliyor.
 
-### Faz 3 — Sipariş & Mock Ödeme Akışı
+### Faz 3 — Sipariş & Mock Ödeme Akışı ✅ Tamamlandı
 
 Hedef: Bayi tarafında sepetten siparişe; ödeme tipine göre dallanan checkout
 ve durum makinesi.
 
-- Bayi kullanıcı hesabı oluşturma ekranı: admin'in bir bayiye kullanıcı
+- Bayi kullanıcı hesabı oluşturma ekranı: admin bir bayiye kullanıcı
   adı/e-posta + şifre tanımlayıp `dealer_user` rolüyle giriş yapabilecek
-  bir hesap açması. Şu an bu yalnızca elle (seed script) yapılabiliyor —
-  eklenmeden bir bayi gerçekte panele giriş yapamaz; checkout akışının
-  test edilebilmesi için bu fazın ilk adımı olmalı.
+  bir hesap açıyor (`/admin/dealers/[id]`) — önceden yalnızca elle
+  (seed script) yapılabiliyordu.
 - Sepet ve checkout ekranı (marka bazlı katalog)
 - Ödeme tipine göre dinamik checkout adımları
 - `orders` / `order_items` oluşturma, durum makinesi implementasyonu
@@ -68,19 +67,28 @@ ve durum makinesi.
   başarı-hata mesajları için — `alert()`/`confirm()` yerine)
 - Erişilebilirlik dokunuşları (`focus-visible` odak halkası,
   `prefers-reduced-motion` desteği)
-- Sidebar menüsünü açılır/kapanır (daraltılabilir) yapma
+- Sidebar menüsünü açılır/kapanır (daraltılabilir) yapma — admin ve bayi
+  panelinde, tercih `localStorage`'da kalıcı
 - Sidebar'ı sticky yapma — sayfa aşağı kaydırılsa bile kenar çubuğundaki
-  öğeler sabit kalsın, içerikle birlikte yukarı/aşağı kaymasın
-- Bayi listesinde "Düzenle" butonu — şu an düzenleme ayrı bir sayfada
-  (`/admin/dealers/[id]`) yapılıyor; "Ekle" ile aynı 3 sekmeli modal
-  açılıp mevcut bayinin ayarlarının (bir kısmının veya tamamının)
-  aynı yerden değiştirilebilmesi
-- "Ekle" modalındaki maksimum bakiye limiti alanını para birimi
-  formatlı yapma — düz sayı (`200000`) yerine otomatik binlik ayraç ve
-  ₺ sembolüyle (`200.000₺`) gösterilsin
+  öğeler sabit kalıyor, içerikle birlikte yukarı/aşağı kaymıyor
+- Bayi listesinde "Düzenle" butonu — düzenleme artık ayrı bir sayfada
+  değil, "Ekle" ile aynı 3 sekmeli modal üzerinden mevcut bayinin
+  ayarları aynı yerden değiştirilebiliyor
+- "Ekle/Düzenle" modalındaki maksimum bakiye limiti alanı para birimi
+  formatlı (`CurrencyInput`) — düz sayı yerine otomatik binlik ayraç ve
+  ₺ sembolüyle (`200.000₺`) gösteriliyor
+- Bayi listesinde marka/durum filtre formu (`dealer-filter-form.tsx`)
+- Admin → bayi kullanıcısı olarak giriş (impersonation): admin, bir
+  bayinin panelini o bayi kullanıcısı kimliğiyle görüntüleyebiliyor
+  (checkout/sipariş akışlarını bayi gözünden test etmek için). Kimlik
+  değişimi NextAuth JWT `update` trigger'ı ile sunucu tarafında
+  doğrulanıyor (`src/auth.ts`); bayi panelinde "orijinal hesaba dön"
+  butonu ile geri dönülüyor. Roadmap'te öngörülmemiş, iş ihtiyacından
+  doğan bir ek kapsamdı.
 
-**Çıkış kriteri —** üç ödeme tipiyle de uçtan uca sipariş oluşturulabiliyor;
-admin panelde durum geçişleri izlenebiliyor.
+**Çıkış kriteri —** üç ödeme tipiyle de (cari, kapıda ödeme, sanal POS
+başarılı/başarısız) uçtan uca sipariş oluşturulabiliyor; admin panelde durum
+geçişleri izlenebiliyor. Tarayıcıda doğrulandı.
 
 ### Faz 4 — Cari Bakiye & Bağımsız Tahsilat Modülü
 

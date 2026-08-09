@@ -28,7 +28,7 @@ export default async function DealerOrdersPage() {
   const dateFormatter = new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" });
 
   return (
-    <>
+    <div className="flex flex-col gap-10">
       <div>
         <h1 className="text-2xl font-semibold text-ink-900">Siparişlerim</h1>
         <p className="text-sm text-ink-400">Geçmiş ve aktif siparişlerinizin durumu.</p>
@@ -73,6 +73,6 @@ export default async function DealerOrdersPage() {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 }

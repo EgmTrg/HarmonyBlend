@@ -6,7 +6,9 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import type { AppRole } from "@/lib/roles";
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+const ADMIN_ROLES: AppRole[] = ["company_admin", "brand_manager"];
+
+export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
@@ -39,13 +41,75 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.name = user.name;
         token.role = user.role;
         token.companyId = user.companyId;
         token.dealerId = user.dealerId;
       }
+
+      if (trigger === "update" && session && typeof session === "object") {
+        const update = session as { impersonateUserId?: string; stopImpersonation?: boolean };
+
+        // Impersonation olması gereken kimlik değişimini token içinde tutuyoruz;
+        // kaynak (mevcut admin rolü + hedefin şirket/rol eşleşmesi) burada,
+        // sunucu tarafında doğrulanıyor — client'tan gelen trigger verisine
+        // güvenilmiyor.
+        if (
+          update.impersonateUserId &&
+          !token.impersonator &&
+          ADMIN_ROLES.includes(token.role as AppRole)
+        ) {
+          const [target] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, update.impersonateUserId))
+            .limit(1);
+
+          if (
+            target &&
+            target.role === "dealer_user" &&
+            target.companyId === token.companyId &&
+            target.isActive
+          ) {
+            token.impersonator = {
+              id: token.sub as string,
+              name: token.name as string | null,
+              email: token.email as string,
+              role: token.role as AppRole,
+              companyId: token.companyId as string,
+              dealerId: token.dealerId as string | null,
+            };
+            token.sub = target.id;
+            token.name = target.name;
+            token.email = target.email;
+            token.role = target.role;
+            token.companyId = target.companyId;
+            token.dealerId = target.dealerId;
+          }
+        }
+
+        const stashedIdentity = token.impersonator as {
+          id: string;
+          name: string | null;
+          email: string;
+          role: AppRole;
+          companyId: string;
+          dealerId: string | null;
+        } | null | undefined;
+
+        if (update.stopImpersonation && stashedIdentity) {
+          token.sub = stashedIdentity.id;
+          token.name = stashedIdentity.name;
+          token.email = stashedIdentity.email;
+          token.role = stashedIdentity.role;
+          token.companyId = stashedIdentity.companyId;
+          token.dealerId = stashedIdentity.dealerId;
+          token.impersonator = null;
+        }
+      }
+
       return token;
     },
     session({ session, token }) {
@@ -54,6 +118,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.role = token.role as AppRole;
       session.user.companyId = token.companyId as string;
       session.user.dealerId = (token.dealerId as string | null) ?? null;
+      session.user.impersonatorEmail =
+        (token.impersonator as { email: string } | null | undefined)?.email ?? null;
       return session;
     },
   },

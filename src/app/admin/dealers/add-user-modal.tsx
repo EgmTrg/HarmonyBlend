@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Plus, X } from "lucide-react";
-import { createDealerOrUser } from "./actions";
-import { BUTTON_PRIMARY, INPUT, LABEL } from "@/lib/ui";
+import { Pencil, Plus, X } from "lucide-react";
+import { createDealerOrUser, updateDealerAndBrands } from "./actions";
+import { BUTTON_GHOST, BUTTON_PRIMARY, INPUT, LABEL } from "@/lib/ui";
+import { CurrencyInput } from "@/components/currency-input";
 
 type Role = "dealer_user" | "company_admin" | "brand_manager";
 
@@ -79,7 +80,7 @@ export function AddDealerOrUserModal({ companyBrands }: { companyBrands: Company
               </button>
             </div>
 
-            <form action={handleSubmit} className="flex flex-1 flex-col overflow-y-auto">
+            <form action={handleSubmit} className="flex flex-1 flex-col overflow-y-auto" autoComplete="off">
               <div className="flex flex-col gap-2 border-b border-border px-6 py-4">
                 <span className={LABEL}>Rol</span>
                 <div className="flex gap-2">
@@ -127,20 +128,40 @@ export function AddDealerOrUserModal({ companyBrands }: { companyBrands: Company
                 <div className={activeTab === 1 ? "flex flex-col gap-4" : "hidden"}>
                   <label className="flex flex-col gap-1">
                     <span className={LABEL}>Kullanıcı adı</span>
-                    <input name="name" required className={INPUT} />
+                    <input name="name" required autoComplete="off" className={INPUT} />
                   </label>
                   <label className="flex flex-col gap-1">
                     <span className={LABEL}>E-posta</span>
-                    <input name="email" type="email" required className={INPUT} />
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      autoComplete="off"
+                      className={INPUT}
+                    />
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <label className="flex flex-col gap-1">
                       <span className={LABEL}>Şifre</span>
-                      <input name="password" type="password" required minLength={8} className={INPUT} />
+                      <input
+                        name="password"
+                        type="password"
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                        className={INPUT}
+                      />
                     </label>
                     <label className="flex flex-col gap-1">
                       <span className={LABEL}>Şifre tekrar</span>
-                      <input name="passwordConfirm" type="password" required minLength={8} className={INPUT} />
+                      <input
+                        name="passwordConfirm"
+                        type="password"
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                        className={INPUT}
+                      />
                     </label>
                   </div>
                   <label className="flex items-center gap-2 text-sm text-ink-600">
@@ -180,14 +201,7 @@ export function AddDealerOrUserModal({ companyBrands }: { companyBrands: Company
                       </label>
                       <label className="flex flex-col gap-1">
                         <span className={LABEL}>Maksimum bakiye limiti</span>
-                        <input
-                          name="maxBalanceLimit"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="Boş bırakılırsa limitsiz"
-                          className={INPUT}
-                        />
+                        <CurrencyInput name="maxBalanceLimit" placeholder="Boş bırakılırsa limitsiz" />
                         <span className="text-xs text-ink-400">
                           Bu tutar aşılırsa cari ile ödeme kapanır, bayi nakit/kapıda ödeme
                           kullanmak zorunda kalır.
@@ -209,6 +223,160 @@ export function AddDealerOrUserModal({ companyBrands }: { companyBrands: Company
                     </div>
                   </>
                 )}
+              </div>
+
+              {error && (
+                <p className="mx-6 mb-4 rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger-fg">
+                  {error}
+                </p>
+              )}
+
+              <div className="flex items-center justify-end gap-3 border-t border-border px-6 py-4">
+                <button type="button" onClick={close} className="text-sm text-ink-400 hover:text-ink-900">
+                  Vazgeç
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className={`${BUTTON_PRIMARY} disabled:opacity-50`}
+                >
+                  {submitting ? "Kaydediliyor..." : "Kaydet"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+interface EditableDealer {
+  id: string;
+  name: string;
+  taxNo: string | null;
+  il: string | null;
+  bolge: string | null;
+  maxBalanceLimit: string | null;
+}
+
+export function EditDealerModal({
+  dealer,
+  companyBrands,
+  assignedBrandIds,
+}: {
+  dealer: EditableDealer;
+  companyBrands: CompanyBrand[];
+  assignedBrandIds: string[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<1 | 2>(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function close() {
+    setIsOpen(false);
+    setActiveTab(1);
+    setError(null);
+  }
+
+  async function handleSubmit(formData: FormData) {
+    setError(null);
+    setSubmitting(true);
+    try {
+      await updateDealerAndBrands(dealer.id, formData);
+      close();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <>
+      <button type="button" onClick={() => setIsOpen(true)} className={`${BUTTON_GHOST} inline-flex items-center gap-1`}>
+        <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+        Düzenle
+      </button>
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={close}
+        >
+          <div
+            className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-card shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <h2 className="text-lg font-semibold text-ink-900">Bayi düzenle</h2>
+              <button type="button" onClick={close} aria-label="Kapat" className="text-ink-400 hover:text-ink-900">
+                <X className="h-5 w-5" strokeWidth={2} />
+              </button>
+            </div>
+
+            <form action={handleSubmit} className="flex flex-1 flex-col overflow-y-auto" autoComplete="off">
+              <div className="flex border-b border-border px-6">
+                <TabButton active={activeTab === 1} onClick={() => setActiveTab(1)}>
+                  Bayi Ayarları
+                </TabButton>
+                <TabButton active={activeTab === 2} onClick={() => setActiveTab(2)}>
+                  Markalaşma
+                </TabButton>
+              </div>
+
+              <div className="flex flex-col gap-4 px-6 py-5">
+                <div className={activeTab === 1 ? "flex flex-col gap-4" : "hidden"}>
+                  <label className="flex flex-col gap-1">
+                    <span className={LABEL}>Bayi adı</span>
+                    <input name="name" defaultValue={dealer.name} required className={INPUT} />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className={LABEL}>VKN</span>
+                    <input name="taxNo" defaultValue={dealer.taxNo ?? ""} className={INPUT} />
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="flex flex-col gap-1">
+                      <span className={LABEL}>İl</span>
+                      <input name="il" defaultValue={dealer.il ?? ""} className={INPUT} />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className={LABEL}>Bölge</span>
+                      <input name="bolge" defaultValue={dealer.bolge ?? ""} className={INPUT} />
+                    </label>
+                  </div>
+                  <label className="flex flex-col gap-1">
+                    <span className={LABEL}>Maksimum bakiye limiti</span>
+                    <CurrencyInput
+                      name="maxBalanceLimit"
+                      defaultValue={dealer.maxBalanceLimit}
+                      placeholder="Boş bırakılırsa limitsiz"
+                    />
+                    <span className="text-xs text-ink-400">
+                      Bu tutar aşılırsa cari ile ödeme kapanır, bayi nakit/kapıda ödeme
+                      kullanmak zorunda kalır.
+                    </span>
+                  </label>
+                </div>
+
+                <div className={activeTab === 2 ? "flex flex-col gap-2" : "hidden"}>
+                  <span className={LABEL}>Markalar</span>
+                  {companyBrands.map((brand) => (
+                    <label key={brand.id} className="flex items-center gap-2 text-sm text-ink-900">
+                      <input
+                        type="checkbox"
+                        name="brandIds"
+                        value={brand.id}
+                        defaultChecked={assignedBrandIds.includes(brand.id)}
+                      />
+                      {brand.name}
+                    </label>
+                  ))}
+                  {companyBrands.length === 0 && (
+                    <p className="text-sm text-ink-400">Önce bir marka oluşturun.</p>
+                  )}
+                </div>
               </div>
 
               {error && (
