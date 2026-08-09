@@ -7,7 +7,6 @@ import {
   timestamp,
   pgEnum,
   uniqueIndex,
-  jsonb,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { USER_ROLES } from "@/lib/roles";
@@ -126,45 +125,6 @@ export const products = pgTable(
   (table) => [uniqueIndex("products_brand_sku_unique").on(table.brandId, table.sku)]
 );
 
-export const paymentMethods = pgTable(
-  "payment_methods",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    companyId: uuid("company_id")
-      .notNull()
-      .references(() => companies.id, { onDelete: "cascade" }),
-    code: paymentMethodCode("code").notNull(),
-    label: text("label").notNull(),
-    // limit, gecikme kuralı vb. parametreler
-    config: jsonb("config"),
-  },
-  (table) => [uniqueIndex("payment_methods_company_code_unique").on(table.companyId, table.code)]
-);
-
-export const dealerPaymentMethods = pgTable(
-  "dealer_payment_methods",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    dealerId: uuid("dealer_id")
-      .notNull()
-      .references(() => dealers.id, { onDelete: "cascade" }),
-    brandId: uuid("brand_id")
-      .notNull()
-      .references(() => brands.id, { onDelete: "cascade" }),
-    paymentMethodId: uuid("payment_method_id")
-      .notNull()
-      .references(() => paymentMethods.id, { onDelete: "cascade" }),
-    isEnabled: boolean("is_enabled").notNull().default(true),
-  },
-  (table) => [
-    uniqueIndex("dealer_payment_methods_unique").on(
-      table.dealerId,
-      table.brandId,
-      table.paymentMethodId
-    ),
-  ]
-);
-
 export const orders = pgTable("orders", {
   id: uuid("id").defaultRandom().primaryKey(),
   dealerId: uuid("dealer_id")
@@ -173,9 +133,10 @@ export const orders = pgTable("orders", {
   brandId: uuid("brand_id")
     .notNull()
     .references(() => brands.id, { onDelete: "cascade" }),
-  paymentMethodId: uuid("payment_method_id")
-    .notNull()
-    .references(() => paymentMethods.id),
+  // Sabit üç tip (bkz. src/lib/payment-methods.ts) — bayi/marka bazlı manuel
+  // aktivasyon kaldırıldı; cari, currentBalance + maxBalanceLimit ile otomatik
+  // sınırlanıyor (bkz. src/app/dealer/actions.ts).
+  paymentMethod: paymentMethodCode("payment_method").notNull(),
   // Free text, not a DB enum — the valid values and transitions differ per
   // payment method flow (see src/lib/order-status.ts), which would make a
   // single shared Postgres enum either too broad or need frequent ALTER TYPE.

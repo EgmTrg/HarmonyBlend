@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, orderItems, orderStatusHistory, orders, paymentMethods, products } from "@/db/schema";
+import { brands, orderItems, orderStatusHistory, orders, products } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
+import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 
 export default async function DealerOrderDetailPage({
   params,
@@ -23,11 +24,10 @@ export default async function DealerOrderDetailPage({
       createdAt: orders.createdAt,
       dealerId: orders.dealerId,
       brandName: brands.name,
-      paymentMethodLabel: paymentMethods.label,
+      paymentMethod: orders.paymentMethod,
     })
     .from(orders)
     .innerJoin(brands, eq(orders.brandId, brands.id))
-    .innerJoin(paymentMethods, eq(orders.paymentMethodId, paymentMethods.id))
     .where(eq(orders.id, id))
     .limit(1);
 
@@ -68,7 +68,7 @@ export default async function DealerOrderDetailPage({
         <div>
           <h1 className="text-2xl font-semibold text-ink-900">{row.brandName}</h1>
           <p className="text-sm text-ink-400">
-            {row.paymentMethodLabel} — {dateFormatter.format(row.createdAt)}
+            {PAYMENT_METHOD_LABELS[row.paymentMethod]} — {dateFormatter.format(row.createdAt)}
           </p>
         </div>
         <span className={badgeClass(ORDER_STATUS_TONES[row.status as OrderStatus])}>

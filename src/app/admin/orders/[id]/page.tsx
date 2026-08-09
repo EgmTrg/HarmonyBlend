@@ -7,14 +7,13 @@ import {
   orderItems,
   orderStatusHistory,
   orders,
-  paymentMethods,
   products,
   users,
 } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { BUTTON_PRIMARY, CARD, INPUT, LABEL, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, nextOrderStatuses, type OrderStatus } from "@/lib/order-status";
-import type { PaymentMethodCode } from "@/lib/payment-methods";
+import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 import { transitionOrderStatus } from "../actions";
 
 export default async function AdminOrderDetailPage({
@@ -36,13 +35,11 @@ export default async function AdminOrderDetailPage({
       brandId: brands.id,
       brandName: brands.name,
       brandCompanyId: brands.companyId,
-      paymentMethodLabel: paymentMethods.label,
-      paymentMethodCode: paymentMethods.code,
+      paymentMethod: orders.paymentMethod,
     })
     .from(orders)
     .innerJoin(brands, eq(orders.brandId, brands.id))
     .innerJoin(dealers, eq(orders.dealerId, dealers.id))
-    .innerJoin(paymentMethods, eq(orders.paymentMethodId, paymentMethods.id))
     .where(eq(orders.id, id))
     .limit(1);
 
@@ -77,8 +74,7 @@ export default async function AdminOrderDetailPage({
       .orderBy(asc(orderStatusHistory.createdAt)),
   ]);
 
-  const paymentCode = row.paymentMethodCode as PaymentMethodCode;
-  const possibleNextStatuses = nextOrderStatuses(paymentCode, row.status);
+  const possibleNextStatuses = nextOrderStatuses(row.paymentMethod, row.status);
   const dateFormatter = new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" });
 
   return (
@@ -87,7 +83,7 @@ export default async function AdminOrderDetailPage({
         <div>
           <h1 className="text-2xl font-semibold text-ink-900">{row.dealerName}</h1>
           <p className="text-sm text-ink-400">
-            {row.brandName} — {row.paymentMethodLabel} — {dateFormatter.format(row.createdAt)}
+            {row.brandName} — {PAYMENT_METHOD_LABELS[row.paymentMethod]} — {dateFormatter.format(row.createdAt)}
           </p>
         </div>
         <span className={badgeClass(ORDER_STATUS_TONES[row.status as OrderStatus])}>

@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, dealers, orders, paymentMethods } from "@/db/schema";
+import { brands, dealers, orders } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { CARD, INPUT, LABEL, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
+import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 
 export default async function AdminOrdersPage({
   searchParams,
@@ -32,12 +33,11 @@ export default async function AdminOrdersPage({
       createdAt: orders.createdAt,
       dealerName: dealers.name,
       brandName: brands.name,
-      paymentLabel: paymentMethods.label,
+      paymentMethod: orders.paymentMethod,
     })
     .from(orders)
     .innerJoin(brands, eq(orders.brandId, brands.id))
     .innerJoin(dealers, eq(orders.dealerId, dealers.id))
-    .innerJoin(paymentMethods, eq(orders.paymentMethodId, paymentMethods.id))
     .where(and(...conditions))
     .orderBy(desc(orders.createdAt));
 
@@ -108,7 +108,7 @@ export default async function AdminOrdersPage({
                   </Link>
                 </td>
                 <td className="py-3 text-ink-400">{row.brandName}</td>
-                <td className="py-3 text-ink-400">{row.paymentLabel}</td>
+                <td className="py-3 text-ink-400">{PAYMENT_METHOD_LABELS[row.paymentMethod]}</td>
                 <td className="py-3 text-ink-600">{row.totalAmount}</td>
                 <td className="py-3">
                   <span className={badgeClass(ORDER_STATUS_TONES[row.status as OrderStatus])}>

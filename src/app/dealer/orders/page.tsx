@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, orders, paymentMethods } from "@/db/schema";
+import { brands, orders } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
+import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 
 export default async function DealerOrdersPage() {
   const session = await requireDealerSession();
@@ -17,11 +18,10 @@ export default async function DealerOrdersPage() {
       totalAmount: orders.totalAmount,
       createdAt: orders.createdAt,
       brandName: brands.name,
-      paymentLabel: paymentMethods.label,
+      paymentMethod: orders.paymentMethod,
     })
     .from(orders)
     .innerJoin(brands, eq(orders.brandId, brands.id))
-    .innerJoin(paymentMethods, eq(orders.paymentMethodId, paymentMethods.id))
     .where(eq(orders.dealerId, dealerId))
     .orderBy(desc(orders.createdAt));
 
@@ -53,7 +53,7 @@ export default async function DealerOrdersPage() {
                     {row.brandName}
                   </Link>
                 </td>
-                <td className="py-3 text-ink-400">{row.paymentLabel}</td>
+                <td className="py-3 text-ink-400">{PAYMENT_METHOD_LABELS[row.paymentMethod]}</td>
                 <td className="py-3 text-ink-600">{row.totalAmount}</td>
                 <td className="py-3">
                   <span className={badgeClass(ORDER_STATUS_TONES[row.status as OrderStatus])}>

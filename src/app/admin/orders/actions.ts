@@ -3,10 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, orderStatusHistory, orders, paymentMethods } from "@/db/schema";
+import { brands, orderStatusHistory, orders } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { canTransitionOrderStatus } from "@/lib/order-status";
-import type { PaymentMethodCode } from "@/lib/payment-methods";
 
 export async function transitionOrderStatus(orderId: string, toStatus: string, formData: FormData) {
   const session = await requireAdminSession();
@@ -15,19 +14,18 @@ export async function transitionOrderStatus(orderId: string, toStatus: string, f
   const [row] = await db
     .select({
       status: orders.status,
-      paymentCode: paymentMethods.code,
+      paymentMethod: orders.paymentMethod,
       brandCompanyId: brands.companyId,
     })
     .from(orders)
     .innerJoin(brands, eq(orders.brandId, brands.id))
-    .innerJoin(paymentMethods, eq(orders.paymentMethodId, paymentMethods.id))
     .where(eq(orders.id, orderId))
     .limit(1);
 
   if (!row || row.brandCompanyId !== session.user.companyId) throw new Error("Sipariş bulunamadı.");
 
   const currentStatus = row.status;
-  if (!canTransitionOrderStatus(row.paymentCode as PaymentMethodCode, currentStatus, toStatus)) {
+  if (!canTransitionOrderStatus(row.paymentMethod, currentStatus, toStatus)) {
     throw new Error("Geçersiz durum geçişi.");
   }
 

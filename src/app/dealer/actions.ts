@@ -4,21 +4,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import {
-  dealerBrands,
-  dealerPaymentMethods,
-  dealers,
-  orderItems,
-  orderStatusHistory,
-  orders,
-  paymentMethods,
-  payments,
-  products,
-} from "@/db/schema";
+import { dealerBrands, dealers, orderItems, orderStatusHistory, orders, payments, products } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { initialOrderStatus } from "@/lib/order-status";
 import { mockPosProvider } from "@/lib/payments/mock-provider";
-import type { PaymentMethodCode } from "@/lib/payment-methods";
+import { PAYMENT_METHOD_CODES, type PaymentMethodCode } from "@/lib/payment-methods";
 import { unstable_update } from "@/auth";
 
 interface CreateOrderItemInput {
@@ -28,7 +18,7 @@ interface CreateOrderItemInput {
 
 export async function createOrder(
   brandId: string,
-  paymentMethodId: string,
+  paymentCode: PaymentMethodCode,
   items: CreateOrderItemInput[],
   simulateFailure: boolean
 ) {
@@ -36,6 +26,7 @@ export async function createOrder(
   const dealerId = session.user.dealerId as string;
 
   if (items.length === 0) throw new Error("Sepetiniz boş.");
+  if (!PAYMENT_METHOD_CODES.includes(paymentCode)) throw new Error("Geçersiz ödeme tipi.");
 
   const [dealerBrand] = await db
     .select({ id: dealerBrands.id })
@@ -49,23 +40,6 @@ export async function createOrder(
     )
     .limit(1);
   if (!dealerBrand) throw new Error("Bu markaya erişiminiz yok.");
-
-  const [dpm] = await db
-    .select({ id: dealerPaymentMethods.id, code: paymentMethods.code })
-    .from(dealerPaymentMethods)
-    .innerJoin(paymentMethods, eq(dealerPaymentMethods.paymentMethodId, paymentMethods.id))
-    .where(
-      and(
-        eq(dealerPaymentMethods.dealerId, dealerId),
-        eq(dealerPaymentMethods.brandId, brandId),
-        eq(dealerPaymentMethods.paymentMethodId, paymentMethodId),
-        eq(dealerPaymentMethods.isEnabled, true)
-      )
-    )
-    .limit(1);
-  if (!dpm) throw new Error("Bu ödeme yöntemi sizin için etkin değil.");
-
-  const paymentCode = dpm.code as PaymentMethodCode;
 
   // Fiyatlar ve ürün geçerliliği her zaman sunucuda yeniden doğrulanır —
   // istemciden gelen fiyata asla güvenilmez.
@@ -128,7 +102,7 @@ export async function createOrder(
     .values({
       dealerId,
       brandId,
-      paymentMethodId,
+      paymentMethod: paymentCode,
       status: startStatus,
       totalAmount,
       createdBy: session.user.id,

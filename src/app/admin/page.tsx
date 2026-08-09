@@ -1,7 +1,7 @@
-import { Building2, CreditCard, Package, Tags } from "lucide-react";
+import { Building2, Package, Tags } from "lucide-react";
 import { count, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, dealers, paymentMethods, products } from "@/db/schema";
+import { brands, dealers, products } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { CARD } from "@/lib/ui";
 
@@ -9,7 +9,7 @@ export default async function AdminHomePage() {
   const session = await requireAdminSession();
   const companyId = session.user.companyId;
 
-  const [[brandCount], [dealerCount], [productCount], [paymentMethodCount]] = await Promise.all([
+  const [[brandCount], [dealerCount], [productCount]] = await Promise.all([
     db.select({ value: count() }).from(brands).where(eq(brands.companyId, companyId)),
     db.select({ value: count() }).from(dealers).where(eq(dealers.companyId, companyId)),
     db
@@ -17,22 +17,12 @@ export default async function AdminHomePage() {
       .from(products)
       .innerJoin(brands, eq(products.brandId, brands.id))
       .where(eq(brands.companyId, companyId)),
-    db
-      .select({ value: count() })
-      .from(paymentMethods)
-      .where(eq(paymentMethods.companyId, companyId)),
   ]);
 
   const stats = [
     { label: "Markalar", value: brandCount.value, icon: Tags, tone: "purple" as const },
     { label: "Bayiler", value: dealerCount.value, icon: Building2, tone: "success" as const },
     { label: "Ürünler", value: productCount.value, icon: Package, tone: "warning" as const },
-    {
-      label: "Ödeme Yöntemleri",
-      value: paymentMethodCount.value,
-      icon: CreditCard,
-      tone: "info" as const,
-    },
   ];
 
   return (

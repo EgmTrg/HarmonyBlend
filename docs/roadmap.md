@@ -98,6 +98,23 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 - `payments` tablosunda `type = standalone_collection` kaydı
 - `ledger_entries` defteri ve bakiye hesaplama
 - Admin tarafında cari hesap ekstresi görünümü
+- Bayi kataloğunda toplu ürün seçimi + tek işlemle sepete ekleme — Payna
+  Grup Portal karşılaştırmasından gelen ek kapsam, katalog tarafında
+  sipariş verme hızını artırır
+- Sepette KDV tutarının ayrı bir satırda gösterilmesi — checkout toplamı
+  şu an tek kalem, kırılım yok
+- Şifremi unuttum akışı — e-posta ile şifre sıfırlama; bir e-posta
+  gönderim servisi (ör. Resend) entegrasyonu gerektirir, teknoloji
+  yığınına yeni eklenecek
+- Sepet ekranının sağdan açılan bir panel (drawer) olarak yeniden
+  tasarlanması — siparis.paynagrup.com'daki sepet deneyiminin karşılığı,
+  roadmap dışı bir ek kapsam
+- Admin ürün sayfasında "Ürünler" bölümünün "Kategoriler" bölümünün
+  üstüne taşınması
+- Ürün tablosunda "Durum" ve "Sil" arasına bir "Düzenle" butonu — SKU,
+  kategori, fiyat, isim, birim ve aktif/pasif dahil tüm alanların tek
+  formdan güncellenebilmesi (şu an yalnızca durum değiştirme ve silme var,
+  diğer alanlar için düzenleme yok)
 
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.
@@ -109,6 +126,8 @@ Hedef: Filtrelenebilir, dışa aktarılabilir raporlama motoru.
 - Marka / bayi / ürün / tarih aralığı filtreleriyle dinamik tablo ve grafikler
 - Excel (.xlsx), CSV ve PDF export
 - Büyüyen veri hacmi için özet tablo / materialized view stratejisi
+- Sipariş vermeyen bayi raporu — pasif bayi takibi için Payna Grup Portal
+  karşılaştırmasından gelen ek kapsam
 
 **Çıkış kriteri —** bir firma yetkilisi son üç ayın marka bazlı satışlarını
 filtreleyip Excel'e aktarabiliyor.

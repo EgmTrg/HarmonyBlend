@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ClipboardList,
-  CreditCard,
   LayoutDashboard,
   Package,
   Tags,
@@ -21,7 +20,6 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon; matchPrefixes?
   },
   { href: "/admin/products", label: "Ürünler", icon: Package },
   { href: "/admin/orders", label: "Siparişler", icon: ClipboardList },
-  { href: "/admin/payment-methods", label: "Ödeme Yöntemleri", icon: CreditCard },
 ];
 
 export function AdminNav({ collapsed = false }: { collapsed?: boolean }) {

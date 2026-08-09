@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, dealerBrands, dealerPaymentMethods, dealers, paymentMethods, users } from "@/db/schema";
+import { brands, dealerBrands, dealers, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { USER_ROLES, type AppRole } from "@/lib/roles";
 import { unstable_update } from "@/auth";
@@ -283,56 +283,6 @@ export async function unassignDealerBrand(
   await db
     .delete(dealerBrands)
     .where(and(eq(dealerBrands.dealerId, dealerId), eq(dealerBrands.brandId, brandId)));
-
-  revalidatePath(`/admin/dealers/${dealerId}`);
-}
-
-async function assertCompanyOwnsPaymentMethod(companyId: string, paymentMethodId: string) {
-  const [pm] = await db
-    .select({ id: paymentMethods.id })
-    .from(paymentMethods)
-    .where(and(eq(paymentMethods.id, paymentMethodId), eq(paymentMethods.companyId, companyId)))
-    .limit(1);
-  if (!pm) throw new Error("Ödeme yöntemi bulunamadı.");
-}
-
-export async function enableDealerPaymentMethod(
-  dealerId: string,
-  brandId: string,
-  paymentMethodId: string,
-  _formData: FormData
-) {
-  const session = await requireAdminSession();
-  await assertCompanyOwnsDealerAndBrand(session.user.companyId, dealerId, brandId);
-  await assertCompanyOwnsPaymentMethod(session.user.companyId, paymentMethodId);
-
-  await db
-    .insert(dealerPaymentMethods)
-    .values({ dealerId, brandId, paymentMethodId })
-    .onConflictDoNothing();
-
-  revalidatePath(`/admin/dealers/${dealerId}`);
-}
-
-export async function disableDealerPaymentMethod(
-  dealerId: string,
-  brandId: string,
-  paymentMethodId: string,
-  _formData: FormData
-) {
-  const session = await requireAdminSession();
-  await assertCompanyOwnsDealerAndBrand(session.user.companyId, dealerId, brandId);
-  await assertCompanyOwnsPaymentMethod(session.user.companyId, paymentMethodId);
-
-  await db
-    .delete(dealerPaymentMethods)
-    .where(
-      and(
-        eq(dealerPaymentMethods.dealerId, dealerId),
-        eq(dealerPaymentMethods.brandId, brandId),
-        eq(dealerPaymentMethods.paymentMethodId, paymentMethodId)
-      )
-    );
 
   revalidatePath(`/admin/dealers/${dealerId}`);
 }
