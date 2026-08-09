@@ -44,7 +44,8 @@ katmanında kurulması.
 - Alt marka CRUD'u ve marka bazlı yetkilendirme
 - Bayi CRUD'u + `dealer_brands` ataması
 - Kategori/ürün CRUD'u — marka bazlı stok ve ambalaj alanlarıyla
-- `payment_methods` tanımları ve bayi/marka bazlı aktivasyon
+- ~~`payment_methods` tanımları ve bayi/marka bazlı aktivasyon~~ — bu
+  yaklaşım daha sonra tamamen kaldırıldı, bkz. Faz 3 sonundaki not
 
 **Çıkış kriteri —** bir admin yeni bir bayiyi bir markaya bağlayıp, o bayinin
 sadece o markanın kataloğunu gördüğünü doğrulayabiliyor.
@@ -85,6 +86,19 @@ ve durum makinesi.
   doğrulanıyor (`src/auth.ts`); bayi panelinde "orijinal hesaba dön"
   butonu ile geri dönülüyor. Roadmap'te öngörülmemiş, iş ihtiyacından
   doğan bir ek kapsamdı.
+- Ödeme yöntemi aktivasyon sistemi (`payment_methods` /
+  `dealer_payment_methods` tabloları, bayi/marka bazlı manuel açma-kapama)
+  Faz 3 sonrasında tamamen kaldırıldı — Payna Grup Portal'ın aksine
+  HarmonyBlend'in ERP entegrasyonu olmadığından bu ayrım gereksizdi. Artık
+  her bayi cari/nakit/sanal POS'un hepsini kullanabiliyor; cari yalnızca
+  mevcut bakiye + sipariş tutarı `maxBalanceLimit`'i aşarsa otomatik
+  kapanıyor. `orders.payment_method_id` (FK) yerine sabit bir enum sütun
+  (`orders.payment_method`) kullanılıyor.
+- Toast bildirim sistemi admin paneline de genişletildi — marka/bayi/
+  ürün/kategori/kullanıcı CRUD işlemleri ve sipariş durum geçişleri artık
+  başarı/hata toast'ı gösteriyor (önceden yalnızca bayi tarafında vardı).
+  Yeniden kullanılabilir `ToastForm` bileşeni (`src/components/
+  toast-form.tsx`) ile server action'lar client tarafında çağrılıyor.
 
 **Çıkış kriteri —** üç ödeme tipiyle de (cari, kapıda ödeme, sanal POS
 başarılı/başarısız) uçtan uca sipariş oluşturulabiliyor; admin panelde durum
@@ -163,8 +177,6 @@ erDiagram
   DEALERS ||--o{ DEALER_BRANDS : "atanır"
   BRANDS ||--o{ DEALER_BRANDS : "atanır"
   DEALERS ||--o{ USERS : "çalıştırır"
-  BRANDS ||--o{ PAYMENT_METHODS : "tanımlar"
-  DEALER_BRANDS ||--o{ DEALER_PAYMENT_METHODS : "aktifleştirir"
   DEALERS ||--o{ ORDERS : "verir"
   BRANDS ||--o{ ORDERS : "kapsar"
   ORDERS ||--o{ ORDER_ITEMS : "içerir"
@@ -192,13 +204,14 @@ brands
   created_at    timestamptz
 
 dealers
-  id                uuid        PK
-  company_id        uuid        FK -> companies.id
-  name              text
-  tax_no            text
-  address           text
-  current_balance   numeric(14,2)  DEFAULT 0   -- ledger_entries'ten türeyen önbellek
-  created_at        timestamptz
+  id                  uuid        PK
+  company_id          uuid        FK -> companies.id
+  name                text
+  tax_no              text
+  address             text
+  max_balance_limit    numeric(14,2)  NULL   -- NULL = limitsiz; aşılırsa cari kapanır
+  current_balance     numeric(14,2)  DEFAULT 0   -- ledger_entries'ten türeyen önbellek
+  created_at          timestamptz
 
 dealer_brands
   id            uuid        PK
@@ -238,25 +251,6 @@ products
   created_at    timestamptz
 ```
 
-### Ödeme kuralları
-
-```
-payment_methods
-  id            uuid        PK
-  company_id    uuid        FK -> companies.id
-  code          enum(cari, cash_on_delivery, virtual_pos)
-  label         text
-  config        jsonb       -- limit, gecikme kuralı vb. parametreler
-
-dealer_payment_methods
-  id                  uuid    PK
-  dealer_id           uuid    FK -> dealers.id
-  brand_id            uuid    FK -> brands.id
-  payment_method_id   uuid    FK -> payment_methods.id
-  is_enabled          boolean DEFAULT true
-  UNIQUE(dealer_id, brand_id, payment_method_id)
-```
-
 ### Sipariş
 
 ```
@@ -264,7 +258,7 @@ orders
   id                  uuid        PK
   dealer_id           uuid        FK -> dealers.id
   brand_id            uuid        FK -> brands.id
-  payment_method_id   uuid        FK -> payment_methods.id
+  payment_method      enum(cari, cash_on_delivery, virtual_pos)
   status              text        -- bkz. Bölüm 3, durum makinesi
   total_amount        numeric(14,2)
   created_by          uuid        FK -> users.id
