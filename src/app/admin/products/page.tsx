@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { brands, categories, products } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { ToastForm } from "@/components/toast-form";
+import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
 import {
   BUTTON_GHOST_DANGER,
   BUTTON_PRIMARY,
@@ -269,14 +270,23 @@ export default async function ProductsPage({
                     </ToastForm>
                   </td>
                   <td className="py-3 text-right">
-                    <ToastForm
-                      action={deleteProduct.bind(null, product.id, selectedBrand.id)}
-                      successMessage="Ürün silindi"
-                    >
-                      <button type="submit" className={BUTTON_GHOST_DANGER}>
-                        Sil
-                      </button>
-                    </ToastForm>
+                    <div className="flex items-center justify-end gap-3">
+                      <ConfirmDeleteButton
+                        action={deleteProduct.bind(null, product.id, selectedBrand.id, true)}
+                        idleLabel="Zorla sil"
+                        confirmLabel="Siparişleriyle birlikte sil?"
+                        successMessage="Ürün ve ilişkili siparişler silindi"
+                        muted
+                      />
+                      <ToastForm
+                        action={deleteProduct.bind(null, product.id, selectedBrand.id, false)}
+                        successMessage="Ürün silindi"
+                      >
+                        <button type="submit" className={BUTTON_GHOST_DANGER}>
+                          Sil
+                        </button>
+                      </ToastForm>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -5,6 +5,7 @@ import { brands } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { BUTTON_GHOST_DANGER, BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
 import { ToastForm } from "@/components/toast-form";
+import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
 import { updateBrand, deleteBrand } from "../actions";
 
 export default async function BrandDetailPage({
@@ -43,11 +44,21 @@ export default async function BrandDetailPage({
         </ToastForm>
       </div>
 
-      <ToastForm action={deleteBrand.bind(null, brand.id)} successMessage="Marka silindi">
-        <button type="submit" className={BUTTON_GHOST_DANGER}>
-          Markayı sil
-        </button>
-      </ToastForm>
+      <div className="flex items-center gap-4">
+        <ToastForm action={deleteBrand.bind(null, brand.id, false)} successMessage="Marka silindi">
+          <button type="submit" className={BUTTON_GHOST_DANGER}>
+            Markayı sil
+          </button>
+        </ToastForm>
+        <ConfirmDeleteButton
+          action={deleteBrand.bind(null, brand.id, true)}
+          idleLabel="Zorla sil"
+          confirmLabel="Ürün ve siparişleriyle birlikte sil?"
+          successMessage="Marka ve ilişkili siparişler silindi"
+          redirectTo="/admin/brands"
+          muted
+        />
+      </div>
     </div>
   );
 }

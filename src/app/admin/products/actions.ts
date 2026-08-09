@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, categories, products } from "@/db/schema";
+import { brands, categories, orderItems, orders, products } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 
 async function assertCompanyOwnsBrand(companyId: string, brandId: string) {
@@ -80,9 +80,29 @@ export async function toggleProductActive(
   revalidatePath("/admin/products");
 }
 
-export async function deleteProduct(id: string, brandId: string, _formData: FormData) {
+export async function deleteProduct(
+  id: string,
+  brandId: string,
+  force: boolean,
+  _formData: FormData
+) {
   const session = await requireAdminSession();
   await assertCompanyOwnsBrand(session.user.companyId, brandId);
+
+  if (force) {
+    // order_items -> products FK'sinde cascade yok (sipariş kalemleri kasten
+    // korunuyor) — zorla silmede önce bu ürünün geçtiği siparişleri kaldırıp
+    // engeli açıyoruz. Yalnızca test/hatalı veri temizliği için; gerçek
+    // sipariş geçmişini silmek üzere kullanılmamalı.
+    const rows = await db
+      .select({ orderId: orderItems.orderId })
+      .from(orderItems)
+      .where(eq(orderItems.productId, id));
+    const orderIds = [...new Set(rows.map((r) => r.orderId))];
+    if (orderIds.length > 0) {
+      await db.delete(orders).where(inArray(orders.id, orderIds));
+    }
+  }
 
   try {
     await db.delete(products).where(and(eq(products.id, id), eq(products.brandId, brandId)));
@@ -93,4 +113,5 @@ export async function deleteProduct(id: string, brandId: string, _formData: Form
   }
 
   revalidatePath("/admin/products");
+  revalidatePath("/admin/orders");
 }

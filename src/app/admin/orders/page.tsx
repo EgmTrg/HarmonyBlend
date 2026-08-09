@@ -6,6 +6,8 @@ import { requireAdminSession } from "@/lib/session";
 import { CARD, INPUT, LABEL, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
+import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
+import { deleteOrder } from "./actions";
 
 export default async function AdminOrdersPage({
   searchParams,
@@ -97,6 +99,7 @@ export default async function AdminOrdersPage({
               <th className="pb-3 font-medium">Toplam</th>
               <th className="pb-3 font-medium">Durum</th>
               <th className="pb-3 font-medium">Tarih</th>
+              <th className="pb-3" />
             </tr>
           </thead>
           <tbody>
@@ -120,11 +123,18 @@ export default async function AdminOrdersPage({
                     row.createdAt
                   )}
                 </td>
+                <td className="py-3 text-right">
+                  <ConfirmDeleteButton
+                    action={deleteOrder.bind(null, row.id)}
+                    confirmLabel="Kalıcı olarak sil?"
+                    successMessage="Sipariş silindi"
+                  />
+                </td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-10 text-center text-ink-400">
+                <td colSpan={7} className="py-10 text-center text-ink-400">
                   Kayıtlı sipariş yok.
                 </td>
               </tr>

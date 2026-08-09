@@ -6,6 +6,7 @@ import { brands, dealerBrands, dealers, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { BUTTON_GHOST, BUTTON_GHOST_DANGER, BUTTON_PRIMARY, CARD, INPUT, LABEL, TABLE_HEAD, TABLE_ROW } from "@/lib/ui";
 import { ToastForm } from "@/components/toast-form";
+import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
 import { createBrand, deleteBrand } from "./actions";
 import { deleteDealer, impersonateDealerUser } from "../dealers/actions";
 import { AddDealerOrUserModal, EditDealerModal } from "../dealers/add-user-modal";
@@ -193,11 +194,20 @@ export default async function BrandsAndDealersPage({
                   </td>
                   <td className="py-3 text-ink-400">{brand.slug}</td>
                   <td className="py-3 text-right">
-                    <ToastForm action={deleteBrand.bind(null, brand.id)} successMessage="Marka silindi">
-                      <button type="submit" className={BUTTON_GHOST_DANGER}>
-                        Sil
-                      </button>
-                    </ToastForm>
+                    <div className="flex items-center justify-end gap-3">
+                      <ConfirmDeleteButton
+                        action={deleteBrand.bind(null, brand.id, true)}
+                        idleLabel="Zorla sil"
+                        confirmLabel="Ürün ve siparişleriyle birlikte sil?"
+                        successMessage="Marka ve ilişkili siparişler silindi"
+                        muted
+                      />
+                      <ToastForm action={deleteBrand.bind(null, brand.id, false)} successMessage="Marka silindi">
+                        <button type="submit" className={BUTTON_GHOST_DANGER}>
+                          Sil
+                        </button>
+                      </ToastForm>
+                    </div>
                   </td>
                 </tr>
               ))}

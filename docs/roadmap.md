@@ -99,6 +99,13 @@ ve durum makinesi.
   başarı/hata toast'ı gösteriyor (önceden yalnızca bayi tarafında vardı).
   Yeniden kullanılabilir `ToastForm` bileşeni (`src/components/
   toast-form.tsx`) ile server action'lar client tarafında çağrılıyor.
+- Sipariş silme (admin) ve ürün/marka için "zorla sil" — normal silme,
+  sipariş geçmişinde kullanılan ürün/markayı `order_items` FK'sinin
+  engellemesiyle reddediyor (bkz. üstteki not); "zorla sil" önce o ürünü/
+  markayı içeren siparişleri kaldırıp sonra siliyor. Yalnızca test/hatalı
+  veri temizliği için düşünüldü — gerçek sipariş geçmişini silmek üzere
+  kullanılmamalı. İki tıklamalı onay ile (`ConfirmDeleteButton`,
+  native `confirm()` yerine).
 
 **Çıkış kriteri —** üç ödeme tipiyle de (cari, kapıda ödeme, sanal POS
 başarılı/başarısız) uçtan uca sipariş oluşturulabiliyor; admin panelde durum
@@ -129,6 +136,12 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   kategori, fiyat, isim, birim ve aktif/pasif dahil tüm alanların tek
   formdan güncellenebilmesi (şu an yalnızca durum değiştirme ve silme var,
   diğer alanlar için düzenleme yok)
+- Bayinin kendi siparişini silebilmesi ya da düzenleyebilmesi — amaç bir
+  bayinin hatalı/yanlış girilmiş bir siparişi iptal edip tekrar sipariş
+  geçebilmesi. Admin tarafındaki "zorla sil" (yukarıdaki not) yalnızca
+  test verisi temizliği içindi, bu madde gerçek bayi iş akışı için ayrı
+  bir tasarım gerektiriyor (ör. hangi durumdaki siparişler
+  iptal/düzenlemeye açık olacak, cari bakiyeye etkisi ne olacak).
 
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.

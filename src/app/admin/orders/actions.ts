@@ -45,3 +45,22 @@ export async function transitionOrderStatus(orderId: string, toStatus: string, f
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/orders");
 }
+
+export async function deleteOrder(orderId: string, _formData: FormData) {
+  const session = await requireAdminSession();
+
+  const [row] = await db
+    .select({ brandCompanyId: brands.companyId })
+    .from(orders)
+    .innerJoin(brands, eq(orders.brandId, brands.id))
+    .where(eq(orders.id, orderId))
+    .limit(1);
+
+  if (!row || row.brandCompanyId !== session.user.companyId) throw new Error("Sipariş bulunamadı.");
+
+  // order_items / order_status_history / payments hepsi orders'a cascade
+  // bağlı — sipariş silinince otomatik temizleniyor.
+  await db.delete(orders).where(eq(orders.id, orderId));
+
+  revalidatePath("/admin/orders");
+}

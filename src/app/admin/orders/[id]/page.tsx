@@ -14,6 +14,8 @@ import { requireAdminSession } from "@/lib/session";
 import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, nextOrderStatuses, type OrderStatus } from "@/lib/order-status";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
+import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
+import { deleteOrder } from "../actions";
 import { StatusTransitionActions } from "./status-actions";
 
 export default async function AdminOrderDetailPage({
@@ -86,9 +88,17 @@ export default async function AdminOrderDetailPage({
             {row.brandName} — {PAYMENT_METHOD_LABELS[row.paymentMethod]} — {dateFormatter.format(row.createdAt)}
           </p>
         </div>
-        <span className={badgeClass(ORDER_STATUS_TONES[row.status as OrderStatus])}>
-          {ORDER_STATUS_LABELS[row.status as OrderStatus] ?? row.status}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className={badgeClass(ORDER_STATUS_TONES[row.status as OrderStatus])}>
+            {ORDER_STATUS_LABELS[row.status as OrderStatus] ?? row.status}
+          </span>
+          <ConfirmDeleteButton
+            action={deleteOrder.bind(null, row.id)}
+            confirmLabel="Kalıcı olarak sil?"
+            successMessage="Sipariş silindi"
+            redirectTo="/admin/orders"
+          />
+        </div>
       </div>
 
       <div className={CARD}>
