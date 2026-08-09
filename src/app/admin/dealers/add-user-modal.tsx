@@ -5,6 +5,7 @@ import { Pencil, Plus, X } from "lucide-react";
 import { createDealerOrUser, updateDealerAndBrands } from "./actions";
 import { BUTTON_GHOST, BUTTON_PRIMARY, INPUT, LABEL } from "@/lib/ui";
 import { CurrencyInput } from "@/components/currency-input";
+import { useToast } from "@/lib/toast";
 
 type Role = "dealer_user" | "company_admin" | "brand_manager";
 
@@ -20,6 +21,7 @@ interface CompanyBrand {
 }
 
 export function AddDealerOrUserModal({ companyBrands }: { companyBrands: CompanyBrand[] }) {
+  const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState<Role>("dealer_user");
   const [activeTab, setActiveTab] = useState<1 | 2 | 3>(1);
@@ -50,6 +52,7 @@ export function AddDealerOrUserModal({ companyBrands }: { companyBrands: Company
     try {
       await createDealerOrUser(formData);
       close();
+      showToast({ title: "Kaydedildi", variant: "success" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
@@ -269,6 +272,7 @@ export function EditDealerModal({
   companyBrands: CompanyBrand[];
   assignedBrandIds: string[];
 }) {
+  const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<1 | 2>(1);
   const [submitting, setSubmitting] = useState(false);
@@ -286,6 +290,7 @@ export function EditDealerModal({
     try {
       await updateDealerAndBrands(dealer.id, formData);
       close();
+      showToast({ title: "Bayi güncellendi", variant: "success" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {

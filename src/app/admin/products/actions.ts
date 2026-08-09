@@ -84,7 +84,13 @@ export async function deleteProduct(id: string, brandId: string, _formData: Form
   const session = await requireAdminSession();
   await assertCompanyOwnsBrand(session.user.companyId, brandId);
 
-  await db.delete(products).where(and(eq(products.id, id), eq(products.brandId, brandId)));
+  try {
+    await db.delete(products).where(and(eq(products.id, id), eq(products.brandId, brandId)));
+  } catch {
+    throw new Error(
+      "Bu ürün geçmiş siparişlerde kullanıldığı için silinemiyor — bunun yerine pasife alabilirsiniz."
+    );
+  }
 
   revalidatePath("/admin/products");
 }

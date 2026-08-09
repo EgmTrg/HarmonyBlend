@@ -5,6 +5,7 @@ import { brands, dealerBrands, dealers, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { BUTTON_GHOST, BUTTON_GHOST_DANGER, BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
 import { CurrencyInput } from "@/components/currency-input";
+import { ToastForm } from "@/components/toast-form";
 import {
   assignDealerBrand,
   createDealerUser,
@@ -48,7 +49,11 @@ export default async function DealerDetailPage({
         <h1 className="text-2xl font-semibold text-ink-900">Bayi düzenle</h1>
 
         <div className={CARD}>
-          <form action={updateDealer.bind(null, dealer.id)} className="flex flex-col gap-4">
+          <ToastForm
+            action={updateDealer.bind(null, dealer.id)}
+            successMessage="Bayi güncellendi"
+            className="flex flex-col gap-4"
+          >
             <label className="flex flex-col gap-1">
               <span className={LABEL}>Bayi adı</span>
               <input name="name" defaultValue={dealer.name} required className={INPUT} />
@@ -82,14 +87,14 @@ export default async function DealerDetailPage({
             <button type="submit" className={`self-start ${BUTTON_PRIMARY}`}>
               Kaydet
             </button>
-          </form>
+          </ToastForm>
         </div>
 
-        <form action={deleteDealer.bind(null, dealer.id)}>
+        <ToastForm action={deleteDealer.bind(null, dealer.id)} successMessage="Bayi silindi">
           <button type="submit" className={BUTTON_GHOST_DANGER}>
             Bayiyi sil
           </button>
-        </form>
+        </ToastForm>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -108,17 +113,23 @@ export default async function DealerDetailPage({
                 <li key={brand.id} className="flex items-center justify-between px-6 py-3 text-sm">
                   <span className="text-ink-900">{brand.name}</span>
                   {isAssigned ? (
-                    <form action={unassignDealerBrand.bind(null, dealer.id, brand.id)}>
+                    <ToastForm
+                      action={unassignDealerBrand.bind(null, dealer.id, brand.id)}
+                      successMessage="Marka kaldırıldı"
+                    >
                       <button type="submit" className={BUTTON_GHOST_DANGER}>
                         Kaldır
                       </button>
-                    </form>
+                    </ToastForm>
                   ) : (
-                    <form action={assignDealerBrand.bind(null, dealer.id, brand.id)}>
+                    <ToastForm
+                      action={assignDealerBrand.bind(null, dealer.id, brand.id)}
+                      successMessage="Marka bağlandı"
+                    >
                       <button type="submit" className={BUTTON_GHOST}>
                         Bağla
                       </button>
-                    </form>
+                    </ToastForm>
                   )}
                 </li>
               );
@@ -140,7 +151,11 @@ export default async function DealerDetailPage({
           </p>
         </div>
         <div className={CARD}>
-          <form action={createDealerUser.bind(null, dealer.id)} className="flex flex-wrap items-end gap-3">
+          <ToastForm
+            action={createDealerUser.bind(null, dealer.id)}
+            successMessage="Kullanıcı oluşturuldu"
+            className="flex flex-wrap items-end gap-3"
+          >
             <div className="flex flex-col gap-1">
               <label htmlFor="du-email" className={LABEL}>
                 E-posta
@@ -163,18 +178,21 @@ export default async function DealerDetailPage({
             <button type="submit" className={BUTTON_PRIMARY}>
               Hesap oluştur
             </button>
-          </form>
+          </ToastForm>
         </div>
         <div className={`${CARD} p-0`}>
           <ul className="flex flex-col divide-y divide-border">
             {dealerUsers.map((u) => (
               <li key={u.id} className="flex items-center justify-between px-6 py-3 text-sm">
                 <span className="text-ink-900">{u.email}</span>
-                <form action={deleteDealerUser.bind(null, u.id, dealer.id)}>
+                <ToastForm
+                  action={deleteDealerUser.bind(null, u.id, dealer.id)}
+                  successMessage="Kullanıcı silindi"
+                >
                   <button type="submit" className={BUTTON_GHOST_DANGER}>
                     Sil
                   </button>
-                </form>
+                </ToastForm>
               </li>
             ))}
             {dealerUsers.length === 0 && (

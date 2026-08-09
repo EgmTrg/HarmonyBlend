@@ -46,9 +46,15 @@ export async function updateBrand(id: string, formData: FormData) {
 export async function deleteBrand(id: string, _formData: FormData) {
   const session = await requireAdminSession();
 
-  await db
-    .delete(brands)
-    .where(and(eq(brands.id, id), eq(brands.companyId, session.user.companyId)));
+  try {
+    await db
+      .delete(brands)
+      .where(and(eq(brands.id, id), eq(brands.companyId, session.user.companyId)));
+  } catch {
+    throw new Error(
+      "Bu markadaki ürünler geçmiş siparişlerde kullanıldığı için marka silinemiyor."
+    );
+  }
 
   revalidatePath("/admin/brands");
 }

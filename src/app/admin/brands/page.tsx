@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { brands, dealerBrands, dealers, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { BUTTON_GHOST, BUTTON_GHOST_DANGER, BUTTON_PRIMARY, CARD, INPUT, LABEL, TABLE_HEAD, TABLE_ROW } from "@/lib/ui";
+import { ToastForm } from "@/components/toast-form";
 import { createBrand, deleteBrand } from "./actions";
 import { deleteDealer, impersonateDealerUser } from "../dealers/actions";
 import { AddDealerOrUserModal, EditDealerModal } from "../dealers/add-user-modal";
@@ -128,11 +129,11 @@ export default async function BrandsAndDealersPage({
                         companyBrands={companyBrands}
                         assignedBrandIds={assignedBrandIdsByDealer.get(dealer.id) ?? []}
                       />
-                      <form action={deleteDealer.bind(null, dealer.id)}>
+                      <ToastForm action={deleteDealer.bind(null, dealer.id)} successMessage="Bayi silindi">
                         <button type="submit" className={BUTTON_GHOST_DANGER}>
                           Sil
                         </button>
-                      </form>
+                      </ToastForm>
                     </div>
                   </td>
                 </tr>
@@ -156,7 +157,7 @@ export default async function BrandsAndDealersPage({
         </div>
 
         <div className={CARD}>
-          <form action={createBrand} className="flex flex-wrap items-end gap-3">
+          <ToastForm action={createBrand} successMessage="Marka eklendi" className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col gap-1">
               <label htmlFor="name" className={LABEL}>
                 Marka adı
@@ -167,7 +168,7 @@ export default async function BrandsAndDealersPage({
               <Plus className="mr-1.5 h-4 w-4" strokeWidth={2} />
               Ekle
             </button>
-          </form>
+          </ToastForm>
         </div>
 
         <div className={CARD}>
@@ -192,11 +193,11 @@ export default async function BrandsAndDealersPage({
                   </td>
                   <td className="py-3 text-ink-400">{brand.slug}</td>
                   <td className="py-3 text-right">
-                    <form action={deleteBrand.bind(null, brand.id)}>
+                    <ToastForm action={deleteBrand.bind(null, brand.id)} successMessage="Marka silindi">
                       <button type="submit" className={BUTTON_GHOST_DANGER}>
                         Sil
                       </button>
-                    </form>
+                    </ToastForm>
                   </td>
                 </tr>
               ))}

@@ -4,6 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { brands, categories, products } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
+import { ToastForm } from "@/components/toast-form";
 import {
   BUTTON_GHOST_DANGER,
   BUTTON_PRIMARY,
@@ -95,8 +96,9 @@ export default async function ProductsPage({
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold text-ink-900">Kategoriler</h2>
         <div className={CARD}>
-          <form
+          <ToastForm
             action={createCategory.bind(null, selectedBrand.id)}
+            successMessage="Kategori eklendi"
             className="flex flex-wrap items-end gap-3"
           >
             <div className="flex flex-col gap-1">
@@ -122,7 +124,7 @@ export default async function ProductsPage({
               <Plus className="mr-1.5 h-4 w-4" strokeWidth={2} />
               Ekle
             </button>
-          </form>
+          </ToastForm>
         </div>
 
         <div className={`${CARD} p-0`}>
@@ -141,11 +143,14 @@ export default async function ProductsPage({
                     </span>
                   )}
                 </span>
-                <form action={deleteCategory.bind(null, category.id, selectedBrand.id)}>
+                <ToastForm
+                  action={deleteCategory.bind(null, category.id, selectedBrand.id)}
+                  successMessage="Kategori silindi"
+                >
                   <button type="submit" className={BUTTON_GHOST_DANGER}>
                     Sil
                   </button>
-                </form>
+                </ToastForm>
               </li>
             ))}
             {brandCategories.length === 0 && (
@@ -160,8 +165,9 @@ export default async function ProductsPage({
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold text-ink-900">Ürünler</h2>
         <div className={CARD}>
-          <form
+          <ToastForm
             action={createProduct.bind(null, selectedBrand.id)}
+            successMessage="Ürün eklendi"
             className="flex flex-wrap items-end gap-3"
           >
             <div className="flex flex-col gap-1">
@@ -219,7 +225,7 @@ export default async function ProductsPage({
               <Plus className="mr-1.5 h-4 w-4" strokeWidth={2} />
               Ekle
             </button>
-          </form>
+          </ToastForm>
         </div>
 
         <div className={CARD}>
@@ -248,25 +254,29 @@ export default async function ProductsPage({
                     {product.unit} — {product.unitPrice}
                   </td>
                   <td className="py-3">
-                    <form
+                    <ToastForm
                       action={toggleProductActive.bind(
                         null,
                         product.id,
                         selectedBrand.id,
                         !product.isActive
                       )}
+                      successMessage={product.isActive ? "Ürün pasif yapıldı" : "Ürün aktif yapıldı"}
                     >
                       <button type="submit" className={badgeClass(product.isActive ? "success" : "neutral")}>
                         {product.isActive ? "Aktif" : "Pasif"}
                       </button>
-                    </form>
+                    </ToastForm>
                   </td>
                   <td className="py-3 text-right">
-                    <form action={deleteProduct.bind(null, product.id, selectedBrand.id)}>
+                    <ToastForm
+                      action={deleteProduct.bind(null, product.id, selectedBrand.id)}
+                      successMessage="Ürün silindi"
+                    >
                       <button type="submit" className={BUTTON_GHOST_DANGER}>
                         Sil
                       </button>
-                    </form>
+                    </ToastForm>
                   </td>
                 </tr>
               ))}

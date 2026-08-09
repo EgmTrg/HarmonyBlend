@@ -11,10 +11,10 @@ import {
   users,
 } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
-import { BUTTON_PRIMARY, CARD, INPUT, LABEL, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
+import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, nextOrderStatuses, type OrderStatus } from "@/lib/order-status";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
-import { transitionOrderStatus } from "../actions";
+import { StatusTransitionActions } from "./status-actions";
 
 export default async function AdminOrderDetailPage({
   params,
@@ -126,23 +126,7 @@ export default async function AdminOrderDetailPage({
       {possibleNextStatuses.length > 0 && (
         <div className={CARD}>
           <h2 className="mb-3 text-sm font-semibold text-ink-900">Durum Güncelle</h2>
-          <form className="flex flex-col gap-3">
-            <label className="flex flex-col gap-1">
-              <span className={LABEL}>Not (opsiyonel)</span>
-              <input name="note" className={INPUT} />
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {possibleNextStatuses.map((status) => (
-                <button
-                  key={status}
-                  formAction={transitionOrderStatus.bind(null, row.id, status)}
-                  className={`${BUTTON_PRIMARY} text-xs`}
-                >
-                  {ORDER_STATUS_LABELS[status]}
-                </button>
-              ))}
-            </div>
-          </form>
+          <StatusTransitionActions orderId={row.id} statuses={possibleNextStatuses} />
         </div>
       )}
 
