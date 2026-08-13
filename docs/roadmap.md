@@ -178,6 +178,12 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   0 yapıldı — yanlışlıkla "Ekle"ye basılıp 1 adet eklenmesini önlemek
   için; miktar 0 iken "Ekle"ye basılırsa "Lütfen bir miktar girin" hatası
   gösterilir.
+- Bayi kataloğuna "Tüm miktarları temizle" butonu eklendi (ürün
+  listesinin sağ üstünde) — henüz sepete eklenmemiş, sadece o an girilmiş
+  miktar alanlarını sıfırlar.
+- Header'daki sepet ikonunun yanına "Sepeti boşalt" eklendi — tüm
+  markalardaki sepeti tek seferde boşaltır (`CartContext.clearCart`);
+  sepet boşken tıklanamaz durumda (soluk/pasif).
 
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.

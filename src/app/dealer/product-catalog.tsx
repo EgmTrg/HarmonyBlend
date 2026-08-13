@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "./cart-context";
 import { useToast } from "@/lib/toast";
-import { BUTTON_PRIMARY, TABLE_HEAD, TABLE_ROW } from "@/lib/ui";
+import { BUTTON_GHOST, BUTTON_PRIMARY, TABLE_HEAD, TABLE_ROW } from "@/lib/ui";
 import { buildCategoryTree, categoryHasItems, type CategoryLike, type CategoryNode } from "@/lib/category-tree";
 
 interface CatalogProduct {
@@ -75,7 +75,15 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
   );
 }
 
-function ProductTable({ brandId, products }: { brandId: string; products: CatalogProduct[] }) {
+function ProductTable({
+  brandId,
+  products,
+  resetSignal,
+}: {
+  brandId: string;
+  products: CatalogProduct[];
+  resetSignal: number;
+}) {
   return (
     <table className="w-full text-sm">
       <thead>
@@ -89,7 +97,10 @@ function ProductTable({ brandId, products }: { brandId: string; products: Catalo
       </thead>
       <tbody>
         {products.map((product) => (
-          <ProductRow key={product.id} brandId={brandId} product={product} />
+          // key'e resetSignal eklenmesi, "Tüm miktarları temizle" tıklandığında
+          // ProductRow'u tamamen yeniden mount ederek quantity/added state'ini
+          // sıfırlıyor — ayrı bir imperative reset mekanizması gerekmeden.
+          <ProductRow key={`${product.id}-${resetSignal}`} brandId={brandId} product={product} />
         ))}
       </tbody>
     </table>
@@ -101,11 +112,13 @@ function CategoryGroup({
   depth,
   brandId,
   productsByCategory,
+  resetSignal,
 }: {
   node: CategoryNode;
   depth: number;
   brandId: string;
   productsByCategory: Map<string, CatalogProduct[]>;
+  resetSignal: number;
 }) {
   if (!categoryHasItems(node, productsByCategory)) return null;
 
@@ -116,7 +129,9 @@ function CategoryGroup({
       <h3 className={depth === 0 ? "text-lg font-semibold text-ink-900" : "text-base font-medium text-ink-600"}>
         {node.name}
       </h3>
-      {ownProducts.length > 0 && <ProductTable brandId={brandId} products={ownProducts} />}
+      {ownProducts.length > 0 && (
+        <ProductTable brandId={brandId} products={ownProducts} resetSignal={resetSignal} />
+      )}
       {node.children.map((child) => (
         <CategoryGroup
           key={child.id}
@@ -124,6 +139,7 @@ function CategoryGroup({
           depth={depth + 1}
           brandId={brandId}
           productsByCategory={productsByCategory}
+          resetSignal={resetSignal}
         />
       ))}
     </div>
@@ -139,6 +155,8 @@ export function ProductCatalog({
   products: CatalogProduct[];
   categories: CategoryLike[];
 }) {
+  const [resetSignal, setResetSignal] = useState(0);
+
   if (products.length === 0) {
     return (
       <p className="py-10 text-center text-sm text-ink-400">
@@ -163,6 +181,11 @@ export function ProductCatalog({
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex justify-end">
+        <button type="button" onClick={() => setResetSignal((s) => s + 1)} className={BUTTON_GHOST}>
+          Tüm miktarları temizle
+        </button>
+      </div>
       {tree.map((node) => (
         <CategoryGroup
           key={node.id}
@@ -170,12 +193,13 @@ export function ProductCatalog({
           depth={0}
           brandId={brandId}
           productsByCategory={productsByCategory}
+          resetSignal={resetSignal}
         />
       ))}
       {uncategorized.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-lg font-semibold text-ink-900">Diğer</h3>
-          <ProductTable brandId={brandId} products={uncategorized} />
+          <ProductTable brandId={brandId} products={uncategorized} resetSignal={resetSignal} />
         </div>
       )}
     </div>

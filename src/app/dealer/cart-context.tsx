@@ -24,6 +24,7 @@ interface CartContextValue {
   removeItem: (brandId: string, productId: string) => void;
   setQuantity: (brandId: string, productId: string, quantity: number) => void;
   clearBrandCart: (brandId: string) => void;
+  clearCart: () => void;
   getBrandCart: (brandId: string) => CartItem[];
   totalItemCount: number;
   isDrawerOpen: boolean;
@@ -91,6 +92,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [carts, setCarts]
   );
 
+  const clearCart = useCallback(() => {
+    setCarts(EMPTY_CARTS);
+  }, [setCarts]);
+
   const getBrandCart = useCallback((brandId: string) => carts[brandId] ?? [], [carts]);
 
   const totalItemCount = useMemo(
@@ -114,6 +119,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeItem,
         setQuantity,
         clearBrandCart,
+        clearCart,
         getBrandCart,
         totalItemCount,
         isDrawerOpen,
