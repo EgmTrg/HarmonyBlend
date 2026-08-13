@@ -3,6 +3,7 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   brands,
+  categories,
   dealers,
   orderItems,
   orderStatusHistory,
@@ -15,6 +16,7 @@ import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, nextOrderStatuses, type OrderStatus } from "@/lib/order-status";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
+import { CategoryGroupList } from "@/components/category-group-list";
 import { deleteOrder } from "../actions";
 import { StatusTransitionActions } from "./status-actions";
 
@@ -49,7 +51,7 @@ export default async function AdminOrderDetailPage({
 
   if (!row || row.brandCompanyId !== session.user.companyId) notFound();
 
-  const [items, history] = await Promise.all([
+  const [items, history, brandCategories] = await Promise.all([
     db
       .select({
         id: orderItems.id,
@@ -59,6 +61,7 @@ export default async function AdminOrderDetailPage({
         productName: products.name,
         productSku: products.sku,
         productUnit: products.unit,
+        categoryId: products.categoryId,
       })
       .from(orderItems)
       .innerJoin(products, eq(orderItems.productId, products.id))
@@ -76,6 +79,7 @@ export default async function AdminOrderDetailPage({
       .leftJoin(users, eq(orderStatusHistory.changedBy, users.id))
       .where(eq(orderStatusHistory.orderId, id))
       .orderBy(asc(orderStatusHistory.createdAt)),
+    db.select().from(categories).where(eq(categories.brandId, row.brandId)),
   ]);
 
   const possibleNextStatuses = nextOrderStatuses(row.paymentMethod, row.status);
@@ -105,30 +109,37 @@ export default async function AdminOrderDetailPage({
 
       <div className={CARD}>
         <h2 className="mb-3 text-sm font-semibold text-ink-900">Kalemler</h2>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className={TABLE_HEAD}>
-              <th className="pb-2 font-medium">Ürün</th>
-              <th className="pb-2 font-medium">SKU</th>
-              <th className="pb-2 font-medium">Miktar</th>
-              <th className="pb-2 font-medium">Birim Fiyat</th>
-              <th className="pb-2 font-medium">Tutar</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.id} className={TABLE_ROW}>
-                <td className="py-2 font-medium text-ink-900">{item.productName}</td>
-                <td className="py-2 text-ink-400">{item.productSku}</td>
-                <td className="py-2 text-ink-600">
-                  {item.quantity} {item.productUnit}
-                </td>
-                <td className="py-2 text-ink-600">{item.unitPrice}</td>
-                <td className="py-2 text-ink-900">{item.lineTotal}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <CategoryGroupList
+          items={items}
+          categories={brandCategories}
+          headingSize="compact"
+          renderItems={(catItems) => (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className={TABLE_HEAD}>
+                  <th className="pb-2 font-medium">Ürün</th>
+                  <th className="pb-2 font-medium">SKU</th>
+                  <th className="pb-2 font-medium">Miktar</th>
+                  <th className="pb-2 font-medium">Birim Fiyat</th>
+                  <th className="pb-2 font-medium">Tutar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {catItems.map((item) => (
+                  <tr key={item.id} className={TABLE_ROW}>
+                    <td className="py-2 font-medium text-ink-900">{item.productName}</td>
+                    <td className="py-2 text-ink-400">{item.productSku}</td>
+                    <td className="py-2 text-ink-600">
+                      {item.quantity} {item.productUnit}
+                    </td>
+                    <td className="py-2 text-ink-600">{item.unitPrice}</td>
+                    <td className="py-2 text-ink-900">{item.lineTotal}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        />
         <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">
           <div className="flex items-center justify-between text-ink-600">
             <span>Ara Toplam</span>

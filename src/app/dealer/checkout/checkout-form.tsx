@@ -3,22 +3,41 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useCart } from "../cart-context";
+import { useCart, type CartItem } from "../cart-context";
 import { createOrder } from "../actions";
 import { useToast } from "@/lib/toast";
 import { calculateCartTotals } from "@/lib/cart-totals";
 import { BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
+import { CategoryGroupList } from "@/components/category-group-list";
+import type { CategoryLike } from "@/lib/category-tree";
 import type { PaymentMethodCode } from "@/lib/payment-methods";
 import { PAYMENT_METHOD_CODES, PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
+
+function CheckoutItemList({ items }: { items: CartItem[] }) {
+  return (
+    <ul className="flex flex-col divide-y divide-border">
+      {items.map((item) => (
+        <li key={item.productId} className="flex items-center justify-between py-2 text-sm">
+          <span className="text-ink-900">
+            {item.name} <span className="text-ink-400">× {item.quantity} {item.unit}</span>
+          </span>
+          <span className="text-ink-600">{(Number(item.unitPrice) * item.quantity).toFixed(2)}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function CheckoutForm({
   brandId,
   currentBalance,
   maxBalanceLimit,
+  categories,
 }: {
   brandId: string;
   currentBalance: string;
   maxBalanceLimit: string | null;
+  categories: CategoryLike[];
 }) {
   const router = useRouter();
   const { showToast } = useToast();
@@ -72,18 +91,12 @@ export function CheckoutForm({
     <div className="flex flex-col gap-6">
       <div className={CARD}>
         <h2 className="mb-3 text-sm font-semibold text-ink-900">Sepet Özeti</h2>
-        <ul className="flex flex-col divide-y divide-border">
-          {items.map((item) => (
-            <li key={item.productId} className="flex items-center justify-between py-2 text-sm">
-              <span className="text-ink-900">
-                {item.name} <span className="text-ink-400">× {item.quantity} {item.unit}</span>
-              </span>
-              <span className="text-ink-600">
-                {(Number(item.unitPrice) * item.quantity).toFixed(2)}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <CategoryGroupList
+          items={items}
+          categories={categories}
+          headingSize="compact"
+          renderItems={(catItems) => <CheckoutItemList items={catItems} />}
+        />
         <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">
           <div className="flex items-center justify-between text-ink-600">
             <span>Ara Toplam</span>

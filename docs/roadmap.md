@@ -168,12 +168,18 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   kataloğunda üst kategorinin ("Börekler") başlığı altında, kendi alt
   kategori başlığıyla girintili gösterilir; aynı kategorideki ürünler alt
   alta bir tabloda listelenir. Kategorisiz ürünler "Diğer" başlığı altında
-  toplanır. Aynı gruplama admin → Ürünler tablosuna da uygulandı
-  (`src/app/admin/products/product-category-groups.tsx` +
-  `product-table.tsx`) — tekrarlanan "boş kategori render etme" mantığı
-  (`categoryHasItems`) `category-tree.ts`'e taşınıp iki taraf arasında
-  paylaşıldı; artık tekrar eden "Kategori" sütunu yerine gruplama
-  kullanılıyor.
+  toplanır. Aynı gruplama; admin → Ürünler tablosu, sepet çekmecesi,
+  checkout "Sepet Özeti", bayi "Siparişlerim" detayı ve admin sipariş
+  detayı dahil ürün/sipariş kalemi listelenen **her** ekrana uygulandı —
+  paylaşılan `src/components/category-group-list.tsx` (`CategoryGroupList`)
+  bileşeni ağaç kurma + boş kategori dalını atlama mantığını tek yerde
+  tutuyor, her ekran yalnızca kendi satır/tablo görünümünü
+  (`renderItems`) sağlıyor. Sipariş kalemlerinin kategorisi, sipariş
+  anında snapshot'lanmıyor — ürünün *o anki* kategorisi üzerinden
+  gösteriliyor (fiyat/KDV'nin aksine, kategorizasyon parasal bir etkisi
+  olmayan, salt görsel/organizasyonel bir alan olduğundan kasıtlı bir
+  tercih). "Kategori" sütunu artık tekrar etmiyor, yerini gruplama
+  alıyor.
 - Bayi kataloğunda "Ekle" satırındaki miktar alanının varsayılanı 1 yerine
   0 yapıldı — yanlışlıkla "Ekle"ye basılıp 1 adet eklenmesini önlemek
   için; miktar 0 iken "Ekle"ye basılırsa "Lütfen bir miktar girin" hatası
@@ -184,6 +190,21 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 - Header'daki sepet ikonunun yanına "Sepeti boşalt" eklendi — tüm
   markalardaki sepeti tek seferde boşaltır (`CartContext.clearCart`);
   sepet boşken tıklanamaz durumda (soluk/pasif).
+- Bayi paneli menüsüne bir "Ayarlar" sayfası — henüz yapılmadı, roadmap
+  dışı bir ek kapsam. İlk ayar: sepete ekleme davranışını iki mod
+  arasında seçtiren bir checkbox.
+  - **Mod 1 (mevcut davranış):** miktar yaz, o satırın "Ekle" butonuna
+    bas — ürün tek tek sepete girer.
+  - **Mod 2:** kataloğun her satırına miktar yazılabilir (o satırın
+    "Ekle" butonu pasif olabilir ya da tek tek eklemeye izin vermeye
+    devam edebilir — kesin davranış uygulama sırasında netleştirilecek),
+    "Tüm miktarları temizle" butonunun yanına "Sepette olmayan ve miktar
+    yazılmış olan ürünleri ekle" adında toplu bir ekleme butonu gelir;
+    bu buton o an miktar alanı >0 olan, henüz sepete girmemiş tüm
+    satırları tek seferde sepete ekler.
+  - Ayarın nerede saklanacağı (yalnızca `localStorage`'da tarayıcı
+    bazlı mı, yoksa `users` tablosunda kalıcı bir tercih olarak mı)
+    uygulama aşamasında netleştirilecek.
 
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.

@@ -1,6 +1,7 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, dealerBrands } from "@/db/schema";
+import { brands, categories, dealerBrands } from "@/db/schema";
+import type { CategoryLike } from "@/lib/category-tree";
 import { signOut } from "@/auth";
 import { requireDealerSession } from "@/lib/session";
 import { ROLE_LABELS } from "@/lib/roles";
@@ -25,6 +26,16 @@ export default async function DealerLayout({ children }: { children: React.React
     .innerJoin(brands, eq(dealerBrands.brandId, brands.id))
     .where(and(eq(dealerBrands.dealerId, dealerId), eq(dealerBrands.isActive, true)))
     .orderBy(brands.name);
+
+  const brandIds = assignedBrands.map((brand) => brand.id);
+  const allCategories =
+    brandIds.length > 0
+      ? await db.select().from(categories).where(inArray(categories.brandId, brandIds))
+      : [];
+  const categoriesByBrand: Record<string, CategoryLike[]> = {};
+  for (const category of allCategories) {
+    (categoriesByBrand[category.brandId] ??= []).push(category);
+  }
 
   const today = new Intl.DateTimeFormat("tr-TR", {
     day: "numeric",
@@ -62,7 +73,7 @@ export default async function DealerLayout({ children }: { children: React.React
           <main className="flex-1 px-8 py-8">{children}</main>
         </div>
 
-        <CartDrawer brands={assignedBrands} />
+        <CartDrawer brands={assignedBrands} categoriesByBrand={categoriesByBrand} />
       </div>
     </CartProvider>
   );

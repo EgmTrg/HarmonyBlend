@@ -5,7 +5,8 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "./cart-context";
 import { useToast } from "@/lib/toast";
 import { BUTTON_GHOST, BUTTON_PRIMARY, TABLE_HEAD, TABLE_ROW } from "@/lib/ui";
-import { buildCategoryTree, categoryHasItems, type CategoryLike, type CategoryNode } from "@/lib/category-tree";
+import { CategoryGroupList } from "@/components/category-group-list";
+import type { CategoryLike } from "@/lib/category-tree";
 
 interface CatalogProduct {
   id: string;
@@ -37,6 +38,7 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
         unit: product.unit,
         unitPrice: product.unitPrice,
         vatRate: product.vatRate,
+        categoryId: product.categoryId,
       },
       quantity
     );
@@ -107,45 +109,6 @@ function ProductTable({
   );
 }
 
-function CategoryGroup({
-  node,
-  depth,
-  brandId,
-  productsByCategory,
-  resetSignal,
-}: {
-  node: CategoryNode;
-  depth: number;
-  brandId: string;
-  productsByCategory: Map<string, CatalogProduct[]>;
-  resetSignal: number;
-}) {
-  if (!categoryHasItems(node, productsByCategory)) return null;
-
-  const ownProducts = productsByCategory.get(node.id) ?? [];
-
-  return (
-    <div className={depth > 0 ? "flex flex-col gap-3 border-l-2 border-border pl-4" : "flex flex-col gap-3"}>
-      <h3 className={depth === 0 ? "text-lg font-semibold text-ink-900" : "text-base font-medium text-ink-600"}>
-        {node.name}
-      </h3>
-      {ownProducts.length > 0 && (
-        <ProductTable brandId={brandId} products={ownProducts} resetSignal={resetSignal} />
-      )}
-      {node.children.map((child) => (
-        <CategoryGroup
-          key={child.id}
-          node={child}
-          depth={depth + 1}
-          brandId={brandId}
-          productsByCategory={productsByCategory}
-          resetSignal={resetSignal}
-        />
-      ))}
-    </div>
-  );
-}
-
 export function ProductCatalog({
   brandId,
   products,
@@ -165,20 +128,6 @@ export function ProductCatalog({
     );
   }
 
-  const productsByCategory = new Map<string, CatalogProduct[]>();
-  const uncategorized: CatalogProduct[] = [];
-  for (const product of products) {
-    if (product.categoryId) {
-      const list = productsByCategory.get(product.categoryId) ?? [];
-      list.push(product);
-      productsByCategory.set(product.categoryId, list);
-    } else {
-      uncategorized.push(product);
-    }
-  }
-
-  const tree = buildCategoryTree(categories);
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-end">
@@ -186,22 +135,11 @@ export function ProductCatalog({
           Tüm miktarları temizle
         </button>
       </div>
-      {tree.map((node) => (
-        <CategoryGroup
-          key={node.id}
-          node={node}
-          depth={0}
-          brandId={brandId}
-          productsByCategory={productsByCategory}
-          resetSignal={resetSignal}
-        />
-      ))}
-      {uncategorized.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <h3 className="text-lg font-semibold text-ink-900">Diğer</h3>
-          <ProductTable brandId={brandId} products={uncategorized} resetSignal={resetSignal} />
-        </div>
-      )}
+      <CategoryGroupList
+        items={products}
+        categories={categories}
+        renderItems={(items) => <ProductTable brandId={brandId} products={items} resetSignal={resetSignal} />}
+      />
     </div>
   );
 }

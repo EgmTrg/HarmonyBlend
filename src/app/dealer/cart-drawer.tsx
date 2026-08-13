@@ -2,17 +2,69 @@
 
 import Link from "next/link";
 import { X } from "lucide-react";
-import { useCart } from "./cart-context";
+import { useCart, type CartItem } from "./cart-context";
 import { calculateCartTotals } from "@/lib/cart-totals";
 import { BUTTON_GHOST_DANGER, BUTTON_PRIMARY } from "@/lib/ui";
+import { CategoryGroupList } from "@/components/category-group-list";
+import type { CategoryLike } from "@/lib/category-tree";
 
 interface DrawerBrand {
   id: string;
   name: string;
 }
 
-export function CartDrawer({ brands }: { brands: DrawerBrand[] }) {
-  const { carts, setQuantity, removeItem, isDrawerOpen, closeDrawer } = useCart();
+function CartItemList({
+  brandId,
+  items,
+}: {
+  brandId: string;
+  items: CartItem[];
+}) {
+  const { setQuantity, removeItem } = useCart();
+
+  return (
+    <ul className="flex flex-col divide-y divide-border rounded-xl border border-border">
+      {items.map((item) => (
+        <li key={item.productId} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+          <div className="min-w-0">
+            <p className="truncate font-medium text-ink-900">{item.name}</p>
+            <p className="text-xs text-ink-400">
+              {item.unitPrice} × {item.quantity} {item.unit}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              step={1}
+              value={item.quantity}
+              onChange={(e) =>
+                setQuantity(brandId, item.productId, Math.max(1, Number(e.target.value) || 1))
+              }
+              className="w-16 rounded-lg border border-border bg-card px-2 py-1 text-sm outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-100"
+            />
+            <button
+              type="button"
+              onClick={() => removeItem(brandId, item.productId)}
+              className={BUTTON_GHOST_DANGER}
+            >
+              Kaldır
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function CartDrawer({
+  brands,
+  categoriesByBrand,
+}: {
+  brands: DrawerBrand[];
+  categoriesByBrand: Record<string, CategoryLike[]>;
+}) {
+  const { carts, isDrawerOpen, closeDrawer } = useCart();
 
   const brandsWithItems = brands.filter((brand) => (carts[brand.id] ?? []).length > 0);
 
@@ -58,40 +110,12 @@ export function CartDrawer({ brands }: { brands: DrawerBrand[] }) {
             return (
               <div key={brand.id} className="flex flex-col gap-3">
                 <h3 className="text-sm font-semibold text-ink-900">{brand.name}</h3>
-                <ul className="flex flex-col divide-y divide-border rounded-xl border border-border">
-                  {items.map((item) => (
-                    <li
-                      key={item.productId}
-                      className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-ink-900">{item.name}</p>
-                        <p className="text-xs text-ink-400">
-                          {item.unitPrice} × {item.quantity} {item.unit}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={1}
-                          step={1}
-                          value={item.quantity}
-                          onChange={(e) =>
-                            setQuantity(brand.id, item.productId, Math.max(1, Number(e.target.value) || 1))
-                          }
-                          className="w-16 rounded-lg border border-border bg-card px-2 py-1 text-sm outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-100"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeItem(brand.id, item.productId)}
-                          className={BUTTON_GHOST_DANGER}
-                        >
-                          Kaldır
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <CategoryGroupList
+                  items={items}
+                  categories={categoriesByBrand[brand.id] ?? []}
+                  headingSize="compact"
+                  renderItems={(catItems) => <CartItemList brandId={brand.id} items={catItems} />}
+                />
                 <div className="flex flex-col gap-1 rounded-xl border border-border px-4 py-3 text-sm">
                   <div className="flex items-center justify-between text-ink-600">
                     <span>Ara Toplam</span>

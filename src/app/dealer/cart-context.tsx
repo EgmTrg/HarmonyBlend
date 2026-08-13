@@ -10,6 +10,7 @@ export interface CartItem {
   unit: string;
   unitPrice: string;
   vatRate: string;
+  categoryId: string | null;
   quantity: number;
 }
 
