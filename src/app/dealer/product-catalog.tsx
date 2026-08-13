@@ -43,7 +43,7 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
 
   return (
     <tr className={TABLE_ROW}>
-      <td className="py-3 font-medium text-ink-900">{product.name}</td>
+      <td className="py-3 text-xs font-medium text-ink-900">{product.name}</td>
       <td className="py-3 text-ink-400">{product.sku}</td>
       <td className="py-3 text-ink-400">{product.unit}</td>
       <td className="py-3 text-ink-600">{product.unitPrice}</td>
@@ -117,7 +117,7 @@ function CategoryGroup({
 
   return (
     <div className={depth > 0 ? "flex flex-col gap-3 border-l-2 border-border pl-4" : "flex flex-col gap-3"}>
-      <h3 className={depth === 0 ? "text-base font-semibold text-ink-900" : "text-sm font-medium text-ink-600"}>
+      <h3 className={depth === 0 ? "text-lg font-semibold text-ink-900" : "text-base font-medium text-ink-600"}>
         {node.name}
       </h3>
       {ownProducts.length > 0 && <ProductTable brandId={brandId} products={ownProducts} />}
@@ -178,7 +178,7 @@ export function ProductCatalog({
       ))}
       {uncategorized.length > 0 && (
         <div className="flex flex-col gap-3">
-          <h3 className="text-base font-semibold text-ink-900">Diğer</h3>
+          <h3 className="text-lg font-semibold text-ink-900">Diğer</h3>
           <ProductTable brandId={brandId} products={uncategorized} />
         </div>
       )}
