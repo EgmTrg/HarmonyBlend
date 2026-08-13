@@ -146,10 +146,12 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   sepet deneyiminin karşılığı, roadmap dışı bir ek kapsamdı.
 - ~~Admin ürün sayfasında "Ürünler" bölümünün "Kategoriler" bölümünün
   üstüne taşınması~~ — ✅ Tamamlandı.
-- Ürün tablosunda "Durum" ve "Sil" arasına bir "Düzenle" butonu — SKU,
-  kategori, fiyat, isim, birim ve aktif/pasif dahil tüm alanların tek
-  formdan güncellenebilmesi (şu an yalnızca durum değiştirme ve silme var,
-  diğer alanlar için düzenleme yok)
+- ~~Ürün tablosunda "Durum" ve "Sil" arasına bir "Düzenle" butonu~~ — ✅
+  Tamamlandı. Bayi düzenleme modalıyla (`EditDealerModal`) aynı desen:
+  `EditProductModal` (`src/app/admin/products/edit-product-modal.tsx`) —
+  ad, SKU, birim, fiyat, KDV %, kategori ve aktif/pasif tek formdan
+  güncelleniyor. Eskiden ayrı duran satır-içi KDV düzenleyici bu modalın
+  içine taşındığı için kaldırıldı.
 - Bayinin kendi siparişini silebilmesi ya da düzenleyebilmesi — amaç bir
   bayinin hatalı/yanlış girilmiş bir siparişi iptal edip tekrar sipariş
   geçebilmesi. Admin tarafındaki "zorla sil" (yukarıdaki not) yalnızca

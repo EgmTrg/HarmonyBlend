@@ -6,6 +6,7 @@ import { brands, categories, products } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { ToastForm } from "@/components/toast-form";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
+import { EditProductModal } from "./edit-product-modal";
 import {
   BUTTON_GHOST_DANGER,
   BUTTON_PRIMARY,
@@ -22,7 +23,6 @@ import {
   deleteCategory,
   deleteProduct,
   toggleProductActive,
-  updateProductVatRate,
 } from "./actions";
 
 export default async function ProductsPage({
@@ -202,25 +202,7 @@ export default async function ProductsPage({
                   <td className="py-3 text-ink-600">
                     {product.unit} — {product.unitPrice}
                   </td>
-                  <td className="py-3">
-                    <ToastForm
-                      action={updateProductVatRate.bind(null, product.id, selectedBrand.id)}
-                      successMessage="KDV oranı güncellendi"
-                      className="flex items-center gap-1.5"
-                    >
-                      <input
-                        name="vatRate"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        defaultValue={product.vatRate}
-                        className={`w-16 px-2 py-1 text-xs ${INPUT}`}
-                      />
-                      <button type="submit" className={`${BUTTON_PRIMARY} px-2 py-1 text-xs`}>
-                        Kaydet
-                      </button>
-                    </ToastForm>
-                  </td>
+                  <td className="py-3 text-ink-600">{product.vatRate}</td>
                   <td className="py-3">
                     <ToastForm
                       action={toggleProductActive.bind(
@@ -238,6 +220,11 @@ export default async function ProductsPage({
                   </td>
                   <td className="py-3 text-right">
                     <div className="flex items-center justify-end gap-3">
+                      <EditProductModal
+                        product={product}
+                        brandId={selectedBrand.id}
+                        categories={brandCategories}
+                      />
                       <ConfirmDeleteButton
                         action={deleteProduct.bind(null, product.id, selectedBrand.id, true)}
                         idleLabel="Zorla sil"

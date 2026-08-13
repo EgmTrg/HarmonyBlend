@@ -67,23 +67,36 @@ export async function createProduct(brandId: string, formData: FormData) {
   revalidatePath("/admin/products");
 }
 
-export async function updateProductVatRate(
-  id: string,
-  brandId: string,
-  formData: FormData
-) {
+export async function updateProduct(id: string, brandId: string, formData: FormData) {
   const session = await requireAdminSession();
   await assertCompanyOwnsBrand(session.user.companyId, brandId);
 
+  const name = String(formData.get("name") ?? "").trim();
+  const sku = String(formData.get("sku") ?? "").trim();
+  const unit = String(formData.get("unit") ?? "").trim();
+  const unitPrice = String(formData.get("unitPrice") ?? "").trim();
   const vatRate = String(formData.get("vatRate") ?? "").trim();
-  if (!vatRate || Number.isNaN(Number(vatRate)) || Number(vatRate) < 0) {
+  const categoryId = String(formData.get("categoryId") ?? "") || null;
+  const isActive = formData.get("isActive") === "true";
+
+  if (!name || !sku || !unit || !unitPrice || !vatRate) {
+    throw new Error("Ad, SKU, birim, birim fiyat ve KDV oranı zorunlu.");
+  }
+  if (Number.isNaN(Number(unitPrice))) {
+    throw new Error("Birim fiyat sayısal olmalı.");
+  }
+  if (Number.isNaN(Number(vatRate)) || Number(vatRate) < 0) {
     throw new Error("KDV oranı geçerli bir yüzde olmalı.");
   }
 
-  await db
-    .update(products)
-    .set({ vatRate })
-    .where(and(eq(products.id, id), eq(products.brandId, brandId)));
+  try {
+    await db
+      .update(products)
+      .set({ name, sku, unit, unitPrice, vatRate, categoryId, isActive })
+      .where(and(eq(products.id, id), eq(products.brandId, brandId)));
+  } catch {
+    throw new Error("Bu SKU bu markada zaten kullanılıyor.");
+  }
 
   revalidatePath("/admin/products");
 }
