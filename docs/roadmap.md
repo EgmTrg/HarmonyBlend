@@ -144,8 +144,8 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   ekranından header'daki sepet ikonuyla erişilebilen, marka bazlı gruplu
   bir drawer (`src/app/dealer/cart-drawer.tsx`) — siparis.paynagrup.com'daki
   sepet deneyiminin karşılığı, roadmap dışı bir ek kapsamdı.
-- Admin ürün sayfasında "Ürünler" bölümünün "Kategoriler" bölümünün
-  üstüne taşınması
+- ~~Admin ürün sayfasında "Ürünler" bölümünün "Kategoriler" bölümünün
+  üstüne taşınması~~ — ✅ Tamamlandı.
 - Ürün tablosunda "Durum" ve "Sil" arasına bir "Düzenle" butonu — SKU,
   kategori, fiyat, isim, birim ve aktif/pasif dahil tüm alanların tek
   formdan güncellenebilmesi (şu an yalnızca durum değiştirme ve silme var,

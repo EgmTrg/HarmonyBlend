@@ -96,75 +96,6 @@ export default async function ProductsPage({
       </nav>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold text-ink-900">Kategoriler</h2>
-        <div className={CARD}>
-          <ToastForm
-            action={createCategory.bind(null, selectedBrand.id)}
-            successMessage="Kategori eklendi"
-            className="flex flex-wrap items-end gap-3"
-          >
-            <div className="flex flex-col gap-1">
-              <label htmlFor="cat-name" className={LABEL}>
-                Kategori adı
-              </label>
-              <input id="cat-name" name="name" required className={INPUT} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="cat-parent" className={LABEL}>
-                Üst kategori
-              </label>
-              <select id="cat-parent" name="parentId" className={INPUT}>
-                <option value="">— Yok —</option>
-                {brandCategories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button type="submit" className={BUTTON_PRIMARY}>
-              <Plus className="mr-1.5 h-4 w-4" strokeWidth={2} />
-              Ekle
-            </button>
-          </ToastForm>
-        </div>
-
-        <div className={`${CARD} p-0`}>
-          <ul className="flex flex-col divide-y divide-border">
-            {brandCategories.map((category) => (
-              <li
-                key={category.id}
-                className="flex items-center justify-between px-6 py-3 text-sm"
-              >
-                <span className="text-ink-900">
-                  {category.name}
-                  {category.parentId && (
-                    <span className="text-ink-400">
-                      {" "}
-                      — üst: {categoryNameById.get(category.parentId) ?? "—"}
-                    </span>
-                  )}
-                </span>
-                <ToastForm
-                  action={deleteCategory.bind(null, category.id, selectedBrand.id)}
-                  successMessage="Kategori silindi"
-                >
-                  <button type="submit" className={BUTTON_GHOST_DANGER}>
-                    Sil
-                  </button>
-                </ToastForm>
-              </li>
-            ))}
-            {brandCategories.length === 0 && (
-              <li className="px-6 py-10 text-center text-sm text-ink-400">
-                Bu markada henüz kategori yok.
-              </li>
-            )}
-          </ul>
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold text-ink-900">Ürünler</h2>
         <div className={CARD}>
           <ToastForm
@@ -335,6 +266,75 @@ export default async function ProductsPage({
               )}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="text-lg font-semibold text-ink-900">Kategoriler</h2>
+        <div className={CARD}>
+          <ToastForm
+            action={createCategory.bind(null, selectedBrand.id)}
+            successMessage="Kategori eklendi"
+            className="flex flex-wrap items-end gap-3"
+          >
+            <div className="flex flex-col gap-1">
+              <label htmlFor="cat-name" className={LABEL}>
+                Kategori adı
+              </label>
+              <input id="cat-name" name="name" required className={INPUT} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="cat-parent" className={LABEL}>
+                Üst kategori
+              </label>
+              <select id="cat-parent" name="parentId" className={INPUT}>
+                <option value="">— Yok —</option>
+                {brandCategories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" className={BUTTON_PRIMARY}>
+              <Plus className="mr-1.5 h-4 w-4" strokeWidth={2} />
+              Ekle
+            </button>
+          </ToastForm>
+        </div>
+
+        <div className={`${CARD} p-0`}>
+          <ul className="flex flex-col divide-y divide-border">
+            {brandCategories.map((category) => (
+              <li
+                key={category.id}
+                className="flex items-center justify-between px-6 py-3 text-sm"
+              >
+                <span className="text-ink-900">
+                  {category.name}
+                  {category.parentId && (
+                    <span className="text-ink-400">
+                      {" "}
+                      — üst: {categoryNameById.get(category.parentId) ?? "—"}
+                    </span>
+                  )}
+                </span>
+                <ToastForm
+                  action={deleteCategory.bind(null, category.id, selectedBrand.id)}
+                  successMessage="Kategori silindi"
+                >
+                  <button type="submit" className={BUTTON_GHOST_DANGER}>
+                    Sil
+                  </button>
+                </ToastForm>
+              </li>
+            ))}
+            {brandCategories.length === 0 && (
+              <li className="px-6 py-10 text-center text-sm text-ink-400">
+                Bu markada henüz kategori yok.
+              </li>
+            )}
+          </ul>
         </div>
       </section>
     </div>
