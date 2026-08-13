@@ -5,7 +5,7 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "./cart-context";
 import { useToast } from "@/lib/toast";
 import { BUTTON_PRIMARY, TABLE_HEAD, TABLE_ROW } from "@/lib/ui";
-import { buildCategoryTree, type CategoryLike, type CategoryNode } from "@/lib/category-tree";
+import { buildCategoryTree, categoryHasItems, type CategoryLike, type CategoryNode } from "@/lib/category-tree";
 
 interface CatalogProduct {
   id: string;
@@ -20,10 +20,14 @@ interface CatalogProduct {
 function ProductRow({ brandId, product }: { brandId: string; product: CatalogProduct }) {
   const { addItem } = useCart();
   const { showToast } = useToast();
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [added, setAdded] = useState(false);
 
   function handleAdd() {
+    if (quantity <= 0) {
+      showToast({ title: "Lütfen bir miktar girin", variant: "danger" });
+      return;
+    }
     addItem(
       brandId,
       {
@@ -51,10 +55,10 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
         <div className="flex items-center justify-end gap-2">
           <input
             type="number"
-            min={1}
+            min={0}
             step={1}
             value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+            onChange={(e) => setQuantity(Math.max(0, Number(e.target.value) || 0))}
             className="w-16 rounded-lg border border-border bg-card px-2 py-1.5 text-sm outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-100"
           />
           <button
@@ -92,14 +96,6 @@ function ProductTable({ brandId, products }: { brandId: string; products: Catalo
   );
 }
 
-// Bir kategori düğümünün gösterilip gösterilmeyeceğine karar vermek için
-// kendisine veya herhangi bir alt kategorisine doğrudan atanmış ürün olup
-// olmadığını kontrol eder — boş kategori başlıkları render edilmesin diye.
-function hasAnyProducts(node: CategoryNode, productsByCategory: Map<string, CatalogProduct[]>): boolean {
-  if ((productsByCategory.get(node.id)?.length ?? 0) > 0) return true;
-  return node.children.some((child) => hasAnyProducts(child, productsByCategory));
-}
-
 function CategoryGroup({
   node,
   depth,
@@ -111,7 +107,7 @@ function CategoryGroup({
   brandId: string;
   productsByCategory: Map<string, CatalogProduct[]>;
 }) {
-  if (!hasAnyProducts(node, productsByCategory)) return null;
+  if (!categoryHasItems(node, productsByCategory)) return null;
 
   const ownProducts = productsByCategory.get(node.id) ?? [];
 

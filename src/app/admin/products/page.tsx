@@ -5,25 +5,9 @@ import { db } from "@/db";
 import { brands, categories, products } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { ToastForm } from "@/components/toast-form";
-import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
-import { EditProductModal } from "./edit-product-modal";
-import {
-  BUTTON_GHOST_DANGER,
-  BUTTON_PRIMARY,
-  CARD,
-  INPUT,
-  LABEL,
-  TABLE_HEAD,
-  TABLE_ROW,
-  badgeClass,
-} from "@/lib/ui";
-import {
-  createCategory,
-  createProduct,
-  deleteCategory,
-  deleteProduct,
-  toggleProductActive,
-} from "./actions";
+import { ProductCategoryGroups } from "./product-category-groups";
+import { BUTTON_GHOST_DANGER, BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
+import { createCategory, createProduct, deleteCategory } from "./actions";
 
 export default async function ProductsPage({
   searchParams,
@@ -177,82 +161,11 @@ export default async function ProductsPage({
         </div>
 
         <div className={CARD}>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className={TABLE_HEAD}>
-                <th className="pb-3 font-medium">Ad</th>
-                <th className="pb-3 font-medium">SKU</th>
-                <th className="pb-3 font-medium">Kategori</th>
-                <th className="pb-3 font-medium">Birim fiyat</th>
-                <th className="pb-3 font-medium">KDV %</th>
-                <th className="pb-3 font-medium">Durum</th>
-                <th className="pb-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {brandProducts.map((product) => (
-                <tr key={product.id} className={TABLE_ROW}>
-                  <td className="py-3 font-medium text-ink-900">{product.name}</td>
-                  <td className="py-3 text-ink-400">{product.sku}</td>
-                  <td className="py-3 text-ink-400">
-                    {product.categoryId
-                      ? (categoryNameById.get(product.categoryId) ?? "—")
-                      : "—"}
-                  </td>
-                  <td className="py-3 text-ink-600">
-                    {product.unit} — {product.unitPrice}
-                  </td>
-                  <td className="py-3 text-ink-600">{product.vatRate}</td>
-                  <td className="py-3">
-                    <ToastForm
-                      action={toggleProductActive.bind(
-                        null,
-                        product.id,
-                        selectedBrand.id,
-                        !product.isActive
-                      )}
-                      successMessage={product.isActive ? "Ürün pasif yapıldı" : "Ürün aktif yapıldı"}
-                    >
-                      <button type="submit" className={badgeClass(product.isActive ? "success" : "neutral")}>
-                        {product.isActive ? "Aktif" : "Pasif"}
-                      </button>
-                    </ToastForm>
-                  </td>
-                  <td className="py-3 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <EditProductModal
-                        product={product}
-                        brandId={selectedBrand.id}
-                        categories={brandCategories}
-                      />
-                      <ConfirmDeleteButton
-                        action={deleteProduct.bind(null, product.id, selectedBrand.id, true)}
-                        idleLabel="Zorla sil"
-                        confirmLabel="Siparişleriyle birlikte sil?"
-                        successMessage="Ürün ve ilişkili siparişler silindi"
-                        muted
-                      />
-                      <ToastForm
-                        action={deleteProduct.bind(null, product.id, selectedBrand.id, false)}
-                        successMessage="Ürün silindi"
-                      >
-                        <button type="submit" className={BUTTON_GHOST_DANGER}>
-                          Sil
-                        </button>
-                      </ToastForm>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {brandProducts.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="py-10 text-center text-ink-400">
-                    Bu markada henüz ürün yok.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <ProductCategoryGroups
+            brandId={selectedBrand.id}
+            products={brandProducts}
+            categories={brandCategories}
+          />
         </div>
       </section>
 

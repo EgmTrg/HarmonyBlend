@@ -30,3 +30,13 @@ export function buildCategoryTree(categories: CategoryLike[]): CategoryNode[] {
   }
   return roots;
 }
+
+// Bir kategori düğümünün gösterilip gösterilmeyeceğine karar vermek için
+// kendisine veya herhangi bir alt kategorisine doğrudan atanmış öğe olup
+// olmadığını kontrol eder — boş kategori başlıkları render edilmesin diye.
+// Generic tutuldu: hem bayi kataloğundaki CatalogProduct hem admin
+// tarafındaki farklı şekildeki ürün tipiyle aynı fonksiyon kullanılabilsin.
+export function categoryHasItems<T>(node: CategoryNode, itemsByCategory: Map<string, T[]>): boolean {
+  if ((itemsByCategory.get(node.id)?.length ?? 0) > 0) return true;
+  return node.children.some((child) => categoryHasItems(child, itemsByCategory));
+}

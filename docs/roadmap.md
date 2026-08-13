@@ -168,7 +168,16 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   kataloğunda üst kategorinin ("Börekler") başlığı altında, kendi alt
   kategori başlığıyla girintili gösterilir; aynı kategorideki ürünler alt
   alta bir tabloda listelenir. Kategorisiz ürünler "Diğer" başlığı altında
-  toplanır.
+  toplanır. Aynı gruplama admin → Ürünler tablosuna da uygulandı
+  (`src/app/admin/products/product-category-groups.tsx` +
+  `product-table.tsx`) — tekrarlanan "boş kategori render etme" mantığı
+  (`categoryHasItems`) `category-tree.ts`'e taşınıp iki taraf arasında
+  paylaşıldı; artık tekrar eden "Kategori" sütunu yerine gruplama
+  kullanılıyor.
+- Bayi kataloğunda "Ekle" satırındaki miktar alanının varsayılanı 1 yerine
+  0 yapıldı — yanlışlıkla "Ekle"ye basılıp 1 adet eklenmesini önlemek
+  için; miktar 0 iken "Ekle"ye basılırsa "Lütfen bir miktar girin" hatası
+  gösterilir.
 
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.

@@ -6,7 +6,7 @@ import { updateProduct } from "./actions";
 import { BUTTON_GHOST, BUTTON_PRIMARY, INPUT, LABEL } from "@/lib/ui";
 import { useToast } from "@/lib/toast";
 
-interface EditableProduct {
+export interface EditableProduct {
   id: string;
   name: string;
   sku: string;
