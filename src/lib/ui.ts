@@ -14,7 +14,7 @@ export const BUTTON_GHOST = "text-xs font-medium text-accent-600 hover:underline
 
 export const TABLE_HEAD = "border-b border-border text-left text-xs font-medium text-ink-400";
 
-export const TABLE_ROW = "border-b border-border/70 last:border-0";
+export const TABLE_ROW = "border-b border-border/70 last:border-0 transition-colors hover:bg-content";
 
 export type BadgeTone = "success" | "neutral" | "info" | "warning" | "danger";
 
