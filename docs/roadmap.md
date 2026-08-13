@@ -17,10 +17,12 @@ veri modeli, iş akışı, teknoloji ve ekran planını içerir.
 
 ## 1. Fazlandırılmış Yol Haritası
 
-Altı faz; her biri bir öncekinin üstüne çalışır durumda kalacak şekilde
+Yedi faz; her biri bir öncekinin üstüne çalışır durumda kalacak şekilde
 kurgulandı. Sanal POS entegrasyonu bilerek en sona bırakıldı — mock sağlayıcı
 arayüzü Faz 3'te kurulduğu için Faz 6 bir "değiştirme" işlemi, yeniden yazma
-değil.
+değil. Aynı gerekçeyle bir ERP entegrasyonu ihtimali de en sona (Faz 7)
+bırakıldı; Faz 4'teki sipariş düzenleme/silme özelliği bu ihtimali gözeterek
+tasarlanacak (bkz. Faz 4 ve Faz 7 notları) ki ileride yeniden tasarlanmasın.
 
 ### Faz 1 — Temel Altyapı & Veri Modeli Kurulumu ✅ Tamamlandı
 
@@ -158,6 +160,15 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   test verisi temizliği içindi, bu madde gerçek bayi iş akışı için ayrı
   bir tasarım gerektiriyor (ör. hangi durumdaki siparişler
   iptal/düzenlemeye açık olacak, cari bakiyeye etkisi ne olacak).
+  **Faz 7 (ERP entegrasyonu) ile çakışma notu:** bu özelliğin durum
+  makinesi, ileride eklenecek `orders.erp_synced_at` alanını üçüncü bir
+  kilit koşulu olarak kabul edecek şekilde tasarlanmalı — bir sipariş
+  ERP'ye aktarıldıktan sonra (bu alan dolduktan sonra) yerelde artık ne
+  düzenlenebilir ne silinebilir olmalı; düzeltme ihtiyacı iptal + yeni
+  sipariş şeklinde çözülür (muhasebedeki "credit note" mantığı, ERP
+  tarafıyla senkron kalır). Bu notu şimdiden düşmemizin nedeni, bugün
+  yazılacak düzenleme/silme yetki kontrolünün Faz 7 geldiğinde yeniden
+  tasarlanmak zorunda kalmaması.
 - ~~Bayi ürün kataloğunda hiyerarşik kategori gruplaması~~ — ✅ Tamamlandı,
   roadmap dışı bir ek kapsam. Kategoriler zaten kendine referans veren
   `parentId` ile (Faz 2) keyfi derinlikte dallanabiliyordu; eksik olan
@@ -235,6 +246,38 @@ sertleştirme.
 **Çıkış kriteri —** canlı ortamda gerçek bir kartla uçtan uca ödeme
 tamamlanabiliyor; mock sağlayıcı hiçbir çağıran kodu değiştirmeden devre dışı
 kalabiliyor.
+
+### Faz 7 — ERP Entegrasyonu
+
+Hedef: Onaylanan siparişlerin şirketin ERP sistemine tek yönlü aktarımı;
+hangi ERP'ye bağlanılacağı henüz belli olmadığından `PaymentProvider`/
+`EmailProvider` ile aynı desende bir soyutlama kurulup gerçek bağlayıcı
+sonradan eklenecek.
+
+- `ErpSyncProvider` arayüzü + `MockErpSyncProvider` (gerçek ERP
+  seçilene kadar konsola/loglara yazan sahte implementasyon) —
+  `src/lib/payments/`, `src/lib/email/` ile aynı desen
+- `orders.erp_synced_at` (nullable timestamp) ve `orders.erp_reference`
+  (ERP tarafındaki kayıt kimliği) alanları
+- **Tek yönlü** aktarım (yerel → ERP); ERP'nin siparişi kendi tarafında
+  değiştirip bunu geri yansıtması (webhook/pull + çakışma çözümü)
+  kapsam dışı — hangi ERP'ye bağlanılacağı bilinmeden bu yönde tasarım
+  yapmak erken olur
+- Sipariş, `erp_synced_at` dolduktan sonra yerelde salt-okunur olur: ne
+  Faz 4'teki bayi düzenleme/silme özelliği ne admin'in normal silmesi
+  bu siparişe dokunabilir (yalnızca test verisi temizliği amaçlı
+  "zorla sil" dahi ERP'ye aktarılmış gerçek siparişlerde
+  kullanılmamalı — bkz. Faz 4 notu). Düzeltme ihtiyacı iptal + yeni
+  sipariş ile çözülür
+- Hangi durumdaki siparişlerin otomatik/manuel aktarılacağı (ör.
+  yalnızca `approved`/`paid` sonrası) ve aktarım tetikleyicisi
+  (durum geçişinde otomatik mi, admin panelden manuel "ERP'ye
+  Aktar" butonuyla mı) uygulama aşamasında netleştirilecek
+
+**Çıkış kriteri —** onaylanan bir sipariş (mock) ERP'ye aktarılıyor,
+aktarılan sipariş yerelde düzenleme/silme denemesinde reddediliyor; mock
+sağlayıcı hiçbir çağıran kodu değiştirmeden gerçek ERP bağlayıcısıyla
+değiştirilebiliyor.
 
 ---
 
