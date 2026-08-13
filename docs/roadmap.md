@@ -158,6 +158,17 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   test verisi temizliği içindi, bu madde gerçek bayi iş akışı için ayrı
   bir tasarım gerektiriyor (ör. hangi durumdaki siparişler
   iptal/düzenlemeye açık olacak, cari bakiyeye etkisi ne olacak).
+- ~~Bayi ürün kataloğunda hiyerarşik kategori gruplaması~~ — ✅ Tamamlandı,
+  roadmap dışı bir ek kapsam. Kategoriler zaten kendine referans veren
+  `parentId` ile (Faz 2) keyfi derinlikte dallanabiliyordu; eksik olan
+  bunu bayi kataloğunda görsel olarak yansıtmaktı. `src/lib/
+  category-tree.ts` (`buildCategoryTree`) düz kategori listesini ağaca
+  çevirir, `src/app/dealer/product-catalog.tsx` bunu rekürsif render eder:
+  bir ürün bir alt kategoriye atandığında (ör. "Boşnak Börekleri"), o ürün
+  kataloğunda üst kategorinin ("Börekler") başlığı altında, kendi alt
+  kategori başlığıyla girintili gösterilir; aynı kategorideki ürünler alt
+  alta bir tabloda listelenir. Kategorisiz ürünler "Diğer" başlığı altında
+  toplanır.
 
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.

@@ -1,6 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, dealerBrands, products } from "@/db/schema";
+import { brands, categories, dealerBrands, products } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { CARD } from "@/lib/ui";
 import { ProductCatalog } from "./product-catalog";
@@ -18,20 +18,31 @@ export default async function DealerCatalogPage() {
 
   const brandIds = assignedBrands.map((brand) => brand.id);
 
-  const catalogProducts =
-    brandIds.length > 0
-      ? await db
-          .select()
-          .from(products)
-          .where(and(inArray(products.brandId, brandIds), eq(products.isActive, true)))
-          .orderBy(products.name)
-      : [];
+  let catalogProducts: (typeof products.$inferSelect)[] = [];
+  let catalogCategories: (typeof categories.$inferSelect)[] = [];
+  if (brandIds.length > 0) {
+    [catalogProducts, catalogCategories] = await Promise.all([
+      db
+        .select()
+        .from(products)
+        .where(and(inArray(products.brandId, brandIds), eq(products.isActive, true)))
+        .orderBy(products.name),
+      db.select().from(categories).where(inArray(categories.brandId, brandIds)),
+    ]);
+  }
 
   const productsByBrand = new Map<string, typeof catalogProducts>();
   for (const product of catalogProducts) {
     const list = productsByBrand.get(product.brandId) ?? [];
     list.push(product);
     productsByBrand.set(product.brandId, list);
+  }
+
+  const categoriesByBrand = new Map<string, typeof catalogCategories>();
+  for (const category of catalogCategories) {
+    const list = categoriesByBrand.get(category.brandId) ?? [];
+    list.push(category);
+    categoriesByBrand.set(category.brandId, list);
   }
 
   return (
@@ -55,12 +66,14 @@ export default async function DealerCatalogPage() {
           unit: p.unit,
           unitPrice: p.unitPrice,
           vatRate: p.vatRate,
+          categoryId: p.categoryId,
         }));
+        const brandCategories = categoriesByBrand.get(brand.id) ?? [];
         return (
           <section key={brand.id} className="flex flex-col gap-4">
             <h2 className="text-lg font-semibold text-ink-900">{brand.name}</h2>
             <div className={CARD}>
-              <ProductCatalog brandId={brand.id} products={brandProducts} />
+              <ProductCatalog brandId={brand.id} products={brandProducts} categories={brandCategories} />
             </div>
           </section>
         );

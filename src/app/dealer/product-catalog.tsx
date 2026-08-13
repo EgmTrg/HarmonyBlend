@@ -5,6 +5,7 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "./cart-context";
 import { useToast } from "@/lib/toast";
 import { BUTTON_PRIMARY, TABLE_HEAD, TABLE_ROW } from "@/lib/ui";
+import { buildCategoryTree, type CategoryLike, type CategoryNode } from "@/lib/category-tree";
 
 interface CatalogProduct {
   id: string;
@@ -13,6 +14,7 @@ interface CatalogProduct {
   unit: string;
   unitPrice: string;
   vatRate: string;
+  categoryId: string | null;
 }
 
 function ProductRow({ brandId, product }: { brandId: string; product: CatalogProduct }) {
@@ -69,21 +71,7 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
   );
 }
 
-export function ProductCatalog({
-  brandId,
-  products,
-}: {
-  brandId: string;
-  products: CatalogProduct[];
-}) {
-  if (products.length === 0) {
-    return (
-      <p className="py-10 text-center text-sm text-ink-400">
-        Bu markada henüz satışa açık ürün yok.
-      </p>
-    );
-  }
-
+function ProductTable({ brandId, products }: { brandId: string; products: CatalogProduct[] }) {
   return (
     <table className="w-full text-sm">
       <thead>
@@ -101,5 +89,99 @@ export function ProductCatalog({
         ))}
       </tbody>
     </table>
+  );
+}
+
+// Bir kategori düğümünün gösterilip gösterilmeyeceğine karar vermek için
+// kendisine veya herhangi bir alt kategorisine doğrudan atanmış ürün olup
+// olmadığını kontrol eder — boş kategori başlıkları render edilmesin diye.
+function hasAnyProducts(node: CategoryNode, productsByCategory: Map<string, CatalogProduct[]>): boolean {
+  if ((productsByCategory.get(node.id)?.length ?? 0) > 0) return true;
+  return node.children.some((child) => hasAnyProducts(child, productsByCategory));
+}
+
+function CategoryGroup({
+  node,
+  depth,
+  brandId,
+  productsByCategory,
+}: {
+  node: CategoryNode;
+  depth: number;
+  brandId: string;
+  productsByCategory: Map<string, CatalogProduct[]>;
+}) {
+  if (!hasAnyProducts(node, productsByCategory)) return null;
+
+  const ownProducts = productsByCategory.get(node.id) ?? [];
+
+  return (
+    <div className={depth > 0 ? "flex flex-col gap-3 border-l-2 border-border pl-4" : "flex flex-col gap-3"}>
+      <h3 className={depth === 0 ? "text-base font-semibold text-ink-900" : "text-sm font-medium text-ink-600"}>
+        {node.name}
+      </h3>
+      {ownProducts.length > 0 && <ProductTable brandId={brandId} products={ownProducts} />}
+      {node.children.map((child) => (
+        <CategoryGroup
+          key={child.id}
+          node={child}
+          depth={depth + 1}
+          brandId={brandId}
+          productsByCategory={productsByCategory}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function ProductCatalog({
+  brandId,
+  products,
+  categories,
+}: {
+  brandId: string;
+  products: CatalogProduct[];
+  categories: CategoryLike[];
+}) {
+  if (products.length === 0) {
+    return (
+      <p className="py-10 text-center text-sm text-ink-400">
+        Bu markada henüz satışa açık ürün yok.
+      </p>
+    );
+  }
+
+  const productsByCategory = new Map<string, CatalogProduct[]>();
+  const uncategorized: CatalogProduct[] = [];
+  for (const product of products) {
+    if (product.categoryId) {
+      const list = productsByCategory.get(product.categoryId) ?? [];
+      list.push(product);
+      productsByCategory.set(product.categoryId, list);
+    } else {
+      uncategorized.push(product);
+    }
+  }
+
+  const tree = buildCategoryTree(categories);
+
+  return (
+    <div className="flex flex-col gap-6">
+      {tree.map((node) => (
+        <CategoryGroup
+          key={node.id}
+          node={node}
+          depth={0}
+          brandId={brandId}
+          productsByCategory={productsByCategory}
+        />
+      ))}
+      {uncategorized.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <h3 className="text-base font-semibold text-ink-900">Diğer</h3>
+          <ProductTable brandId={brandId} products={uncategorized} />
+        </div>
+      )}
+    </div>
   );
 }
