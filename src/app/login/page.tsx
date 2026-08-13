@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
@@ -6,7 +7,7 @@ import { BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; reset?: string }>;
 }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-navy-950 px-4">
@@ -31,9 +32,9 @@ export default function LoginPage({
 async function LoginForm({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; reset?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, reset } = await searchParams;
 
   async function authenticate(formData: FormData) {
     "use server";
@@ -61,6 +62,14 @@ async function LoginForm({
         <span className={LABEL}>Şifre</span>
         <input name="password" type="password" placeholder="••••••••" required className={INPUT} />
       </label>
+      <Link href="/forgot-password" className="self-end text-sm text-accent-600 hover:underline">
+        Şifremi unuttum?
+      </Link>
+      {reset === "success" && (
+        <p className="rounded-lg bg-success-bg px-3 py-2 text-sm text-success-fg">
+          Şifreniz güncellendi, yeni şifrenizle giriş yapabilirsiniz.
+        </p>
+      )}
       {error && (
         <p className="rounded-lg bg-danger-bg px-3 py-2 text-sm text-danger-fg">
           E-posta veya şifre hatalı.

@@ -184,6 +184,23 @@ export const orderStatusHistory = pgTable("order_status_history", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const passwordResetTokens = pgTable(
+  "password_reset_tokens",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    // Ham token e-postadaki linkte gönderilir; burada yalnızca SHA-256
+    // hash'i tutulur (bcrypt değil — tam eşleşme için indexed lookup gerekir).
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("password_reset_tokens_token_hash_unique").on(table.tokenHash)]
+);
+
 export const payments = pgTable("payments", {
   id: uuid("id").defaultRandom().primaryKey(),
   dealerId: uuid("dealer_id")

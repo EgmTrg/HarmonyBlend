@@ -130,9 +130,15 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   KDV/Genel Toplam kırılımı gösteriliyor; `orders.total_amount` artık net
   değil brüt (KDV dahil) tutar — cari limit kontrolü ve mock POS tutarı da
   buna göre brüt üzerinden çalışıyor.
-- Şifremi unuttum akışı — e-posta ile şifre sıfırlama; bir e-posta
-  gönderim servisi (ör. Resend) entegrasyonu gerektirir, teknoloji
-  yığınına yeni eklenecek
+- ~~Şifremi unuttum akışı~~ — ✅ Tamamlandı (mock-first). `EmailProvider`
+  arayüzü + `MockEmailProvider` (`src/lib/email/`) — ödeme tarafındaki
+  `PaymentProvider`/`MockPosProvider` deseniyle birebir aynı; gerçek mail
+  gönderilmiyor, link geliştirici konsoluna yazılıyor. Tek kullanımlık,
+  1 saatlik `password_reset_tokens` tablosu (ham token yerine SHA-256
+  hash'i saklanıyor). Gerçek bir sağlayıcıya (ör. Resend) geçiş, Faz 6'daki
+  ödeme sağlayıcısı geçişiyle aynı şekilde tek bir implementasyon
+  eklenerek yapılacak — teknoloji yığınına henüz yeni bir servis
+  eklenmedi.
 - ~~Sepet ekranının sağdan açılan bir panel (drawer) olarak yeniden
   tasarlanması~~ — ✅ Tamamlandı. Sepet artık bayi panelinin her
   ekranından header'daki sepet ikonuyla erişilebilen, marka bazlı gruplu
