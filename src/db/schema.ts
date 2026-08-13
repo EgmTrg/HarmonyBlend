@@ -118,7 +118,8 @@ export const products = pgTable(
     sku: text("sku").notNull(),
     name: text("name").notNull(),
     unit: text("unit").notNull(), // koli / kg / adet
-    unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+    unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(), // KDV hariç (net)
+    vatRate: numeric("vat_rate", { precision: 5, scale: 2 }).notNull().default("20"), // yüzde, örn. 20.00 = %20
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -141,6 +142,10 @@ export const orders = pgTable("orders", {
   // payment method flow (see src/lib/order-status.ts), which would make a
   // single shared Postgres enum either too broad or need frequent ALTER TYPE.
   status: text("status").notNull().default("submitted"),
+  // KDV hariç ara toplam / toplam KDV — subtotalAmount + vatAmount = totalAmount.
+  subtotalAmount: numeric("subtotal_amount", { precision: 14, scale: 2 }).notNull(),
+  vatAmount: numeric("vat_amount", { precision: 14, scale: 2 }).notNull(),
+  // Brüt (KDV dahil) genel toplam — dealer'ın ödemesi/borçlanması gereken gerçek tutar.
   totalAmount: numeric("total_amount", { precision: 14, scale: 2 }).notNull(),
   createdBy: uuid("created_by")
     .notNull()
@@ -158,8 +163,12 @@ export const orderItems = pgTable("order_items", {
     .notNull()
     .references(() => products.id),
   quantity: numeric("quantity", { precision: 10, scale: 2 }).notNull(),
-  unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
-  lineTotal: numeric("line_total", { precision: 14, scale: 2 }).notNull(),
+  unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(), // KDV hariç (net)
+  lineTotal: numeric("line_total", { precision: 14, scale: 2 }).notNull(), // KDV hariç
+  // Ürünün sipariş anındaki KDV oranının snapshot'ı — ürünün oranı daha
+  // sonra değişse bile geçmiş siparişler etkilenmesin diye kopyalanıyor.
+  vatRate: numeric("vat_rate", { precision: 5, scale: 2 }).notNull(),
+  vatAmount: numeric("vat_amount", { precision: 14, scale: 2 }).notNull(),
 });
 
 export const orderStatusHistory = pgTable("order_status_history", {

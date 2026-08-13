@@ -12,6 +12,7 @@ interface CatalogProduct {
   sku: string;
   unit: string;
   unitPrice: string;
+  vatRate: string;
 }
 
 function ProductRow({ brandId, product }: { brandId: string; product: CatalogProduct }) {
@@ -23,7 +24,14 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
   function handleAdd() {
     addItem(
       brandId,
-      { productId: product.id, name: product.name, sku: product.sku, unit: product.unit, unitPrice: product.unitPrice },
+      {
+        productId: product.id,
+        name: product.name,
+        sku: product.sku,
+        unit: product.unit,
+        unitPrice: product.unitPrice,
+        vatRate: product.vatRate,
+      },
       quantity
     );
     setAdded(true);

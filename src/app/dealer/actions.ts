@@ -9,6 +9,7 @@ import { requireDealerSession } from "@/lib/session";
 import { initialOrderStatus } from "@/lib/order-status";
 import { mockPosProvider } from "@/lib/payments/mock-provider";
 import { PAYMENT_METHOD_CODES, type PaymentMethodCode } from "@/lib/payment-methods";
+import { calculateLineNet, calculateLineVat } from "@/lib/cart-totals";
 import { unstable_update } from "@/auth";
 
 interface CreateOrderItemInput {
@@ -62,16 +63,21 @@ export async function createOrder(
     if (!Number.isFinite(item.quantity) || item.quantity <= 0) {
       throw new Error("Miktar sıfırdan büyük olmalı.");
     }
-    const lineTotal = (Number(product.unitPrice) * item.quantity).toFixed(2);
+    const lineNet = calculateLineNet(product.unitPrice, item.quantity);
+    const lineVat = calculateLineVat(lineNet, product.vatRate);
     return {
       productId: product.id,
       quantity: String(item.quantity),
       unitPrice: product.unitPrice,
-      lineTotal,
+      lineTotal: lineNet.toFixed(2),
+      vatRate: product.vatRate,
+      vatAmount: lineVat.toFixed(2),
     };
   });
 
-  const totalAmount = lineItems.reduce((sum, li) => sum + Number(li.lineTotal), 0).toFixed(2);
+  const subtotalAmount = lineItems.reduce((sum, li) => sum + Number(li.lineTotal), 0).toFixed(2);
+  const vatAmount = lineItems.reduce((sum, li) => sum + Number(li.vatAmount), 0).toFixed(2);
+  const totalAmount = (Number(subtotalAmount) + Number(vatAmount)).toFixed(2);
   const startStatus = initialOrderStatus(paymentCode);
 
   if (paymentCode === "cari") {
@@ -104,6 +110,8 @@ export async function createOrder(
       brandId,
       paymentMethod: paymentCode,
       status: startStatus,
+      subtotalAmount,
+      vatAmount,
       totalAmount,
       createdBy: session.user.id,
     })

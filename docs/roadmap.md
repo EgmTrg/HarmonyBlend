@@ -122,14 +122,22 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 - Bayi kataloğunda toplu ürün seçimi + tek işlemle sepete ekleme — Payna
   Grup Portal karşılaştırmasından gelen ek kapsam, katalog tarafında
   sipariş verme hızını artırır
-- Sepette KDV tutarının ayrı bir satırda gösterilmesi — checkout toplamı
-  şu an tek kalem, kırılım yok
+- ~~Sepette KDV tutarının ayrı bir satırda gösterilmesi~~ — ✅ Tamamlandı.
+  KDV oranı ürün bazında değişken (`products.vat_rate`); sipariş kalemi
+  oranı sipariş anında snapshot'lanıyor (`order_items.vat_rate`/
+  `vat_amount`) ki ürünün oranı sonradan değişse geçmiş siparişler
+  etkilenmesin. Sepet, checkout ve sipariş detay ekranlarında Ara Toplam/
+  KDV/Genel Toplam kırılımı gösteriliyor; `orders.total_amount` artık net
+  değil brüt (KDV dahil) tutar — cari limit kontrolü ve mock POS tutarı da
+  buna göre brüt üzerinden çalışıyor.
 - Şifremi unuttum akışı — e-posta ile şifre sıfırlama; bir e-posta
   gönderim servisi (ör. Resend) entegrasyonu gerektirir, teknoloji
   yığınına yeni eklenecek
-- Sepet ekranının sağdan açılan bir panel (drawer) olarak yeniden
-  tasarlanması — siparis.paynagrup.com'daki sepet deneyiminin karşılığı,
-  roadmap dışı bir ek kapsam
+- ~~Sepet ekranının sağdan açılan bir panel (drawer) olarak yeniden
+  tasarlanması~~ — ✅ Tamamlandı. Sepet artık bayi panelinin her
+  ekranından header'daki sepet ikonuyla erişilebilen, marka bazlı gruplu
+  bir drawer (`src/app/dealer/cart-drawer.tsx`) — siparis.paynagrup.com'daki
+  sepet deneyiminin karşılığı, roadmap dışı bir ek kapsamdı.
 - Admin ürün sayfasında "Ürünler" bölümünün "Kategoriler" bölümünün
   üstüne taşınması
 - Ürün tablosunda "Durum" ve "Sil" arasına bir "Düzenle" butonu — SKU,

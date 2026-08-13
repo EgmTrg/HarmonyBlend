@@ -30,6 +30,8 @@ export default async function AdminOrderDetailPage({
     .select({
       id: orders.id,
       status: orders.status,
+      subtotalAmount: orders.subtotalAmount,
+      vatAmount: orders.vatAmount,
       totalAmount: orders.totalAmount,
       createdAt: orders.createdAt,
       dealerId: dealers.id,
@@ -127,9 +129,19 @@ export default async function AdminOrderDetailPage({
             ))}
           </tbody>
         </table>
-        <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-          <span className="text-sm font-medium text-ink-900">Toplam</span>
-          <span className="text-lg font-semibold text-ink-900">{row.totalAmount}</span>
+        <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">
+          <div className="flex items-center justify-between text-ink-600">
+            <span>Ara Toplam</span>
+            <span>{row.subtotalAmount}</span>
+          </div>
+          <div className="flex items-center justify-between text-ink-600">
+            <span>KDV</span>
+            <span>{row.vatAmount}</span>
+          </div>
+          <div className="flex items-center justify-between pt-1">
+            <span className="font-medium text-ink-900">Genel Toplam</span>
+            <span className="text-lg font-semibold text-ink-900">{row.totalAmount}</span>
+          </div>
         </div>
       </div>
 

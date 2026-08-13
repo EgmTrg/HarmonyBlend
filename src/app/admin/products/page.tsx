@@ -22,6 +22,7 @@ import {
   deleteCategory,
   deleteProduct,
   toggleProductActive,
+  updateProductVatRate,
 } from "./actions";
 
 export default async function ProductsPage({
@@ -210,6 +211,21 @@ export default async function ProductsPage({
               />
             </div>
             <div className="flex flex-col gap-1">
+              <label htmlFor="p-vat" className={LABEL}>
+                KDV %
+              </label>
+              <input
+                id="p-vat"
+                name="vatRate"
+                type="number"
+                step="0.01"
+                min="0"
+                defaultValue={20}
+                required
+                className={`w-24 ${INPUT}`}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
               <label htmlFor="p-category" className={LABEL}>
                 Kategori
               </label>
@@ -237,6 +253,7 @@ export default async function ProductsPage({
                 <th className="pb-3 font-medium">SKU</th>
                 <th className="pb-3 font-medium">Kategori</th>
                 <th className="pb-3 font-medium">Birim fiyat</th>
+                <th className="pb-3 font-medium">KDV %</th>
                 <th className="pb-3 font-medium">Durum</th>
                 <th className="pb-3" />
               </tr>
@@ -253,6 +270,25 @@ export default async function ProductsPage({
                   </td>
                   <td className="py-3 text-ink-600">
                     {product.unit} — {product.unitPrice}
+                  </td>
+                  <td className="py-3">
+                    <ToastForm
+                      action={updateProductVatRate.bind(null, product.id, selectedBrand.id)}
+                      successMessage="KDV oranı güncellendi"
+                      className="flex items-center gap-1.5"
+                    >
+                      <input
+                        name="vatRate"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        defaultValue={product.vatRate}
+                        className={`w-16 px-2 py-1 text-xs ${INPUT}`}
+                      />
+                      <button type="submit" className={`${BUTTON_PRIMARY} px-2 py-1 text-xs`}>
+                        Kaydet
+                      </button>
+                    </ToastForm>
                   </td>
                   <td className="py-3">
                     <ToastForm
@@ -292,7 +328,7 @@ export default async function ProductsPage({
               ))}
               {brandProducts.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center text-ink-400">
+                  <td colSpan={7} className="py-10 text-center text-ink-400">
                     Bu markada henüz ürün yok.
                   </td>
                 </tr>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCart } from "../cart-context";
 import { createOrder } from "../actions";
 import { useToast } from "@/lib/toast";
+import { calculateCartTotals } from "@/lib/cart-totals";
 import { BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
 import type { PaymentMethodCode } from "@/lib/payment-methods";
 import { PAYMENT_METHOD_CODES, PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
@@ -24,9 +25,9 @@ export function CheckoutForm({
   const { getBrandCart, clearBrandCart } = useCart();
   const items = getBrandCart(brandId);
 
-  const total = items.reduce((sum, item) => sum + Number(item.unitPrice) * item.quantity, 0);
+  const totals = calculateCartTotals(items);
   const cariAvailable =
-    maxBalanceLimit === null || Number(currentBalance) + total <= Number(maxBalanceLimit);
+    maxBalanceLimit === null || Number(currentBalance) + totals.total <= Number(maxBalanceLimit);
 
   const [paymentCode, setPaymentCode] = useState<PaymentMethodCode>(
     cariAvailable ? "cari" : "cash_on_delivery"
@@ -83,9 +84,19 @@ export function CheckoutForm({
             </li>
           ))}
         </ul>
-        <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-          <span className="text-sm font-medium text-ink-900">Toplam</span>
-          <span className="text-lg font-semibold text-ink-900">{total.toFixed(2)}</span>
+        <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">
+          <div className="flex items-center justify-between text-ink-600">
+            <span>Ara Toplam</span>
+            <span>{totals.subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex items-center justify-between text-ink-600">
+            <span>KDV</span>
+            <span>{totals.vatAmount.toFixed(2)}</span>
+          </div>
+          <div className="flex items-center justify-between pt-1">
+            <span className="font-medium text-ink-900">Genel Toplam</span>
+            <span className="text-lg font-semibold text-ink-900">{totals.total.toFixed(2)}</span>
+          </div>
         </div>
       </div>
 

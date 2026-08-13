@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { useLocalStorageStore } from "@/lib/use-local-storage-store";
 
 export interface CartItem {
@@ -9,6 +9,7 @@ export interface CartItem {
   sku: string;
   unit: string;
   unitPrice: string;
+  vatRate: string;
   quantity: number;
 }
 
@@ -24,6 +25,10 @@ interface CartContextValue {
   setQuantity: (brandId: string, productId: string, quantity: number) => void;
   clearBrandCart: (brandId: string) => void;
   getBrandCart: (brandId: string) => CartItem[];
+  totalItemCount: number;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -88,9 +93,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const getBrandCart = useCallback((brandId: string) => carts[brandId] ?? [], [carts]);
 
+  const totalItemCount = useMemo(
+    () =>
+      Object.values(carts).reduce(
+        (sum, items) => sum + items.reduce((brandSum, item) => brandSum + item.quantity, 0),
+        0
+      ),
+    [carts]
+  );
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const openDrawer = useCallback(() => setIsDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
+
   return (
     <CartContext.Provider
-      value={{ carts, addItem, removeItem, setQuantity, clearBrandCart, getBrandCart }}
+      value={{
+        carts,
+        addItem,
+        removeItem,
+        setQuantity,
+        clearBrandCart,
+        getBrandCart,
+        totalItemCount,
+        isDrawerOpen,
+        openDrawer,
+        closeDrawer,
+      }}
     >
       {children}
     </CartContext.Provider>

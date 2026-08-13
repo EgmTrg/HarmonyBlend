@@ -4,7 +4,6 @@ import { brands, dealerBrands, products } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { CARD } from "@/lib/ui";
 import { ProductCatalog } from "./product-catalog";
-import { CartSummary } from "./cart-summary";
 
 export default async function DealerCatalogPage() {
   const session = await requireDealerSession();
@@ -55,6 +54,7 @@ export default async function DealerCatalogPage() {
           sku: p.sku,
           unit: p.unit,
           unitPrice: p.unitPrice,
+          vatRate: p.vatRate,
         }));
         return (
           <section key={brand.id} className="flex flex-col gap-4">
@@ -62,7 +62,6 @@ export default async function DealerCatalogPage() {
             <div className={CARD}>
               <ProductCatalog brandId={brand.id} products={brandProducts} />
             </div>
-            <CartSummary brandId={brand.id} />
           </section>
         );
       })}
