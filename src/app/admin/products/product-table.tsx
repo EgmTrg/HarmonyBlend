@@ -26,6 +26,7 @@ export function ProductTable({
           <th className="pb-3 font-medium">SKU</th>
           <th className="pb-3 font-medium">Birim fiyat</th>
           <th className="pb-3 font-medium">KDV %</th>
+          <th className="pb-3 font-medium">Sipariş Katı</th>
           <th className="pb-3 font-medium">Durum</th>
           <th className="pb-3" />
         </tr>
@@ -39,6 +40,7 @@ export function ProductTable({
               {product.unit} — {product.unitPrice}
             </td>
             <td className="py-3 text-ink-600">{product.vatRate}</td>
+            <td className="py-3 text-ink-600">{product.orderMultiple}</td>
             <td className="py-3">
               <ToastForm
                 action={toggleProductActive.bind(null, product.id, brandId, !product.isActive)}

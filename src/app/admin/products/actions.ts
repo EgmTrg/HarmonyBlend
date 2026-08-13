@@ -46,6 +46,7 @@ export async function createProduct(brandId: string, formData: FormData) {
   const unit = String(formData.get("unit") ?? "").trim();
   const unitPrice = String(formData.get("unitPrice") ?? "").trim();
   const vatRate = String(formData.get("vatRate") ?? "").trim();
+  const orderMultiple = String(formData.get("orderMultiple") ?? "1").trim();
   const categoryId = String(formData.get("categoryId") ?? "") || null;
 
   if (!name || !sku || !unit || !unitPrice || !vatRate) {
@@ -57,9 +58,21 @@ export async function createProduct(brandId: string, formData: FormData) {
   if (Number.isNaN(Number(vatRate)) || Number(vatRate) < 0) {
     throw new Error("KDV oranı geçerli bir yüzde olmalı.");
   }
+  if (!Number.isInteger(Number(orderMultiple)) || Number(orderMultiple) < 1) {
+    throw new Error("Sipariş katı 1 veya daha büyük bir tam sayı olmalı.");
+  }
 
   try {
-    await db.insert(products).values({ brandId, categoryId, sku, name, unit, unitPrice, vatRate });
+    await db.insert(products).values({
+      brandId,
+      categoryId,
+      sku,
+      name,
+      unit,
+      unitPrice,
+      vatRate,
+      orderMultiple: Number(orderMultiple),
+    });
   } catch {
     throw new Error("Bu SKU bu markada zaten kullanılıyor.");
   }
@@ -76,6 +89,7 @@ export async function updateProduct(id: string, brandId: string, formData: FormD
   const unit = String(formData.get("unit") ?? "").trim();
   const unitPrice = String(formData.get("unitPrice") ?? "").trim();
   const vatRate = String(formData.get("vatRate") ?? "").trim();
+  const orderMultiple = String(formData.get("orderMultiple") ?? "1").trim();
   const categoryId = String(formData.get("categoryId") ?? "") || null;
   const isActive = formData.get("isActive") === "true";
 
@@ -88,11 +102,14 @@ export async function updateProduct(id: string, brandId: string, formData: FormD
   if (Number.isNaN(Number(vatRate)) || Number(vatRate) < 0) {
     throw new Error("KDV oranı geçerli bir yüzde olmalı.");
   }
+  if (!Number.isInteger(Number(orderMultiple)) || Number(orderMultiple) < 1) {
+    throw new Error("Sipariş katı 1 veya daha büyük bir tam sayı olmalı.");
+  }
 
   try {
     await db
       .update(products)
-      .set({ name, sku, unit, unitPrice, vatRate, categoryId, isActive })
+      .set({ name, sku, unit, unitPrice, vatRate, orderMultiple: Number(orderMultiple), categoryId, isActive })
       .where(and(eq(products.id, id), eq(products.brandId, brandId)));
   } catch {
     throw new Error("Bu SKU bu markada zaten kullanılıyor.");

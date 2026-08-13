@@ -11,6 +11,7 @@ export interface CartItem {
   unitPrice: string;
   vatRate: string;
   categoryId: string | null;
+  orderMultiple: number;
   quantity: number;
 }
 

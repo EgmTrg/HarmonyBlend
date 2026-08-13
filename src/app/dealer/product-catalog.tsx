@@ -16,6 +16,7 @@ interface CatalogProduct {
   unitPrice: string;
   vatRate: string;
   categoryId: string | null;
+  orderMultiple: number;
 }
 
 function ProductRow({ brandId, product }: { brandId: string; product: CatalogProduct }) {
@@ -29,6 +30,13 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
       showToast({ title: "Lütfen bir miktar girin", variant: "danger" });
       return;
     }
+    if (quantity % product.orderMultiple !== 0) {
+      showToast({
+        title: `${product.name} yalnızca ${product.orderMultiple} ve katları şeklinde sipariş edilebilir`,
+        variant: "danger",
+      });
+      return;
+    }
     addItem(
       brandId,
       {
@@ -39,6 +47,7 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
         unitPrice: product.unitPrice,
         vatRate: product.vatRate,
         categoryId: product.categoryId,
+        orderMultiple: product.orderMultiple,
       },
       quantity
     );
@@ -54,23 +63,28 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
       <td className="py-3 text-ink-400">{product.unit}</td>
       <td className="py-3 text-ink-600">{product.unitPrice}</td>
       <td className="py-3">
-        <div className="flex items-center justify-end gap-2">
-          <input
-            type="number"
-            min={0}
-            step={1}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(0, Number(e.target.value) || 0))}
-            className="w-16 rounded-lg border border-border bg-card px-2 py-1.5 text-sm outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-100"
-          />
-          <button
-            onClick={handleAdd}
-            className={`${BUTTON_PRIMARY} px-3 py-1.5 text-xs`}
-            type="button"
-          >
-            <ShoppingCart className="mr-1.5 h-3.5 w-3.5" strokeWidth={2} />
-            {added ? "Eklendi" : "Ekle"}
-          </button>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center justify-end gap-2">
+            <input
+              type="number"
+              min={0}
+              step={product.orderMultiple}
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(0, Number(e.target.value) || 0))}
+              className="w-16 rounded-lg border border-border bg-card px-2 py-1.5 text-sm outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-100"
+            />
+            <button
+              onClick={handleAdd}
+              className={`${BUTTON_PRIMARY} px-3 py-1.5 text-xs`}
+              type="button"
+            >
+              <ShoppingCart className="mr-1.5 h-3.5 w-3.5" strokeWidth={2} />
+              {added ? "Eklendi" : "Ekle"}
+            </button>
+          </div>
+          {product.orderMultiple > 1 && (
+            <span className="text-[11px] text-ink-400">{product.orderMultiple}'in katları</span>
+          )}
         </div>
       </td>
     </tr>

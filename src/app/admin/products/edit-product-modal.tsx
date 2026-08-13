@@ -13,6 +13,7 @@ export interface EditableProduct {
   unit: string;
   unitPrice: string;
   vatRate: string;
+  orderMultiple: number;
   categoryId: string | null;
   isActive: boolean;
 }
@@ -130,6 +131,22 @@ export function EditProductModal({
                     />
                   </label>
                 </div>
+                <label className="flex flex-col gap-1">
+                  <span className={LABEL}>Sipariş Katı</span>
+                  <input
+                    name="orderMultiple"
+                    type="number"
+                    step="1"
+                    min="1"
+                    defaultValue={product.orderMultiple}
+                    required
+                    className={`w-24 ${INPUT}`}
+                  />
+                  <span className="text-xs text-ink-400">
+                    Bu ürün yalnızca bu sayının katları şeklinde sipariş edilebilir (ör. 5 →
+                    5, 10, 15...). Kısıtlama yoksa 1 bırakın.
+                  </span>
+                </label>
                 <label className="flex flex-col gap-1">
                   <span className={LABEL}>Kategori</span>
                   <select name="categoryId" defaultValue={product.categoryId ?? ""} className={INPUT}>

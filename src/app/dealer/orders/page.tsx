@@ -6,6 +6,7 @@ import { requireDealerSession } from "@/lib/session";
 import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
+import { ReorderButton } from "./reorder-button";
 
 export default async function DealerOrdersPage() {
   const session = await requireDealerSession();
@@ -43,6 +44,7 @@ export default async function DealerOrdersPage() {
               <th className="pb-3 font-medium">Toplam</th>
               <th className="pb-3 font-medium">Durum</th>
               <th className="pb-3 font-medium">Tarih</th>
+              <th className="pb-3" />
             </tr>
           </thead>
           <tbody>
@@ -61,11 +63,14 @@ export default async function DealerOrdersPage() {
                   </span>
                 </td>
                 <td className="py-3 text-ink-400">{dateFormatter.format(row.createdAt)}</td>
+                <td className="py-3 text-right">
+                  <ReorderButton orderId={row.id} />
+                </td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-10 text-center text-ink-400">
+                <td colSpan={6} className="py-10 text-center text-ink-400">
                   Henüz sipariş vermediniz.
                 </td>
               </tr>

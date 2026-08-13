@@ -67,6 +67,7 @@ export default async function DealerCatalogPage() {
           unitPrice: p.unitPrice,
           vatRate: p.vatRate,
           categoryId: p.categoryId,
+          orderMultiple: p.orderMultiple,
         }));
         const brandCategories = categoriesByBrand.get(brand.id) ?? [];
         return (

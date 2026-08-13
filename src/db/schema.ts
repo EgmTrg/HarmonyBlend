@@ -3,6 +3,7 @@ import {
   uuid,
   text,
   boolean,
+  integer,
   numeric,
   timestamp,
   pgEnum,
@@ -120,6 +121,9 @@ export const products = pgTable(
     unit: text("unit").notNull(), // koli / kg / adet
     unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(), // KDV hariç (net)
     vatRate: numeric("vat_rate", { precision: 5, scale: 2 }).notNull().default("20"), // yüzde, örn. 20.00 = %20
+    // Sipariş miktarının bölünebilir olması gereken tam sayı — ör. 5 ise
+    // ürün yalnızca 5, 10, 15... adet sipariş edilebilir. 1 = kısıtlama yok.
+    orderMultiple: integer("order_multiple").notNull().default(1),
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

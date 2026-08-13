@@ -63,6 +63,11 @@ export async function createOrder(
     if (!Number.isFinite(item.quantity) || item.quantity <= 0) {
       throw new Error("Miktar sıfırdan büyük olmalı.");
     }
+    if (item.quantity % product.orderMultiple !== 0) {
+      throw new Error(
+        `${product.name} yalnızca ${product.orderMultiple} ve katları şeklinde sipariş edilebilir.`
+      );
+    }
     const lineNet = calculateLineNet(product.unitPrice, item.quantity);
     const lineVat = calculateLineVat(lineNet, product.vatRate);
     return {
@@ -164,6 +169,70 @@ export async function createOrder(
 
   revalidatePath("/dealer/orders");
   return { orderId: order.id };
+}
+
+export interface ReorderItem {
+  productId: string;
+  name: string;
+  sku: string;
+  unit: string;
+  unitPrice: string;
+  vatRate: string;
+  categoryId: string | null;
+  orderMultiple: number;
+  quantity: number;
+}
+
+export async function getReorderItems(orderId: string) {
+  const session = await requireDealerSession();
+  const dealerId = session.user.dealerId as string;
+
+  const [order] = await db
+    .select({ id: orders.id, dealerId: orders.dealerId, brandId: orders.brandId })
+    .from(orders)
+    .where(eq(orders.id, orderId))
+    .limit(1);
+  if (!order || order.dealerId !== dealerId) throw new Error("Sipariş bulunamadı.");
+
+  const pastItems = await db
+    .select({ productId: orderItems.productId, quantity: orderItems.quantity })
+    .from(orderItems)
+    .where(eq(orderItems.orderId, orderId));
+
+  // Fiyat/KDV/kat gibi alanlar geçmiş siparişteki değerle değil, ürünün
+  // *güncel* değerleriyle kopyalanır — createOrder'ın client fiyatına
+  // güvenmeyip sunucuda yeniden okuduğu aynı ilke. İsim gösterebilmek için
+  // pasif ürünler de sorguya dahil ediliyor, yalnızca aktif olanlar sepete
+  // eklenecek listeye giriyor.
+  const productIds = pastItems.map((item) => item.productId);
+  const allProducts =
+    productIds.length > 0
+      ? await db.select().from(products).where(inArray(products.id, productIds))
+      : [];
+  const productById = new Map(allProducts.map((p) => [p.id, p]));
+
+  const items: ReorderItem[] = [];
+  const skippedNames: string[] = [];
+  for (const pastItem of pastItems) {
+    const product = productById.get(pastItem.productId);
+    if (!product || !product.isActive) {
+      skippedNames.push(product?.name ?? "Bilinmeyen ürün");
+      continue;
+    }
+    items.push({
+      productId: product.id,
+      name: product.name,
+      sku: product.sku,
+      unit: product.unit,
+      unitPrice: product.unitPrice,
+      vatRate: product.vatRate,
+      categoryId: product.categoryId,
+      orderMultiple: product.orderMultiple,
+      quantity: Number(pastItem.quantity),
+    });
+  }
+
+  return { brandId: order.brandId, items, skippedNames };
 }
 
 export async function stopImpersonation() {

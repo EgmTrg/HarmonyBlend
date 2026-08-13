@@ -124,28 +124,27 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 - Bayi kataloğunda toplu ürün seçimi + tek işlemle sepete ekleme — Payna
   Grup Portal karşılaştırmasından gelen ek kapsam, katalog tarafında
   sipariş verme hızını artırır
-- "Tekrar sipariş ver" — henüz yapılmadı, roadmap dışı bir ek kapsam.
-  "Siparişlerim" listesinde/detayında bir buton, geçmiş bir siparişin
-  kalemlerini o markanın sepetine kopyalar. Fiyat/KDV geçmiş siparişteki
-  değerle değil, ürünün *güncel* değerleriyle kopyalanır (tıpkı
-  `createOrder`'ın client fiyatına güvenmeyip sunucuda yeniden okuması
-  gibi); artık pasif/silinmiş bir ürün varsa o kalem atlanır ve
-  kullanıcıya "X ürünü artık satışta değil, sepete eklenmedi" gibi bir
-  toast ile bildirilir. Sepete eklendikten sonra dealer normal akışta
-  (drawer'dan) miktarları gözden geçirip checkout'a geçer.
-- Ürün bazında sipariş katı (adet zorunluluğu) — henüz yapılmadı,
-  roadmap dışı bir ek kapsam. Örnek: Dilim Börek ve Erciyes Börek
-  markalarında "Su Böreği Peynirli" ve "Kol Börekleri" grubundaki
-  ürünler yalnızca 5 ve 5'in katları şeklinde sipariş edilebilmeli.
-  `products.order_multiple` (integer, `NOT NULL DEFAULT 1` — 1 =
-  kısıtlama yok) alanı eklenecek; bir "grup" için aynı katın her ürüne
-  tek tek uygulanması yeterli, ayrı bir kategori-bazlı kural alanına
-  gerek yok (admin zaten `EditProductModal`'dan ürün ürün
-  düzenleyebiliyor). Miktar bu değerin katı değilse hem bayi
-  kataloğunda/sepet çekmecesinde anlık uyarı gösterilir hem de
-  `createOrder` sunucu tarafında aynı kontrolü tekrarlayıp reddeder
-  (client'a güvenilmez — mevcut fiyat/KDV doğrulama deseniyle aynı
-  ilke).
+- ~~"Tekrar sipariş ver"~~ — ✅ Tamamlandı, roadmap dışı bir ek kapsam.
+  "Siparişlerim" listesinde ve sipariş detayında bir buton
+  (`ReorderButton`), geçmiş bir siparişin kalemlerini o markanın
+  sepetine kopyalar. Fiyat/KDV/kat gibi alanlar geçmiş siparişteki
+  değerle değil, ürünün *güncel* değerleriyle kopyalanır
+  (`getReorderItems`, `createOrder`'ın client fiyatına güvenmeyip
+  sunucuda yeniden okuduğu aynı ilke); artık pasif bir ürün varsa o
+  kalem atlanır ve kullanıcıya adıyla bildirilir (toast). Sepete
+  eklendikten sonra drawer otomatik açılır, dealer miktarları gözden
+  geçirip checkout'a geçer.
+- ~~Ürün bazında sipariş katı (adet zorunluluğu)~~ — ✅ Tamamlandı,
+  roadmap dışı bir ek kapsam. `products.order_multiple` (integer,
+  `NOT NULL DEFAULT 1` — 1 = kısıtlama yok); admin
+  ürün ekleme formunda ve `EditProductModal`'da düzenlenebiliyor, bir
+  "grup" için aynı katın gruptaki her ürüne tek tek uygulanması yeterli
+  (ör. "Kol Börekleri" kategorisindeki ürünlere tek tek 5 atanarak).
+  Bayi kataloğunda ve sepet çekmecesinde miktar bu değerin katı değilse
+  toast ile anlık uyarı gösterilir (input `step` değeri de kata göre
+  ayarlanır); `createOrder` sunucu tarafında aynı kontrolü tekrarlayıp
+  client'a güvenmeden reddeder — mevcut fiyat/KDV doğrulama deseniyle
+  aynı ilke.
 - ~~Sepette KDV tutarının ayrı bir satırda gösterilmesi~~ — ✅ Tamamlandı.
   KDV oranı ürün bazında değişken (`products.vat_rate`); sipariş kalemi
   oranı sipariş anında snapshot'lanıyor (`order_items.vat_rate`/

@@ -141,6 +141,21 @@ export default async function ProductsPage({
               />
             </div>
             <div className="flex flex-col gap-1">
+              <label htmlFor="p-order-multiple" className={LABEL}>
+                Sipariş Katı
+              </label>
+              <input
+                id="p-order-multiple"
+                name="orderMultiple"
+                type="number"
+                step="1"
+                min="1"
+                defaultValue={1}
+                required
+                className={`w-24 ${INPUT}`}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
               <label htmlFor="p-category" className={LABEL}>
                 Kategori
               </label>

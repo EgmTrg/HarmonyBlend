@@ -4,6 +4,7 @@ import Link from "next/link";
 import { X } from "lucide-react";
 import { useCart, type CartItem } from "./cart-context";
 import { calculateCartTotals } from "@/lib/cart-totals";
+import { useToast } from "@/lib/toast";
 import { BUTTON_GHOST_DANGER, BUTTON_PRIMARY } from "@/lib/ui";
 import { CategoryGroupList } from "@/components/category-group-list";
 import type { CategoryLike } from "@/lib/category-tree";
@@ -21,6 +22,19 @@ function CartItemList({
   items: CartItem[];
 }) {
   const { setQuantity, removeItem } = useCart();
+  const { showToast } = useToast();
+
+  function handleQuantityChange(item: CartItem, rawValue: string) {
+    const next = Math.max(1, Number(rawValue) || 1);
+    if (next % item.orderMultiple !== 0) {
+      showToast({
+        title: `${item.name} yalnızca ${item.orderMultiple} ve katları şeklinde sipariş edilebilir`,
+        variant: "danger",
+      });
+      return;
+    }
+    setQuantity(brandId, item.productId, next);
+  }
 
   return (
     <ul className="flex flex-col divide-y divide-border rounded-xl border border-border">
@@ -30,17 +44,17 @@ function CartItemList({
             <p className="truncate font-medium text-ink-900">{item.name}</p>
             <p className="text-xs text-ink-400">
               {item.unitPrice} × {item.quantity} {item.unit}
+              {item.orderMultiple > 1 && ` — ${item.orderMultiple}'in katları`}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <input
               type="number"
               min={1}
-              step={1}
-              value={item.quantity}
-              onChange={(e) =>
-                setQuantity(brandId, item.productId, Math.max(1, Number(e.target.value) || 1))
-              }
+              step={item.orderMultiple}
+              defaultValue={item.quantity}
+              key={item.quantity}
+              onBlur={(e) => handleQuantityChange(item, e.target.value)}
               className="w-16 rounded-lg border border-border bg-card px-2 py-1 text-sm outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-100"
             />
             <button
