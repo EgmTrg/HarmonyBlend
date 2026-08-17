@@ -108,6 +108,45 @@ ve durum makinesi.
   veri temizliği için düşünüldü — gerçek sipariş geçmişini silmek üzere
   kullanılmamalı. İki tıklamalı onay ile (`ConfirmDeleteButton`,
   native `confirm()` yerine).
+- ~~Sipariş listesinden, detaya girmeden hızlı onay/red/iptal~~ — ✅
+  Tamamlandı, roadmap dışı bir ek kapsam. Admin sipariş listesindeki her
+  satıra durum makinesinin izin verdiği geçişlere göre ikon butonlar
+  eklendi (`src/app/admin/orders/order-quick-actions.tsx`): onay tek
+  tıkla (not gerekmiyor), red/iptal iki tıkla — ilk tık küçük bir sebep
+  kutusu açar (sunucu tarafı bu durumlarda notu zorunlu tutuyor), ikinci
+  tık (yeşil onay ikonu) o notla `transitionOrderStatus`'u çağırır.
+- ~~Firma çapında "bayi siparişleri onay gerektirsin" ayarı~~ — ✅
+  Tamamlandı, roadmap dışı bir ek kapsam. Yeni admin `/admin/settings`
+  sayfası (yalnızca `company_admin` rolü değiştirebiliyor) ve
+  `companies.requires_order_approval` sütunu (varsayılan `true`, mevcut
+  davranışı bozmuyor). Kapalıyken `createOrder` cari/kapıda ödeme
+  siparişlerini `submitted → approved`, sanal POS'ta ödeme başarılı
+  olan siparişleri `paid → approved` durumuna otomatik geçiriyor
+  (`changedBy: null`, sistem notu ile) — durum makinesindeki mevcut
+  geçiş kurallarını genişletmeden, yalnızca kimin tetiklediğini
+  değiştiriyor. Onaylanmış bir sipariş bu ayardan bağımsız olarak yine
+  de iptal edilebiliyor çünkü `approved → cancelled` geçişi zaten her
+  üç akışta da tanımlıydı.
+- ~~Red/iptalde not zorunluluğu~~ — ✅ Tamamlandı. Yukarıdaki hızlı
+  işlemlere ek olarak sipariş detay sayfasındaki tam durum geçiş formunda
+  (`status-actions.tsx`) da red/iptal seçilirken not boşsa hem
+  istemcide hem `transitionOrderStatus` sunucu tarafında reddediliyor —
+  tek bir yerden atlanabilecek bir kural olmasın diye iki katmanlı.
+- ~~Giriş öncesi firma seçimi (çoklu firma desteği)~~ — ✅ Tamamlandı,
+  roadmap dışı bir ek kapsam. `companies` tablosuna `code` sütunu eklendi
+  (`companies_code_unique`); ana sayfa artık doğrudan giriş formuna değil,
+  bir firma kodu/adı giriş ekranına (`src/app/company-gate.tsx`) açılıyor.
+  Seçilen firma `localStorage`'a (`hb_company_code`) önbelleklenip
+  `/login?company=...`'a yönlendiriyor; `src/auth.ts`'teki `authorize`,
+  kullanıcıyı artık yalnızca e-postayla değil `(email, companyId)`
+  ikilisiyle arıyor — bu, aynı e-postanın farklı firmalarda ayrı
+  hesaplara ait olabilmesini sağlıyor (`src/lib/companies.ts::
+  resolveCompanyByCodeOrName`, kod büyük/küçük harf duyarsız, isim
+  karşılaştırması da yapıyor). Kayıtlı firma artık geçersizse (silinmiş/
+  yanlış) `/?companyError=1` ile ana sayfaya dönülüp önbellek temizleniyor.
+  Bu değişiklik henüz yalnızca bir altyapı hazırlığı — bugün hâlâ tek bir
+  firma (Tunam) çalışıyor, ama giriş akışı artık birden fazla firmayı
+  ayrıştırabilecek şekilde kurulu.
 
 **Çıkış kriteri —** üç ödeme tipiyle de (cari, kapıda ödeme, sanal POS
 başarılı/başarısız) uçtan uca sipariş oluşturulabiliyor; admin panelde durum
@@ -117,13 +156,52 @@ geçişleri izlenebiliyor. Tarayıcıda doğrulandı.
 
 Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 
-- Bayi panelinde "Bakiye Öde" ekranı
-- `payments` tablosunda `type = standalone_collection` kaydı
-- `ledger_entries` defteri ve bakiye hesaplama
-- Admin tarafında cari hesap ekstresi görünümü
-- Bayi kataloğunda toplu ürün seçimi + tek işlemle sepete ekleme — Payna
-  Grup Portal karşılaştırmasından gelen ek kapsam, katalog tarafında
-  sipariş verme hızını artırır
+- ~~Bayi panelinde "Bakiye Öde" ekranı~~ — ✅ Tamamlandı
+  (`src/app/dealer/balance/`). Mevcut checkout'taki mock sanal POS deseniyle
+  aynı: devre dışı sahte kart alanı + "başarısız simüle et" checkbox'ı.
+  Bayi serbest bir tutar girip `mockPosProvider.charge()` ile öder.
+- ~~`payments` tablosunda `type = standalone_collection` kaydı~~ — ✅
+  Tamamlandı. `payBalance` action'ı (`src/app/dealer/balance/actions.ts`)
+  `orderId: null` ile bu tipte bir satır yazıyor; `ChargeInput.orderId`
+  bu yüzden opsiyonel yapıldı (`src/lib/payments/provider.ts`) — bağımsız
+  tahsilatın bağlı olduğu bir sipariş yok.
+- ~~`ledger_entries` defteri ve bakiye hesaplama~~ — ✅ Tamamlandı. Yeni
+  tablo (`src/db/schema.ts`) + tek merkezi yazıcı `postLedgerEntry`
+  (`src/lib/ledger.ts`) — her çağrı bir defter satırı yazıp
+  `dealers.currentBalance` önbelleğini aynı anda günceller. Üç yazım
+  noktası: cari sipariş oluşturulduğunda otomatik borç
+  (`src/app/dealer/actions.ts::createOrder`), kapıda ödemesi tahsil
+  edilemeyen siparişin (`delivered_unpaid`) cariye borç düşmesi
+  (`src/app/admin/orders/actions.ts::transitionOrderStatus`), ve bağımsız
+  bakiye ödemesinin alacak kaydı. Neon HTTP sürücüsünün gerçek transaction
+  desteklememesi nedeniyle adımlar sırayla yazılıyor (Faz 3'teki
+  `createOrder` yorumuyla aynı ödün). Cari bir sipariş reddedilir/iptal
+  edilirse (`transitionOrderStatus`) ya da admin tarafından kalıcı silinirse
+  (`deleteOrder`), oluşturulduğunda otomatik yazılan borç bir ters kayıtla
+  (silmede `ledger_entries`'teki net bakiyeye göre hesaplanan
+  `manual_adjustment`) dengeleniyor — aksi halde hiç gerçekleşmemiş sayılan
+  bir siparişin borcu bayinin carisinde kalıcı olarak asılı kalırdı.
+- ~~Admin tarafında cari hesap ekstresi görünümü~~ — ✅ Tamamlandı
+  (`src/app/admin/dealers/[id]/ledger/page.tsx`) — bayi bazlı borç/alacak
+  dökümü, her satırda o anki bakiye snapshot'ı. Bayi detay sayfasına
+  güncel bakiyeyi gösteren bir "Cari Hesap" özet kartı + ekstre linki
+  eklendi.
+- ~~Bayi kataloğunda toplu ürün seçimi + tek işlemle sepete ekleme~~ — ✅
+  Tamamlandı — Payna Grup Portal karşılaştırmasından gelen ek kapsam,
+  katalog tarafında sipariş verme hızını artırır. Kataloğun sağ üstüne
+  "Tüm miktarları temizle"nin yanına "Miktar Girilenleri Ekle" butonu
+  eklendi (`product-catalog.tsx`): satır satır "Ekle"ye basmadan, miktar
+  yazılmış tüm satırları tek tıkla sepete ekliyor; sepete zaten girmiş bir
+  ürün atlanır (miktarları sessizce toplamak yerine), sipariş katına
+  uymayan miktarlar da atlanır — her iki durumda da hangi ürünlerin
+  neden eklenmediği toast ile bildiriliyor. Bunun için satır bazlı miktar
+  state'i artık `ProductRow` içinde değil üst `ProductCatalog`'ta tutuluyor
+  (kategori grupları arasında paylaşılabilsin diye); aynı tick içinde art
+  arda çağrılan `addItem`'ların birbirinin üstüne yazmaması için
+  `useCart`/`useLocalStorageStore` fonksiyonel updater (`prev => ...`)
+  desenine geçirildi. Roadmap'te öngörülen ayrı bir "Ayarlar" sayfasıyla
+  mod seçimine gerek kalmadı (bkz. aşağıdaki not) — tekli ve toplu ekleme
+  her zaman yan yana duruyor.
 - ~~"Tekrar sipariş ver"~~ — ✅ Tamamlandı, roadmap dışı bir ek kapsam.
   "Siparişlerim" listesinde ve sipariş detayında bir buton
   (`ReorderButton`), geçmiş bir siparişin kalemlerini o markanın
@@ -222,21 +300,34 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 - Header'daki sepet ikonunun yanına "Sepeti boşalt" eklendi — tüm
   markalardaki sepeti tek seferde boşaltır (`CartContext.clearCart`);
   sepet boşken tıklanamaz durumda (soluk/pasif).
-- Bayi paneli menüsüne bir "Ayarlar" sayfası — henüz yapılmadı, roadmap
-  dışı bir ek kapsam. İlk ayar: sepete ekleme davranışını iki mod
-  arasında seçtiren bir checkbox.
-  - **Mod 1 (mevcut davranış):** miktar yaz, o satırın "Ekle" butonuna
-    bas — ürün tek tek sepete girer.
-  - **Mod 2:** kataloğun her satırına miktar yazılabilir (o satırın
-    "Ekle" butonu pasif olabilir ya da tek tek eklemeye izin vermeye
-    devam edebilir — kesin davranış uygulama sırasında netleştirilecek),
-    "Tüm miktarları temizle" butonunun yanına "Sepette olmayan ve miktar
-    yazılmış olan ürünleri ekle" adında toplu bir ekleme butonu gelir;
-    bu buton o an miktar alanı >0 olan, henüz sepete girmemiş tüm
-    satırları tek seferde sepete ekler.
-  - Ayarın nerede saklanacağı (yalnızca `localStorage`'da tarayıcı
-    bazlı mı, yoksa `users` tablosunda kalıcı bir tercih olarak mı)
-    uygulama aşamasında netleştirilecek.
+- ~~Bayi paneli menüsüne bir "Ayarlar" sayfası (sepete ekleme modu
+  seçimi)~~ — farklı şekilde çözüldü, ayrı bir sayfa/ayar gerekmedi.
+  Planlanan Mod 1 (satır satır "Ekle") ve Mod 2 (toplu ekleme), bir
+  tercih anahtarı arkasında seçtirilmek yerine yukarıdaki "Miktar
+  Girilenleri Ekle" özelliğiyle **her zaman birlikte** sunuldu — bayi
+  istediği satırda tek tek "Ekle"ye basabiliyor, istediği zaman birden
+  fazla satıra miktar yazıp tek butonla topluca ekleyebiliyor. Bir
+  ayar ekranı ve kalıcı tercih deposu (localStorage/`users` tablosu)
+  ihtiyacını ortadan kaldırdığı için daha basit bir çözüm.
+- ~~Admin ve bayi paneli "Genel Bakış" ekranlarına gerçek KPI ve grafik
+  içeriği~~ — ✅ Tamamlandı, roadmap dışı bir ek kapsam (bkz. Bölüm 5,
+  "Genel Bakış" satırı — önceden yalnızca statik sayaç kartları vardı).
+  Paylaşılan `StatTile` (`src/components/stat-tile.tsx`) ve `BarChart`
+  (`src/components/bar-chart.tsx`) bileşenleri + `src/lib/month-range.ts`
+  (son N ayın kovaları) ve `src/lib/format.ts` (para/sayı biçimlendirme)
+  yardımcıları eklendi. Admin ana sayfası: bayi/ürün sayısı, bu ay sipariş
+  sayısı/cirosu, toplam cari alacak KPI'ları + son 6 ay sipariş sayısı ve
+  ciro trend grafikleri + bu ay kategori bazında en çok sipariş edilen
+  ürünler tablosu. Bayi ana sayfası aynı desende kendi verisiyle: bu ay
+  sipariş sayısı/tutarı, güncel cari bakiye, kalan cari limit + aynı trend
+  grafikleri ve kategori bazlı en çok sipariş verdiği ürünler. İptal/
+  reddedilen siparişler istatistiklerden hariç tutuluyor
+  (`src/lib/order-status.ts::EXCLUDED_FROM_STATS_STATUSES`) ama teslim
+  edilip tahsil edilemeyen (`delivered_unpaid`) siparişler fiilen
+  gerçekleştiği için dahil tutuluyor. Bayi tarafında ürün kataloğu artık
+  ayrı bir sayfaya taşındı (`/dealer/catalog`), `/dealer` bu genel bakış
+  ekranına ayrıldı; bayi menüsüne "Genel Bakış" ve "Bakiye Öde" eklendi,
+  admin menüsüne "Ayarlar" eklendi.
 
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.
@@ -528,7 +619,7 @@ role göre farklılaşır.
 
 | Ekran | Amaç | Öne çıkan bileşenler |
 |---|---|---|
-| Genel Bakış | Günlük/haftalık sipariş ve tahsilat özeti | KPI kartları, marka bazlı mini grafikler |
+| Genel Bakış | Aylık sipariş/ciro/cari özeti | KPI kartları, aylık trend grafikleri, kategori bazlı en çok sipariş edilen ürünler |
 | Marka Yönetimi | Alt marka tanımı ve ayarları | Marka CRUD formu, logo/ayar alanları |
 | Bayi Yönetimi | Bayi tanımı, marka ataması, ödeme yöntemi kuralları | Bayi profil formu, marka atama matrisi, cari limit alanı |
 | Ürün & Kategori | Marka bazlı katalog yönetimi | Kategori ağacı, ürün tablosu, toplu fiyat güncelleme |
@@ -540,7 +631,7 @@ role göre farklılaşır.
 
 | Ekran | Amaç | Öne çıkan bileşenler |
 |---|---|---|
-| Ana Sayfa | Bakiye özeti, son siparişlerin durumu | Bakiye kartı, son 5 sipariş listesi |
+| Genel Bakış | Sipariş/ciro/cari özet, aylık trend | KPI kartları, sipariş sayısı/tutarı trend grafikleri, kategori bazlı en çok sipariş verilen ürünler |
 | Ürün Kataloğu & Sepet | Erişimi olan marka(lar)ın ürünlerini sepete ekleme | Marka sekmeleri, ürün kartı, sepet çekmecesi |
 | Checkout | Ödeme tipine göre dallanan sipariş tamamlama | Dinamik adım göstergesi, ödeme tipi kartı, mock POS formu (yalnızca Sanal POS seçiliyse) |
 | Siparişlerim | Geçmiş ve aktif siparişlerin takibi | Durum rozeti, zaman çizelgesi görünümü |
