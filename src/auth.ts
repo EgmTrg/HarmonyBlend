@@ -1,9 +1,10 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
+import { resolveCompanyByCodeOrName } from "@/lib/companies";
 import type { AppRole } from "@/lib/roles";
 
 const ADMIN_ROLES: AppRole[] = ["company_admin", "brand_manager"];
@@ -16,13 +17,22 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
       credentials: {
         email: { label: "E-posta", type: "email" },
         password: { label: "Şifre", type: "password" },
+        companyCode: { label: "Firma Kodu", type: "text" },
       },
       authorize: async (credentials) => {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
-        if (!email || !password) return null;
+        const companyCode = credentials?.companyCode as string | undefined;
+        if (!email || !password || !companyCode) return null;
 
-        const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+        const company = await resolveCompanyByCodeOrName(companyCode);
+        if (!company) return null;
+
+        const [user] = await db
+          .select()
+          .from(users)
+          .where(and(eq(users.email, email), eq(users.companyId, company.id)))
+          .limit(1);
         if (!user) return null;
         if (!user.isActive) return null;
 

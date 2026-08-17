@@ -8,7 +8,7 @@ import { companies, users } from "./schema";
 async function main() {
   const [company] = await db
     .insert(companies)
-    .values({ name: "Demo Head Office" })
+    .values({ name: "Demo Head Office", code: "TUNAM" })
     .returning();
 
   const passwordHash = await hash("changeme123", 10);

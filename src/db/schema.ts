@@ -18,12 +18,26 @@ export const paymentMethodCode = pgEnum("payment_method_code", PAYMENT_METHOD_CO
 export const paymentType = pgEnum("payment_type", ["order_payment", "standalone_collection"]);
 export const paymentProvider = pgEnum("payment_provider", ["mock", "iyzico", "paytr"]);
 export const paymentStatus = pgEnum("payment_status", ["pending", "success", "failed", "refunded"]);
+export const ledgerDirection = pgEnum("ledger_direction", ["debit", "credit"]);
+export const ledgerSourceType = pgEnum("ledger_source_type", ["order", "payment", "manual_adjustment"]);
 
-export const companies = pgTable("companies", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: text("name").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const companies = pgTable(
+  "companies",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    // Giriş öncesi firma seçimi için — her zaman büyük harfle saklanır.
+    code: text("code").notNull(),
+    // false ise bayi siparişleri oluşturulduğu (sanal POS'ta ödeme başarılı
+    // olduğu) anda otomatik "approved" durumuna geçer — admin/marka yöneticisi
+    // manuel onay vermek zorunda kalmaz. Onaylanmış bir sipariş bu ayardan
+    // bağımsız olarak yine de iptal edilebilir (bkz. order-status.ts durum
+    // makinesi, approved -> cancelled her akışta zaten tanımlı).
+    requiresOrderApproval: boolean("requires_order_approval").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("companies_code_unique").on(table.code)]
+);
 
 export const brands = pgTable(
   "brands",
@@ -217,5 +231,24 @@ export const payments = pgTable("payments", {
   amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
   status: paymentStatus("status").notNull().default("pending"),
   providerRef: text("provider_ref"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const ledgerEntries = pgTable("ledger_entries", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  dealerId: uuid("dealer_id")
+    .notNull()
+    .references(() => dealers.id, { onDelete: "cascade" }),
+  direction: ledgerDirection("direction").notNull(),
+  amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+  sourceType: ledgerSourceType("source_type").notNull(),
+  // orders.id veya payments.id — kaynağa göre değiştiği için tek bir FK
+  // tanımlanamıyor (bkz. docs/roadmap.md §2).
+  sourceId: uuid("source_id"),
+  note: text("note"),
+  // dealers.currentBalance'ın o anki önbellek değeriyle aynı — geçmişe
+  // dönük ekstre görünümünde her satırın sonrasındaki bakiyeyi tekrar
+  // hesaplamadan gösterebilmek için snapshot'lanıyor.
+  balanceAfter: numeric("balance_after", { precision: 14, scale: 2 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
