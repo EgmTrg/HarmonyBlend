@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, ShoppingBasket } from "lucide-react";
+import { ClipboardList, LayoutDashboard, ShoppingBasket, Wallet } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/dealer", label: "Ürün Kataloğu", icon: ShoppingBasket },
+  { href: "/dealer", label: "Genel Bakış", icon: LayoutDashboard },
+  { href: "/dealer/catalog", label: "Ürün Kataloğu", icon: ShoppingBasket },
   { href: "/dealer/orders", label: "Siparişlerim", icon: ClipboardList },
+  { href: "/dealer/balance", label: "Bakiye Öde", icon: Wallet },
 ];
 
 export function DealerNav({ collapsed = false }: { collapsed?: boolean }) {

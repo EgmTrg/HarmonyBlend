@@ -6,6 +6,7 @@ import {
   ClipboardList,
   LayoutDashboard,
   Package,
+  Settings,
   Tags,
   type LucideIcon,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon; matchPrefixes?
   },
   { href: "/admin/products", label: "Ürünler", icon: Package },
   { href: "/admin/orders", label: "Siparişler", icon: ClipboardList },
+  { href: "/admin/settings", label: "Ayarlar", icon: Settings },
 ];
 
 export function AdminNav({ collapsed = false }: { collapsed?: boolean }) {

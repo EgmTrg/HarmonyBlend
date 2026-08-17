@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { brands, dealerBrands, dealers, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
+import { formatCurrency } from "@/lib/format";
 import { BUTTON_GHOST, BUTTON_GHOST_DANGER, BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
 import { CurrencyInput } from "@/components/currency-input";
 import { ToastForm } from "@/components/toast-form";
@@ -95,6 +97,28 @@ export default async function DealerDetailPage({
             Bayiyi sil
           </button>
         </ToastForm>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold text-ink-900">Cari Hesap</h2>
+        <div className={`${CARD} flex items-center justify-between`}>
+          <div>
+            <p className="text-xs font-medium text-ink-400">Güncel Bakiye</p>
+            <p
+              className={`text-xl font-semibold ${
+                Number(dealer.currentBalance) > 0 ? "text-warning-fg" : "text-success-fg"
+              }`}
+            >
+              {formatCurrency(Number(dealer.currentBalance))}
+            </p>
+          </div>
+          <Link
+            href={`/admin/dealers/${dealer.id}/ledger`}
+            className="text-sm font-medium text-accent-600 hover:underline"
+          >
+            Ekstreyi Görüntüle →
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">

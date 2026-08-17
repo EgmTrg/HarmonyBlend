@@ -1,7 +1,8 @@
 export interface ChargeInput {
   amount: string;
   dealerId: string;
-  orderId: string;
+  // Sipariş dışı bağımsız tahsilatta (Faz 4 "Bakiye Öde") bağlı bir sipariş yok.
+  orderId?: string;
   // Dev/test hook exposed as an explicit checkbox at checkout — lets the
   // payment_failed branch be exercised deliberately instead of faking it
   // with hidden randomness.

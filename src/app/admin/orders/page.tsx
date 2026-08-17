@@ -4,9 +4,15 @@ import { db } from "@/db";
 import { brands, dealers, orders } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { CARD, INPUT, LABEL, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
-import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
+import {
+  ORDER_STATUS_LABELS,
+  ORDER_STATUS_TONES,
+  nextOrderStatuses,
+  type OrderStatus,
+} from "@/lib/order-status";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
+import { OrderQuickActions } from "./order-quick-actions";
 import { deleteOrder } from "./actions";
 
 export default async function AdminOrdersPage({
@@ -123,12 +129,18 @@ export default async function AdminOrdersPage({
                     row.createdAt
                   )}
                 </td>
-                <td className="py-3 text-right">
-                  <ConfirmDeleteButton
-                    action={deleteOrder.bind(null, row.id)}
-                    confirmLabel="Kalıcı olarak sil?"
-                    successMessage="Sipariş silindi"
-                  />
+                <td className="py-3">
+                  <div className="flex items-center justify-end gap-3">
+                    <OrderQuickActions
+                      orderId={row.id}
+                      statuses={nextOrderStatuses(row.paymentMethod, row.status)}
+                    />
+                    <ConfirmDeleteButton
+                      action={deleteOrder.bind(null, row.id)}
+                      confirmLabel="Kalıcı olarak sil?"
+                      successMessage="Sipariş silindi"
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

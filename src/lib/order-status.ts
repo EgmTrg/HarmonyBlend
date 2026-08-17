@@ -118,6 +118,12 @@ export function isTerminalOrderStatus(code: PaymentMethodCode, current: string):
   return FLOWS[code].terminal.includes(current as OrderStatus);
 }
 
+// Genel bakış panellerindeki sipariş sayısı/ciro istatistiklerinden hariç
+// tutulan durumlar — bunlar hiç gerçekleşmemiş sayılır. delivered_unpaid gibi
+// "teslim edildi ama tahsil edilemedi" durumları bilinçli olarak DAHİL
+// tutuluyor çünkü sipariş fiilen verildi/teslim edildi.
+export const EXCLUDED_FROM_STATS_STATUSES: OrderStatus[] = ["cancelled", "rejected"];
+
 export function canTransitionOrderStatus(
   code: PaymentMethodCode,
   from: string,

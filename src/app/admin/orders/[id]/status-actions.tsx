@@ -18,6 +18,10 @@ export function StatusTransitionActions({
   const [pending, setPending] = useState<OrderStatus | null>(null);
 
   async function handleTransition(status: OrderStatus) {
+    if ((status === "rejected" || status === "cancelled") && !note.trim()) {
+      showToast({ title: "Reddetmek veya iptal etmek için not girmelisiniz.", variant: "danger" });
+      return;
+    }
     setPending(status);
     try {
       const formData = new FormData();
@@ -38,7 +42,7 @@ export function StatusTransitionActions({
   return (
     <div className="flex flex-col gap-3">
       <label className="flex flex-col gap-1">
-        <span className={LABEL}>Not (opsiyonel)</span>
+        <span className={LABEL}>Not (red veya iptalde zorunlu)</span>
         <input value={note} onChange={(e) => setNote(e.target.value)} className={INPUT} />
       </label>
       <div className="flex flex-wrap gap-2">

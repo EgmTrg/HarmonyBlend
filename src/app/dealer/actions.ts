@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { dealerBrands, dealers, orderItems, orderStatusHistory, orders, payments, products } from "@/db/schema";
+import { companies, dealerBrands, dealers, orderItems, orderStatusHistory, orders, payments, products } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { initialOrderStatus } from "@/lib/order-status";
+import { postLedgerEntry } from "@/lib/ledger";
 import { mockPosProvider } from "@/lib/payments/mock-provider";
 import { PAYMENT_METHOD_CODES, type PaymentMethodCode } from "@/lib/payment-methods";
 import { calculateLineNet, calculateLineVat } from "@/lib/cart-totals";
@@ -85,16 +86,27 @@ export async function createOrder(
   const totalAmount = (Number(subtotalAmount) + Number(vatAmount)).toFixed(2);
   const startStatus = initialOrderStatus(paymentCode);
 
+  const [dealerInfo] = await db
+    .select({
+      currentBalance: dealers.currentBalance,
+      maxBalanceLimit: dealers.maxBalanceLimit,
+      requiresOrderApproval: companies.requiresOrderApproval,
+    })
+    .from(dealers)
+    .innerJoin(companies, eq(dealers.companyId, companies.id))
+    .where(eq(dealers.id, dealerId))
+    .limit(1);
+  // Firma ayarı kapalıysa sipariş otomatik onaylanır (aşağıda submitted/paid
+  // sonrası ek bir "approved" geçişi yazılır) — admin/marka yöneticisi manuel
+  // onay vermek zorunda kalmaz. Yine de onaylanmış bir sipariş admin
+  // tarafından iptal edilebilir, bu ayardan etkilenmez (bkz. order-status.ts).
+  const autoApprove = dealerInfo?.requiresOrderApproval === false;
+
   if (paymentCode === "cari") {
-    const [dealer] = await db
-      .select({ currentBalance: dealers.currentBalance, maxBalanceLimit: dealers.maxBalanceLimit })
-      .from(dealers)
-      .where(eq(dealers.id, dealerId))
-      .limit(1);
     if (
-      dealer?.maxBalanceLimit !== null &&
-      dealer?.maxBalanceLimit !== undefined &&
-      Number(dealer.currentBalance) + Number(totalAmount) > Number(dealer.maxBalanceLimit)
+      dealerInfo?.maxBalanceLimit !== null &&
+      dealerInfo?.maxBalanceLimit !== undefined &&
+      Number(dealerInfo.currentBalance) + Number(totalAmount) > Number(dealerInfo.maxBalanceLimit)
     ) {
       throw new Error(
         "Bakiye limitiniz aşılıyor, cari ile ödeme yapamazsınız. Lütfen nakit/kapıda ödeme seçin."
@@ -132,6 +144,31 @@ export async function createOrder(
     note: "Sipariş oluşturuldu",
   });
 
+  if (paymentCode === "cari") {
+    await postLedgerEntry({
+      dealerId,
+      direction: "debit",
+      amount: totalAmount,
+      sourceType: "order",
+      sourceId: order.id,
+      note: "Cari sipariş",
+    });
+  }
+
+  if (autoApprove && (paymentCode === "cari" || paymentCode === "cash_on_delivery")) {
+    await db
+      .update(orders)
+      .set({ status: "approved", updatedAt: new Date() })
+      .where(eq(orders.id, order.id));
+    await db.insert(orderStatusHistory).values({
+      orderId: order.id,
+      fromStatus: startStatus,
+      toStatus: "approved",
+      changedBy: null,
+      note: "Otomatik onaylandı (onay ayarı kapalı)",
+    });
+  }
+
   if (paymentCode === "virtual_pos") {
     const chargeResult = await mockPosProvider.charge({
       amount: totalAmount,
@@ -165,6 +202,20 @@ export async function createOrder(
           ? "Mock POS ödemesi başarılı"
           : "Mock POS ödemesi başarısız",
     });
+
+    if (autoApprove && nextStatus === "paid") {
+      await db
+        .update(orders)
+        .set({ status: "approved", updatedAt: new Date() })
+        .where(eq(orders.id, order.id));
+      await db.insert(orderStatusHistory).values({
+        orderId: order.id,
+        fromStatus: "paid",
+        toStatus: "approved",
+        changedBy: null,
+        note: "Otomatik onaylandı (onay ayarı kapalı)",
+      });
+    }
   }
 
   revalidatePath("/dealer/orders");
