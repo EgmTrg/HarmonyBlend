@@ -59,7 +59,7 @@ export function CheckoutForm({
     return (
       <div className={`${CARD} flex flex-col items-center gap-3 text-center`}>
         <p className="text-sm text-ink-400">Sepetiniz boş.</p>
-        <Link href="/dealer" className="text-sm font-medium text-accent-600 hover:underline">
+        <Link href="/dealer/catalog" className="text-sm font-medium text-accent-600 hover:underline">
           Kataloğa dön
         </Link>
       </div>

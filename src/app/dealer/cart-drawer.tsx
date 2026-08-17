@@ -54,6 +54,7 @@ function CartItemList({
               step={item.orderMultiple}
               defaultValue={item.quantity}
               key={item.quantity}
+              onFocus={(e) => e.target.select()}
               onBlur={(e) => handleQuantityChange(item, e.target.value)}
               className="w-16 rounded-lg border border-border bg-card px-2 py-1 text-sm outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-100"
             />

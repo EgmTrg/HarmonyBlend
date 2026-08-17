@@ -48,50 +48,57 @@ export function useCart() {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [carts, setCarts] = useLocalStorageStore<CartsByBrand>(STORAGE_KEY, EMPTY_CARTS);
 
+  // Fonksiyonel updater (prev => ...) kullanılıyor ki aynı render/tick
+  // içinde art arda çağrılan addItem'lar (ör. bayi kataloğundaki toplu
+  // ekleme) birbirinin üstüne yazmasın — her çağrı bir öncekinin sonucunu
+  // görür (bkz. useLocalStorageStore).
   const addItem = useCallback(
     (brandId: string, item: Omit<CartItem, "quantity">, quantity: number) => {
       if (quantity <= 0) return;
-      const existing = carts[brandId] ?? [];
-      const idx = existing.findIndex((i) => i.productId === item.productId);
-      const next =
-        idx >= 0
-          ? existing.map((i, index) => (index === idx ? { ...i, quantity: i.quantity + quantity } : i))
-          : [...existing, { ...item, quantity }];
-      setCarts({ ...carts, [brandId]: next });
+      setCarts((prev) => {
+        const existing = prev[brandId] ?? [];
+        const idx = existing.findIndex((i) => i.productId === item.productId);
+        const next =
+          idx >= 0
+            ? existing.map((i, index) => (index === idx ? { ...i, quantity: i.quantity + quantity } : i))
+            : [...existing, { ...item, quantity }];
+        return { ...prev, [brandId]: next };
+      });
     },
-    [carts, setCarts]
+    [setCarts]
   );
 
   const removeItem = useCallback(
     (brandId: string, productId: string) => {
-      setCarts({
-        ...carts,
-        [brandId]: (carts[brandId] ?? []).filter((i) => i.productId !== productId),
-      });
+      setCarts((prev) => ({
+        ...prev,
+        [brandId]: (prev[brandId] ?? []).filter((i) => i.productId !== productId),
+      }));
     },
-    [carts, setCarts]
+    [setCarts]
   );
 
   const setQuantity = useCallback(
     (brandId: string, productId: string, quantity: number) => {
-      const existing = carts[brandId] ?? [];
-      if (quantity <= 0) {
-        setCarts({ ...carts, [brandId]: existing.filter((i) => i.productId !== productId) });
-        return;
-      }
-      setCarts({
-        ...carts,
-        [brandId]: existing.map((i) => (i.productId === productId ? { ...i, quantity } : i)),
+      setCarts((prev) => {
+        const existing = prev[brandId] ?? [];
+        if (quantity <= 0) {
+          return { ...prev, [brandId]: existing.filter((i) => i.productId !== productId) };
+        }
+        return {
+          ...prev,
+          [brandId]: existing.map((i) => (i.productId === productId ? { ...i, quantity } : i)),
+        };
       });
     },
-    [carts, setCarts]
+    [setCarts]
   );
 
   const clearBrandCart = useCallback(
     (brandId: string) => {
-      setCarts({ ...carts, [brandId]: [] });
+      setCarts((prev) => ({ ...prev, [brandId]: [] }));
     },
-    [carts, setCarts]
+    [setCarts]
   );
 
   const clearCart = useCallback(() => {

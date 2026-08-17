@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "./cart-context";
 import { useToast } from "@/lib/toast";
@@ -19,10 +19,19 @@ interface CatalogProduct {
   orderMultiple: number;
 }
 
-function ProductRow({ brandId, product }: { brandId: string; product: CatalogProduct }) {
-  const { addItem } = useCart();
+function ProductRow({
+  brandId,
+  product,
+  quantity,
+  onQuantityChange,
+}: {
+  brandId: string;
+  product: CatalogProduct;
+  quantity: number;
+  onQuantityChange: (productId: string, quantity: number) => void;
+}) {
+  const { addItem, getBrandCart } = useCart();
   const { showToast } = useToast();
-  const [quantity, setQuantity] = useState(0);
   const [added, setAdded] = useState(false);
 
   function handleAdd() {
@@ -34,6 +43,17 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
       showToast({
         title: `${product.name} yalnızca ${product.orderMultiple} ve katları şeklinde sipariş edilebilir`,
         variant: "danger",
+      });
+      return;
+    }
+    // Sepette zaten varsa miktarları sessizce toplamak yerine eklemeyi tamamen
+    // engelliyoruz — kullanıcı "bastım mı basmadım mı" diye tereddüt edip
+    // aynı ürünü art arda birden fazla kez eklerse bayi fazla ödeme yapar.
+    const alreadyInCart = getBrandCart(brandId).some((item) => item.productId === product.id);
+    if (alreadyInCart) {
+      showToast({
+        title: `${product.name} zaten sepette olduğu için tekrar eklenmedi`,
+        variant: "warning",
       });
       return;
     }
@@ -70,7 +90,8 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
               min={0}
               step={product.orderMultiple}
               value={quantity}
-              onChange={(e) => setQuantity(Math.max(0, Number(e.target.value) || 0))}
+              onChange={(e) => onQuantityChange(product.id, Math.max(0, Number(e.target.value) || 0))}
+              onFocus={(e) => e.target.select()}
               className="w-16 rounded-lg border border-border bg-card px-2 py-1.5 text-sm outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-100"
             />
             <button
@@ -94,11 +115,13 @@ function ProductRow({ brandId, product }: { brandId: string; product: CatalogPro
 function ProductTable({
   brandId,
   products,
-  resetSignal,
+  quantities,
+  onQuantityChange,
 }: {
   brandId: string;
   products: CatalogProduct[];
-  resetSignal: number;
+  quantities: Record<string, number>;
+  onQuantityChange: (productId: string, quantity: number) => void;
 }) {
   return (
     <table className="w-full text-sm">
@@ -113,10 +136,13 @@ function ProductTable({
       </thead>
       <tbody>
         {products.map((product) => (
-          // key'e resetSignal eklenmesi, "Tüm miktarları temizle" tıklandığında
-          // ProductRow'u tamamen yeniden mount ederek quantity/added state'ini
-          // sıfırlıyor — ayrı bir imperative reset mekanizması gerekmeden.
-          <ProductRow key={`${product.id}-${resetSignal}`} brandId={brandId} product={product} />
+          <ProductRow
+            key={product.id}
+            brandId={brandId}
+            product={product}
+            quantity={quantities[product.id] ?? 0}
+            onQuantityChange={onQuantityChange}
+          />
         ))}
       </tbody>
     </table>
@@ -132,7 +158,85 @@ export function ProductCatalog({
   products: CatalogProduct[];
   categories: CategoryLike[];
 }) {
-  const [resetSignal, setResetSignal] = useState(0);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const { addItem, getBrandCart } = useCart();
+  const { showToast } = useToast();
+
+  const handleQuantityChange = useCallback((productId: string, quantity: number) => {
+    setQuantities((prev) => ({ ...prev, [productId]: quantity }));
+  }, []);
+
+  function handleClearAll() {
+    setQuantities({});
+  }
+
+  // Miktar girilmiş, henüz sepete eklenmemiş tüm satırları tek seferde sepete
+  // ekler. Sepette zaten olan bir ürün varsa (satırdaki "Ekle" ile daha önce
+  // eklenmiş) o ürün atlanır ve hangi ürünlerin eklenmediği toast ile bildirilir
+  // — miktarları sessizce sepettekiyle toplamak yerine kullanıcının haberi olsun.
+  function handleBulkAdd() {
+    const cartProductIds = new Set(getBrandCart(brandId).map((item) => item.productId));
+
+    let addedCount = 0;
+    const addedIds: string[] = [];
+    const skippedInCart: string[] = [];
+    const skippedInvalidMultiple: string[] = [];
+
+    for (const product of products) {
+      const quantity = quantities[product.id] ?? 0;
+      if (quantity <= 0) continue;
+      if (cartProductIds.has(product.id)) {
+        skippedInCart.push(product.name);
+        continue;
+      }
+      if (quantity % product.orderMultiple !== 0) {
+        skippedInvalidMultiple.push(product.name);
+        continue;
+      }
+      addItem(
+        brandId,
+        {
+          productId: product.id,
+          name: product.name,
+          sku: product.sku,
+          unit: product.unit,
+          unitPrice: product.unitPrice,
+          vatRate: product.vatRate,
+          categoryId: product.categoryId,
+          orderMultiple: product.orderMultiple,
+        },
+        quantity
+      );
+      addedCount++;
+      addedIds.push(product.id);
+    }
+
+    if (addedCount === 0 && skippedInCart.length === 0 && skippedInvalidMultiple.length === 0) {
+      showToast({ title: "Eklemek için en az bir ürüne miktar girin", variant: "danger" });
+      return;
+    }
+
+    if (addedIds.length > 0) {
+      setQuantities((prev) => {
+        const next = { ...prev };
+        for (const id of addedIds) delete next[id];
+        return next;
+      });
+      showToast({ title: `${addedCount} ürün sepete eklendi`, variant: "success" });
+    }
+    if (skippedInCart.length > 0) {
+      showToast({
+        title: `Zaten sepette olduğu için eklenmedi: ${skippedInCart.join(", ")}`,
+        variant: "warning",
+      });
+    }
+    if (skippedInvalidMultiple.length > 0) {
+      showToast({
+        title: `Sipariş katına uymadığı için eklenmedi: ${skippedInvalidMultiple.join(", ")}`,
+        variant: "danger",
+      });
+    }
+  }
 
   if (products.length === 0) {
     return (
@@ -144,15 +248,26 @@ export function ProductCatalog({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-end">
-        <button type="button" onClick={() => setResetSignal((s) => s + 1)} className={BUTTON_GHOST}>
+      <div className="flex justify-end gap-3">
+        <button type="button" onClick={handleBulkAdd} className={`${BUTTON_PRIMARY} px-3 py-1.5 text-xs`}>
+          <ShoppingCart className="mr-1.5 h-3.5 w-3.5" strokeWidth={2} />
+          Miktar Girilenleri Ekle
+        </button>
+        <button type="button" onClick={handleClearAll} className={BUTTON_GHOST}>
           Tüm miktarları temizle
         </button>
       </div>
       <CategoryGroupList
         items={products}
         categories={categories}
-        renderItems={(items) => <ProductTable brandId={brandId} products={items} resetSignal={resetSignal} />}
+        renderItems={(items) => (
+          <ProductTable
+            brandId={brandId}
+            products={items}
+            quantities={quantities}
+            onQuantityChange={handleQuantityChange}
+          />
+        )}
       />
     </div>
   );

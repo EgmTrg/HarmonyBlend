@@ -62,6 +62,16 @@ function getStore<T>(key: string, initial: T): Store<T> {
 export function useLocalStorageStore<T>(key: string, initial: T) {
   const store = getStore(key, initial);
   const value = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
-  const setValue = useCallback((next: T) => store.set(next), [store]);
+  // useState'teki fonksiyonel updater deseniyle aynı — store.getSnapshot()
+  // her zaman güncel değeri verdiği için (senkron yazılıyor), aynı tick
+  // içinde art arda birden çok setValue(prev => ...) çağrısı render'ı
+  // beklemeden birbirinin üstüne yazmadan birikir.
+  const setValue = useCallback(
+    (next: T | ((prev: T) => T)) => {
+      const resolved = typeof next === "function" ? (next as (prev: T) => T)(store.getSnapshot()) : next;
+      store.set(resolved);
+    },
+    [store]
+  );
   return [value, setValue] as const;
 }
