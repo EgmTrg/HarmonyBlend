@@ -4,9 +4,10 @@ import { db } from "@/db";
 import { brands, orders } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
-import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
+import { canTransitionOrderStatus, ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 import { ReorderButton } from "./reorder-button";
+import { CancelOrderButton } from "./cancel-order-button";
 
 export default async function DealerOrdersPage() {
   const session = await requireDealerSession();
@@ -64,7 +65,12 @@ export default async function DealerOrdersPage() {
                 </td>
                 <td className="py-3 text-ink-400">{dateFormatter.format(row.createdAt)}</td>
                 <td className="py-3 text-right">
-                  <ReorderButton orderId={row.id} />
+                  <div className="flex items-center justify-end gap-2">
+                    <ReorderButton orderId={row.id} />
+                    {canTransitionOrderStatus(row.paymentMethod, row.status, "cancelled") && (
+                      <CancelOrderButton orderId={row.id} />
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

@@ -152,7 +152,7 @@ ve durum makinesi.
 başarılı/başarısız) uçtan uca sipariş oluşturulabiliyor; admin panelde durum
 geçişleri izlenebiliyor. Tarayıcıda doğrulandı.
 
-### Faz 4 — Cari Bakiye & Bağımsız Tahsilat Modülü
+### Faz 4 — Cari Bakiye & Bağımsız Tahsilat Modülü ✅ Tamamlandı
 
 Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 
@@ -253,21 +253,28 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   ad, SKU, birim, fiyat, KDV %, kategori ve aktif/pasif tek formdan
   güncelleniyor. Eskiden ayrı duran satır-içi KDV düzenleyici bu modalın
   içine taşındığı için kaldırıldı.
-- Bayinin kendi siparişini silebilmesi ya da düzenleyebilmesi — amaç bir
-  bayinin hatalı/yanlış girilmiş bir siparişi iptal edip tekrar sipariş
-  geçebilmesi. Admin tarafındaki "zorla sil" (yukarıdaki not) yalnızca
-  test verisi temizliği içindi, bu madde gerçek bayi iş akışı için ayrı
-  bir tasarım gerektiriyor (ör. hangi durumdaki siparişler
-  iptal/düzenlemeye açık olacak, cari bakiyeye etkisi ne olacak).
-  **Faz 7 (ERP entegrasyonu) ile çakışma notu:** bu özelliğin durum
-  makinesi, ileride eklenecek `orders.erp_synced_at` alanını üçüncü bir
-  kilit koşulu olarak kabul edecek şekilde tasarlanmalı — bir sipariş
-  ERP'ye aktarıldıktan sonra (bu alan dolduktan sonra) yerelde artık ne
-  düzenlenebilir ne silinebilir olmalı; düzeltme ihtiyacı iptal + yeni
-  sipariş şeklinde çözülür (muhasebedeki "credit note" mantığı, ERP
-  tarafıyla senkron kalır). Bu notu şimdiden düşmemizin nedeni, bugün
-  yazılacak düzenleme/silme yetki kontrolünün Faz 7 geldiğinde yeniden
-  tasarlanmak zorunda kalmaması.
+- ~~Bayinin kendi siparişini silebilmesi ya da düzenleyebilmesi~~ — ✅
+  Tamamlandı. Fiziksel silme değil, durum geçişi (iptal) olarak çözüldü —
+  amaç zaten bir bayinin hatalı/yanlış girilmiş bir siparişi iptal edip
+  mevcut "Tekrar sipariş ver" ile tekrar sipariş geçebilmesiydi. Bayi
+  panelinde ("Siparişlerim" listesi ve sipariş detayı) yeni bir
+  "İptal Et" butonu (`src/app/dealer/orders/cancel-order-button.tsx`) —
+  admin'in hızlı red/iptal deseniyle aynı iki adımlı etkileşim (ilk tık
+  sebep kutusu açar, sunucu tarafı notu zorunlu tutar). Yeni
+  `cancelOrder` server action'ı (`src/app/dealer/actions.ts`) sipariş
+  sahipliğini doğruluyor ve durum makinesindeki mevcut
+  `canTransitionOrderStatus` guard'ını (bkz. `src/lib/order-status.ts`)
+  aynen kullanıyor — ek bir kısıtlama yazılmadı, zaten her üç akışta da
+  `cancelled` geçişi yalnızca `submitted`/`approved`'ta tanımlı olduğundan
+  bayi bir sipariş `preparing`'e geçtikten sonra artık iptal edemiyor.
+  Cari siparişte oluşturulduğunda otomatik yazılan borç, admin'in
+  `transitionOrderStatus`'undaki iptal/red bloğuyla birebir aynı desende
+  (`postLedgerEntry` ile alacak kaydı, `sourceType: "order"`) geri
+  alınıyor. **Faz 7 çakışma notu bu tasarımla karşılanmış oldu:** iptal
+  edilebilirlik kontrolü tek bir yerde (`canTransitionOrderStatus`)
+  toplandığı için, ileride eklenecek `orders.erp_synced_at` alanı bu
+  fonksiyona üçüncü bir koşul olarak eklenmesi yeterli olacak, ayrı bir
+  yeniden tasarım gerekmeyecek.
 - ~~Bayi ürün kataloğunda hiyerarşik kategori gruplaması~~ — ✅ Tamamlandı,
   roadmap dışı bir ek kapsam. Kategoriler zaten kendine referans veren
   `parentId` ile (Faz 2) keyfi derinlikte dallanabiliyordu; eksik olan

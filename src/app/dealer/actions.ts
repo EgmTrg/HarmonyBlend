@@ -6,7 +6,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { companies, dealerBrands, dealers, orderItems, orderStatusHistory, orders, payments, products } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
-import { initialOrderStatus } from "@/lib/order-status";
+import { canTransitionOrderStatus, initialOrderStatus } from "@/lib/order-status";
 import { postLedgerEntry } from "@/lib/ledger";
 import { mockPosProvider } from "@/lib/payments/mock-provider";
 import { PAYMENT_METHOD_CODES, type PaymentMethodCode } from "@/lib/payment-methods";
@@ -284,6 +284,59 @@ export async function getReorderItems(orderId: string) {
   }
 
   return { brandId: order.brandId, items, skippedNames };
+}
+
+export async function cancelOrder(orderId: string, formData: FormData) {
+  const session = await requireDealerSession();
+  const dealerId = session.user.dealerId as string;
+  const note = String(formData.get("note") ?? "").trim();
+  if (!note) throw new Error("İptal için bir sebep girmelisiniz.");
+
+  const [row] = await db
+    .select({
+      dealerId: orders.dealerId,
+      paymentMethod: orders.paymentMethod,
+      status: orders.status,
+      totalAmount: orders.totalAmount,
+    })
+    .from(orders)
+    .where(eq(orders.id, orderId))
+    .limit(1);
+
+  if (!row || row.dealerId !== dealerId) throw new Error("Sipariş bulunamadı.");
+  if (!canTransitionOrderStatus(row.paymentMethod, row.status, "cancelled")) {
+    throw new Error("Bu sipariş artık iptal edilemez.");
+  }
+
+  await db
+    .update(orders)
+    .set({ status: "cancelled", updatedAt: new Date() })
+    .where(eq(orders.id, orderId));
+
+  await db.insert(orderStatusHistory).values({
+    orderId,
+    fromStatus: row.status,
+    toStatus: "cancelled",
+    changedBy: session.user.id,
+    note,
+  });
+
+  // Cari borç sipariş oluşturulduğu anda yazılıyor (bkz. createOrder) —
+  // bayi kendi siparişini iptal ettiğinde admin'in transitionOrderStatus'taki
+  // aynı geri alma mantığı uygulanır.
+  if (row.paymentMethod === "cari") {
+    await postLedgerEntry({
+      dealerId,
+      direction: "credit",
+      amount: row.totalAmount,
+      sourceType: "order",
+      sourceId: orderId,
+      note: "Sipariş bayi tarafından iptal edildi — borç iptal edildi",
+    });
+  }
+
+  revalidatePath(`/dealer/orders/${orderId}`);
+  revalidatePath("/dealer/orders");
 }
 
 export async function stopImpersonation() {

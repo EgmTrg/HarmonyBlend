@@ -4,10 +4,11 @@ import { db } from "@/db";
 import { brands, categories, orderItems, orderStatusHistory, orders, products } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
-import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
+import { canTransitionOrderStatus, ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from "@/lib/order-status";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 import { CategoryGroupList } from "@/components/category-group-list";
 import { ReorderButton } from "../reorder-button";
+import { CancelOrderButton } from "../cancel-order-button";
 
 export default async function DealerOrderDetailPage({
   params,
@@ -83,6 +84,9 @@ export default async function DealerOrderDetailPage({
             {ORDER_STATUS_LABELS[row.status as OrderStatus] ?? row.status}
           </span>
           <ReorderButton orderId={row.id} />
+          {canTransitionOrderStatus(row.paymentMethod, row.status, "cancelled") && (
+            <CancelOrderButton orderId={row.id} />
+          )}
         </div>
       </div>
 
