@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ClipboardList,
+  FileBarChart2,
   LayoutDashboard,
   Package,
   Settings,
@@ -21,6 +22,7 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon; matchPrefixes?
   },
   { href: "/admin/products", label: "Ürünler", icon: Package },
   { href: "/admin/orders", label: "Siparişler", icon: ClipboardList },
+  { href: "/admin/reports", label: "Raporlar", icon: FileBarChart2 },
   { href: "/admin/settings", label: "Ayarlar", icon: Settings },
 ];
 

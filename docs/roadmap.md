@@ -339,15 +339,43 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.
 
-### Faz 5 — Raporlama & Analitik
+### Faz 5 — Raporlama & Analitik ✅ Tamamlandı
 
 Hedef: Filtrelenebilir, dışa aktarılabilir raporlama motoru.
 
-- Marka / bayi / ürün / tarih aralığı filtreleriyle dinamik tablo ve grafikler
-- Excel (.xlsx), CSV ve PDF export
-- Büyüyen veri hacmi için özet tablo / materialized view stratejisi
-- Sipariş vermeyen bayi raporu — pasif bayi takibi için Payna Grup Portal
-  karşılaştırmasından gelen ek kapsam
+- ~~Marka / tarih aralığı filtreleriyle dinamik tablo ve grafikler~~ — ✅
+  Tamamlandı. Ürün bazlı filtre şimdilik kapsam dışı bırakıldı; bayi bazlı
+  filtre de eklenmedi — bayiler raporlarda sadece gruplanmış çıktı (en çok
+  sipariş/ciro yapan bayiler) olarak görünüyor, filtre girdisi değil.
+  Admin genel bakış (`src/app/admin/page.tsx`) ve siparişler
+  (`src/app/admin/orders/`) ekranlarına dönem filtresi
+  (`src/components/period-filter.tsx`, `src/lib/date-range.ts`) ve marka
+  filtresi (`src/components/brand-filter-buttons.tsx`,
+  `src/components/by-brand-toggle.tsx`) eklendi; grafikler seçilen döneme
+  göre saat/gün/hafta/ay bucket'larına bölünüyor
+  (`src/lib/chart-buckets.ts`, `src/components/grouped-bar-chart.tsx`).
+- ~~Excel (.xlsx) export~~ — ✅ Tamamlandı, sadece Excel ile — CSV şimdilik
+  kapsam dışı, PDF ise ileride sayısı az birkaç belirli rapor için ayrıca
+  ele alınacak. Yeni `/admin/reports` sayfası (`src/app/admin/reports/`)
+  altında marka bazlı satış raporu ve pasif bayi raporu için birer
+  "Excel'e Aktar" butonu; indirme, seçili filtrelerle aynı sorguyu tekrar
+  çalıştırıp `exceljs` ile `.xlsx` üreten bir route handler'dan geçiyor
+  (`src/app/admin/reports/export/route.ts`). Rapor sorguları
+  `src/lib/reports.ts`'te toplandı ki sayfa ve export handler'ı aynı
+  mantığı kullansın.
+- ~~Sipariş vermeyen bayi raporu~~ — ✅ Tamamlandı — pasif bayi takibi için
+  Payna Grup Portal karşılaştırmasından gelen ek kapsam. `/admin/reports`
+  sayfasında 30/60/90 günlük eşik seçilebiliyor
+  (`src/app/admin/reports/reports-filters.tsx`); hiç sipariş vermemiş ya da
+  eşik gün sayısından uzun süredir sipariş vermemiş bayiler, hangi
+  marka(lar)a bağlı oldukları ve son sipariş tarihiyle birlikte listeleniyor
+  (`getInactiveDealersReport`, `src/lib/reports.ts`). İptal/red edilen
+  siparişler "sipariş verdi" sayılmıyor — genel bakış istatistikleriyle
+  aynı kural (`EXCLUDED_FROM_STATS_STATUSES`).
+
+Kapsam dışı bırakıldı: büyüyen veri hacmi için özet tablo / materialized
+view stratejisi — genel bakış grafikleri mevcut hacimde yeterli
+performans sağlıyor, ileride ihtiyaç olursa ayrı bir işe konu edilecek.
 
 **Çıkış kriteri —** bir firma yetkilisi son üç ayın marka bazlı satışlarını
 filtreleyip Excel'e aktarabiliyor.
