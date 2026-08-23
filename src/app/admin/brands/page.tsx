@@ -15,28 +15,36 @@ import { DealerFilterForm } from "../dealers/dealer-filter-form";
 export default async function BrandsAndDealersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ad?: string; il?: string; bolge?: string }>;
+  searchParams: Promise<{ ad?: string; il?: string; bolge?: string; brand?: string }>;
 }) {
   const session = await requireAdminSession();
-  const { ad: adFilter, il: ilFilter, bolge: bolgeFilter } = await searchParams;
+  const { ad: adFilter, il: ilFilter, bolge: bolgeFilter, brand: brandFilter } = await searchParams;
 
   const dealerConditions = [eq(dealers.companyId, session.user.companyId)];
   if (adFilter) dealerConditions.push(ilike(dealers.name, `%${adFilter}%`));
   if (ilFilter) dealerConditions.push(ilike(dealers.il, `%${ilFilter}%`));
   if (bolgeFilter) dealerConditions.push(ilike(dealers.bolge, `%${bolgeFilter}%`));
 
-  const [companyBrands, companyDealers] = await Promise.all([
+  const [companyBrands, dealerIdsForBrand] = await Promise.all([
     db
       .select()
       .from(brands)
       .where(eq(brands.companyId, session.user.companyId))
       .orderBy(brands.name),
-    db
-      .select()
-      .from(dealers)
-      .where(and(...dealerConditions))
-      .orderBy(dealers.name),
+    brandFilter
+      ? db.select({ dealerId: dealerBrands.dealerId }).from(dealerBrands).where(eq(dealerBrands.brandId, brandFilter))
+      : Promise.resolve(null),
   ]);
+  if (dealerIdsForBrand) {
+    const ids = dealerIdsForBrand.map((row) => row.dealerId);
+    dealerConditions.push(inArray(dealers.id, ids.length > 0 ? ids : ["00000000-0000-0000-0000-000000000000"]));
+  }
+
+  const companyDealers = await db
+    .select()
+    .from(dealers)
+    .where(and(...dealerConditions))
+    .orderBy(dealers.name);
 
   const dealerIds = companyDealers.map((dealer) => dealer.id);
   const [dealerBrandRows, dealerUserRows] = await Promise.all([
@@ -80,6 +88,8 @@ export default async function BrandsAndDealersPage({
             initialAd={adFilter ?? ""}
             initialIl={ilFilter ?? ""}
             initialBolge={bolgeFilter ?? ""}
+            initialBrand={brandFilter ?? ""}
+            companyBrands={companyBrands}
           />
         </div>
 

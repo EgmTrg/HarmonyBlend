@@ -3,7 +3,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { brands, dealers, orders } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
-import { CARD, INPUT, LABEL, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
+import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
 import {
   ORDER_STATUS_LABELS,
   ORDER_STATUS_TONES,
@@ -13,6 +13,7 @@ import {
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
 import { OrderQuickActions } from "./order-quick-actions";
+import { OrderFilters } from "./order-filters";
 import { deleteOrder } from "./actions";
 
 export default async function AdminOrdersPage({
@@ -57,42 +58,11 @@ export default async function AdminOrdersPage({
       </div>
 
       <div className={CARD}>
-        <form className="flex flex-wrap items-end gap-3">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="brand" className={LABEL}>
-              Marka
-            </label>
-            <select id="brand" name="brand" defaultValue={brandFilter ?? ""} className={INPUT}>
-              <option value="">Tümü</option>
-              {companyBrands.map((brand) => (
-                <option key={brand.id} value={brand.id}>
-                  {brand.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="status" className={LABEL}>
-              Durum
-            </label>
-            <select id="status" name="status" defaultValue={statusFilter ?? ""} className={INPUT}>
-              <option value="">Tümü</option>
-              {Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button type="submit" className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink-600 hover:bg-content">
-            Filtrele
-          </button>
-          {(brandFilter || statusFilter) && (
-            <Link href="/admin/orders" className="text-sm text-accent-600 hover:underline">
-              Filtreleri temizle
-            </Link>
-          )}
-        </form>
+        <OrderFilters
+          companyBrands={companyBrands}
+          initialBrand={brandFilter ?? ""}
+          initialStatus={statusFilter ?? ""}
+        />
       </div>
 
       <div className={CARD}>
