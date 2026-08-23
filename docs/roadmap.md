@@ -471,6 +471,10 @@ bir öncekinin üstüne çalışıyor.
   seçeneği sunulmaz) — ikisi de aynı `createDealerOrUser` action'ını
   paylaşır. Yeni bir bayi/marka oluşturmak için kullanıcı her zaman
   Markalar & Bayiler sayfasına yönlendirilir.
+- ~~`/admin/users` sayfasının yeri ayrıldı~~ — ✅ Kısmen. Nav'a "Kullanıcılar"
+  eklendi, rota "Yapım aşamasında" yer tutucusu gösteriyor
+  (`src/components/coming-soon.tsx`) — 8.1'in geri kalanı (gerçek liste,
+  yeni roller, form) henüz yapılmadı.
 
 **8.2 — Bölge tanımı & atanabilir erişim**
 - Bölge müdürü gibi rollerin "hangi bölge(ler)e erişimi var" bilgisini
@@ -508,6 +512,60 @@ yapıldığında yalnızca yetkili olunan bölge/marka verisi görünüyor; admi
 bu bölge erişimini ve ek izinleri (sipariş silme gibi) Kullanıcılar/
 Ayarlar sayfalarından istediği zaman değiştirebiliyor; bayi kullanıcıları
 hâlâ yalnızca Markalar & Bayiler'den yönetiliyor.
+
+### Faz 9 — Ek Operasyonel Sayfalar (Gün Sonu, Sipariş Detaylı, Dış Sipariş)
+
+Hedef: Operasyonel ekibin ihtiyaç duyduğu, birbirinden bağımsız üç yeni
+admin sayfası. Sayfa iskeletleri ve nav girişleri şimdiden eklendi
+(`src/app/admin/end-of-day/`, `src/app/admin/order-details/`,
+`src/app/admin/external-orders/`, hepsi ortak `ComingSoon` bileşeniyle
+"Yapım aşamasında" gösteriyor) — bu fazın kapsamı gerçek işlevi
+uygulamak.
+
+- **Gün Sonu** (`/admin/end-of-day`) — günlük kapanış özeti/mutabakat:
+  o gün alınan siparişlerin ödeme tipine göre (cari/kapıda ödeme/sanal
+  POS) dökümü, tahsil edilen/edilemeyen tutarlar. Kapsam (hangi
+  verilerin göründüğü, bir "günü kapatma" aksiyonu olup olmayacağı)
+  uygulama aşamasında netleşecek
+- **Sipariş (Detaylı)** (`/admin/order-details`) — sipariş kalemi
+  bazında (mevcut `/admin/orders`'ın sipariş bazlı listesinin aksine)
+  filtrelenebilir bir görünüm; hangi ürün hangi bayiye ne zaman gitmiş
+  sorgusunu tek satırda cevaplar
+- **Dış Sipariş** (`/admin/external-orders`) — sistem dışından
+  (telefon, e-posta vb.) gelen siparişlerin admin tarafından elle
+  girilmesi; mevcut sipariş modeliyle (ürün/bayi/ödeme tipi) aynı
+  şemayı kullanır, yalnızca giriş noktası farklı
+
+**Çıkış kriteri —** üç sayfa da gerçek veriyle çalışıyor; "Yapım
+aşamasında" yer tutucusu kaldırılmış.
+
+### Faz 10 — Responsive Tasarım
+
+Hedef: Site mobil/tablet ekranlarda kullanılabilir hale gelsin. Şu anki
+durum: sidebar (`src/app/admin/sidebar.tsx`, `src/app/dealer/layout.tsx`)
+dar ekranda daralmıyor/hamburger'e dönüşmüyor, birçok tablo
+`overflow-x-auto` olmadan taşıyor, `src/lib/ui.ts`/`globals.css`'te hiç
+breakpoint tanımlı değil. Üç aşamaya ayrılıyor, her biri bağımsız
+uygulanabilir ama bu sırayla en çok görsel etkiyi en düşük riskle verir.
+
+**10.1 — Mobil sidebar**
+- Hem admin hem dealer sidebar'ını aynı anda düzelten paylaşılan bir
+  off-canvas/hamburger bileşeni — dar ekranda sidebar gizlenir, bir
+  hamburger butonuyla üstten açılır
+
+**10.2 — Tablo taşmalarını sarmala**
+- Tüm `<table>` içeren ekranlar (`/admin/orders`, `/admin/products`,
+  `/admin/brands` bayi listesi, dealer sipariş geçmişi vb.)
+  `overflow-x-auto` kapsayıcıya alınır — mekanik, düşük riskli, tek tek
+  test edilecek ama tasarım kararı gerektirmiyor
+
+**10.3 — Sayfa/grid düzenlerini gözden geçir**
+- Kalan sayfa/grid düzenleri (stat kartları, form grid'leri, modal
+  genişlikleri) breakpoint'lerle (`sm:`/`md:`/`lg:`) gözden geçirilir
+
+**Çıkış kriteri —** admin ve dealer panelleri bir telefon ekranında
+(375px genişlik) yatay kaydırma gerektirmeden, sidebar erişilebilir
+şekilde kullanılabiliyor.
 
 ---
 
