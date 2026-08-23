@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { INPUT, LABEL } from "@/lib/ui";
 import { BrandFilterButtons } from "@/components/brand-filter-buttons";
 import { ORDER_STATUS_LABELS } from "@/lib/order-status";
@@ -16,11 +16,16 @@ export function OrderFilters({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
+  // Marka/durum değişince mevcut dönem filtresini (period/start/end) korumak
+  // için sıfırdan değil, geçerli URL parametrelerinden yola çıkılıyor.
   function navigate(brand: string, status: string) {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams.toString());
     if (brand) params.set("brand", brand);
+    else params.delete("brand");
     if (status) params.set("status", status);
+    else params.delete("status");
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
