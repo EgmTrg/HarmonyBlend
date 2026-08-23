@@ -3,12 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  CalendarCheck,
   ClipboardList,
+  ExternalLink,
   FileBarChart2,
+  FileSearch,
   LayoutDashboard,
   Package,
   Settings,
   Tags,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -22,7 +26,11 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon; matchPrefixes?
   },
   { href: "/admin/products", label: "Ürünler", icon: Package },
   { href: "/admin/orders", label: "Siparişler", icon: ClipboardList },
+  { href: "/admin/order-details", label: "Sipariş (Detaylı)", icon: FileSearch },
+  { href: "/admin/external-orders", label: "Dış Sipariş", icon: ExternalLink },
+  { href: "/admin/end-of-day", label: "Gün Sonu", icon: CalendarCheck },
   { href: "/admin/reports", label: "Raporlar", icon: FileBarChart2 },
+  { href: "/admin/users", label: "Kullanıcılar", icon: Users },
   { href: "/admin/settings", label: "Ayarlar", icon: Settings },
 ];
 
