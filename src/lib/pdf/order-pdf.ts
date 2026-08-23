@@ -6,8 +6,6 @@ import path from "path";
 // bundling'den etkilenmiyor.
 import PDFDocument from "pdfkit/js/pdfkit.standalone.js";
 import { buildCategoryTree, categoryHasItems, type CategoryNode } from "@/lib/category-tree";
-import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/order-status";
-import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 import type { OrderDocumentData, OrderDocumentItem } from "@/lib/order-document";
 
 const COLORS = {
@@ -27,15 +25,16 @@ const REGULAR_FONT = fs.readFileSync(path.join(FONT_DIR, "PTSans-Regular.ttf"));
 const BOLD_FONT = fs.readFileSync(path.join(FONT_DIR, "PTSans-Bold.ttf"));
 
 const PAGE_MARGIN = 40;
-const COLS = { no: 25, product: 255, sku: 70, quantity: 75, shipped: 90 };
+const COLS = { no: 25, product: 215, sku: 75, quantity: 60, shipped: 70, delivered: 70 };
 const COL_X = {
   no: PAGE_MARGIN,
   product: PAGE_MARGIN + COLS.no,
   sku: PAGE_MARGIN + COLS.no + COLS.product,
   quantity: PAGE_MARGIN + COLS.no + COLS.product + COLS.sku,
   shipped: PAGE_MARGIN + COLS.no + COLS.product + COLS.sku + COLS.quantity,
+  delivered: PAGE_MARGIN + COLS.no + COLS.product + COLS.sku + COLS.quantity + COLS.shipped,
 };
-const TABLE_WIDTH = COLS.no + COLS.product + COLS.sku + COLS.quantity + COLS.shipped;
+const TABLE_WIDTH = COLS.no + COLS.product + COLS.sku + COLS.quantity + COLS.shipped + COLS.delivered;
 
 const dateFormatter = new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" });
 
@@ -91,18 +90,22 @@ function renderOrder(doc: PDFKit.PDFDocument, order: OrderDocumentData) {
     .text(dateFormatter.format(new Date()), PAGE_MARGIN + TABLE_WIDTH - 120, y, { width: 120, align: "right" });
   y += 18;
 
-  doc.font("Bold").fontSize(20).fillColor(COLORS.accent).text(order.brandName, PAGE_MARGIN, y);
-  y += 28;
+  // Marka küçük bir etiket — asıl vurgu bayi adında: sevkiyat/lojistik
+  // personeli dökümanı önce bayi ismiyle tanısın diye, tutarsızlık olmasın.
+  doc.font("Bold").fontSize(10).fillColor(COLORS.accent).text(order.brandName.toUpperCase(), PAGE_MARGIN, y);
+  y += 16;
 
-  doc.font("Bold").fontSize(13).fillColor(COLORS.ink900).text("SİPARİŞ DÖKÜMANI", PAGE_MARGIN, y);
-  y += 24;
+  doc.font("Bold").fontSize(19).fillColor(COLORS.ink900);
+  const dealerNameHeight = doc.heightOfString(order.dealerName, { width: TABLE_WIDTH });
+  doc.text(order.dealerName, PAGE_MARGIN, y, { width: TABLE_WIDTH });
+  y += dealerNameHeight + 10;
+
+  doc.font("Bold").fontSize(12).fillColor(COLORS.ink600).text("SİPARİŞ DÖKÜMANI", PAGE_MARGIN, y);
+  y += 22;
 
   const infoLines: [string, string][] = [
-    ["Bayi", order.dealerName],
     ["Sipariş No", order.id.slice(0, 8).toUpperCase()],
     ["Tarih", dateFormatter.format(order.createdAt)],
-    ["Ödeme Tipi", PAYMENT_METHOD_LABELS[order.paymentMethod]],
-    ["Durum", ORDER_STATUS_LABELS[order.status as OrderStatus] ?? order.status],
   ];
   for (const [label, value] of infoLines) {
     doc.font("Bold").fontSize(9).fillColor(COLORS.ink600).text(`${label}: `, PAGE_MARGIN, y, { continued: true });
@@ -135,25 +138,6 @@ function renderOrder(doc: PDFKit.PDFDocument, order: OrderDocumentData) {
     doc.font("Bold").fontSize(10).fillColor(COLORS.ink900).text("Diğer", PAGE_MARGIN, y);
     y = doc.y + 6;
     y = renderItemTable(doc, y, uncategorized);
-  }
-
-  y += 10;
-  y = ensureSpace(doc, y, 90);
-  doc.moveTo(PAGE_MARGIN, y).lineTo(PAGE_MARGIN + TABLE_WIDTH, y).strokeColor(COLORS.border).lineWidth(1).stroke();
-  y += 14;
-
-  const totalsX = PAGE_MARGIN + TABLE_WIDTH - 220;
-  const totalLines: [string, string, boolean][] = [
-    ["Toplam Kalem", String(order.items.length), false],
-    ["Ara Toplam", formatMoney(order.subtotalAmount), false],
-    ["KDV", formatMoney(order.vatAmount), false],
-    ["Genel Toplam", formatMoney(order.totalAmount), true],
-  ];
-  for (const [label, value, emphasize] of totalLines) {
-    doc.font(emphasize ? "Bold" : "Regular").fontSize(emphasize ? 12 : 9.5).fillColor(emphasize ? COLORS.ink900 : COLORS.ink600);
-    doc.text(label, totalsX, y, { width: 110 });
-    doc.text(value, totalsX + 110, y, { width: 110, align: "right" });
-    y += emphasize ? 20 : 16;
   }
 }
 
@@ -211,8 +195,10 @@ function renderItemTable(doc: PDFKit.PDFDocument, startY: number, items: OrderDo
     });
 
     const boxSize = 11;
-    const boxX = COL_X.shipped + COLS.shipped / 2 - boxSize / 2;
-    doc.rect(boxX, y + rowHeight / 2 - boxSize / 2, boxSize, boxSize).strokeColor(COLORS.border).lineWidth(1).stroke();
+    const shippedBoxX = COL_X.shipped + COLS.shipped / 2 - boxSize / 2;
+    doc.rect(shippedBoxX, y + rowHeight / 2 - boxSize / 2, boxSize, boxSize).strokeColor(COLORS.border).lineWidth(1).stroke();
+    const deliveredBoxX = COL_X.delivered + COLS.delivered / 2 - boxSize / 2;
+    doc.rect(deliveredBoxX, y + rowHeight / 2 - boxSize / 2, boxSize, boxSize).strokeColor(COLORS.border).lineWidth(1).stroke();
 
     y += rowHeight;
   });
@@ -234,6 +220,7 @@ function drawTableHeader(doc: PDFKit.PDFDocument, y: number): number {
   doc.text("SKU", COL_X.sku + 4, y + 6, { width: COLS.sku - 8 });
   doc.text("Miktar", COL_X.quantity + 4, y + 6, { width: COLS.quantity - 8, align: "right" });
   doc.text("Sevk", COL_X.shipped, y + 6, { width: COLS.shipped, align: "center" });
+  doc.text("Teslim Alınan", COL_X.delivered, y + 6, { width: COLS.delivered, align: "center" });
   return y + 24;
 }
 
@@ -243,10 +230,6 @@ function ensureSpace(doc: PDFKit.PDFDocument, y: number, needed: number): number
     return PAGE_MARGIN;
   }
   return y;
-}
-
-function formatMoney(value: number) {
-  return `${value.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺`;
 }
 
 function formatQuantity(value: number) {
