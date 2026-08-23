@@ -16,5 +16,7 @@ export function niceTicks(max: number, tickCount = 4): number[] {
   for (let v = 0; v <= niceMax + niceStep / 1000; v += niceStep) {
     ticks.push(Math.round(v));
   }
-  return ticks;
+  // niceStep < 1 olduğunda ardışık değerler aynı tam sayıya yuvarlanabilir
+  // (ör. 0.5 ve 1.0 ikisi de 1'e) — React key çakışmasına yol açmasın diye tekilleştir.
+  return [...new Set(ticks)];
 }
