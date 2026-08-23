@@ -448,6 +448,67 @@ aktarılan sipariş yerelde düzenleme/silme denemesinde reddediliyor; mock
 sağlayıcı hiçbir çağıran kodu değiştirmeden gerçek ERP bağlayıcısıyla
 değiştirilebiliyor.
 
+### Faz 8 — Kullanıcı Rolleri, Kullanıcılar Sayfası & Bölgesel Yetkilendirme
+
+Hedef: Bayiye bağlı olmayan head-office kullanıcıları (bölge müdürü,
+muhasebeci, raporlamacı vb.) için ayrı roller, bunları yönetecek bir
+Kullanıcılar sayfası ve bölge bazlı, admin tarafından değiştirilebilir
+bir yetkilendirme modeli. Dört bağımlı alt adıma ayrılıyor — her biri
+bir öncekinin üstüne çalışıyor.
+
+**8.1 — Kullanıcılar sayfası & yeni roller**
+- `USER_ROLES` genişletilir: bölge müdürü, muhasebeci, raporlamacı
+  eklenir (rol slug'ları uygulama aşamasında netleşecek — ör.
+  `regional_manager` / `accountant` / `reporter`)
+- Yeni `/admin/users` (Kullanıcılar) sayfası: yalnızca `dealerId = NULL`
+  olan head-office kullanıcılarını listeler (`company_admin`,
+  `brand_manager`, yeni roller) — bayi kullanıcıları (`dealer_user`) bu
+  sayfada hiç görünmez, kullanıcı bilerek Markalar & Bayiler'e
+  yönlendirilir
+- Kullanıcı oluşturma iki yerden mümkün olmaya devam eder — Markalar &
+  Bayiler'deki mevcut modal (tüm roller, bayi dahil) ve yeni Kullanıcılar
+  sayfasındaki form (yalnızca head-office rolleri, bayi/dealer_user
+  seçeneği sunulmaz) — ikisi de aynı `createDealerOrUser` action'ını
+  paylaşır. Yeni bir bayi/marka oluşturmak için kullanıcı her zaman
+  Markalar & Bayiler sayfasına yönlendirilir.
+
+**8.2 — Bölge tanımı & atanabilir erişim**
+- Bölge müdürü gibi rollerin "hangi bölge(ler)e erişimi var" bilgisini
+  tutan yeni bir ilişki tablosu (ör. `user_region_access`: userId,
+  bölge) — `dealers.bolge` alanındaki (bugün serbest metin, sabitlenmemiş)
+  değerlerle eşleşir
+- Bir kullanıcı birden fazla bölgeye atanabilir ve bu atama admin
+  tarafından her zaman değiştirilebilir — ör. Avrupa Yakası'ndaki bölge
+  müdürü ayrılırsa, Anadolu Yakası'ndaki müdüre Avrupa Yakası erişimi de
+  eklenebilir
+- Kullanıcılar sayfasında bölge kısıtlı bir kullanıcıyı düzenlerken
+  "Erişebileceği Bölgeler" çoklu seçim alanı
+
+**8.3 — Bölge bazlı veri kapsamı (scoping)**
+- Oturum modeli (`src/lib/session.ts`), kullanıcının bölge erişim
+  listesini taşıyacak şekilde genişletilir
+- Bayiler, Siparişler, Raporlar, Genel Bakış sorguları — bölge kısıtlı
+  bir rol için otomatik olarak yalnızca erişilebilir bölgelerdeki
+  bayi/sipariş verisini döndürür; `company_admin`/`brand_manager`
+  kısıtlanmaz
+- Kısıtlama sunucu tarafında (route/query seviyesinde) uygulanır, yalnızca
+  arayüzde gizleme değil — başka bölgenin sipariş id'sine doğrudan URL ile
+  gidilse bile erişim reddedilir
+
+**8.4 — Rol bazlı ince yetkiler (açılıp kapanabilir izinler)**
+- Basit rol üyeliği yetmiyor — "bu rol sipariş silebilir mi" gibi admin
+  tarafından açılıp kapatılabilen izinler gerekiyor
+- Yeni bir izin modeli (ör. rol + izin anahtarı + açık/kapalı) ve
+  Ayarlar sayfasında rol bazlı bir izin matrisi
+- İlk izin: **Sipariş Silme** — bölge müdürü/muhasebeci gibi roller için
+  varsayılan kapalı, admin `/admin/settings`'ten açıp kapatabilir
+
+**Çıkış kriteri —** bölge müdürü/muhasebeci/raporlamacı hesabıyla giriş
+yapıldığında yalnızca yetkili olunan bölge/marka verisi görünüyor; admin
+bu bölge erişimini ve ek izinleri (sipariş silme gibi) Kullanıcılar/
+Ayarlar sayfalarından istediği zaman değiştirebiliyor; bayi kullanıcıları
+hâlâ yalnızca Markalar & Bayiler'den yönetiliyor.
+
 ---
 
 ## 2. Veri Modeli
