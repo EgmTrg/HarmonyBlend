@@ -516,27 +516,34 @@ hâlâ yalnızca Markalar & Bayiler'den yönetiliyor.
 ### Faz 9 — Ek Operasyonel Sayfalar (Gün Sonu, Sipariş Detaylı, Dış Sipariş)
 
 Hedef: Operasyonel ekibin ihtiyaç duyduğu, birbirinden bağımsız üç yeni
-admin sayfası. Sayfa iskeletleri ve nav girişleri şimdiden eklendi
-(`src/app/admin/end-of-day/`, `src/app/admin/order-details/`,
-`src/app/admin/external-orders/`, hepsi ortak `ComingSoon` bileşeniyle
-"Yapım aşamasında" gösteriyor) — bu fazın kapsamı gerçek işlevi
-uygulamak.
+sayfa. Yalnızca admin'e değil **bayi paneline de** açık — bayiler kendi
+verilerine bakabilir, firma geneline değil (admin/marka yöneticisi her
+zamanki gibi tam görür). Sayfa iskeletleri ve nav girişleri iki tarafta
+da şimdiden eklendi (`src/app/admin/end-of-day/`,
+`src/app/admin/order-details/`, `src/app/admin/external-orders/` ve
+bunların `src/app/dealer/` altındaki eşleri — hepsi ortak `ComingSoon`
+bileşeniyle "Yapım aşamasında" gösteriyor) — bu fazın kapsamı gerçek
+işlevi uygulamak.
 
-- **Gün Sonu** (`/admin/end-of-day`) — günlük kapanış özeti/mutabakat:
-  o gün alınan siparişlerin ödeme tipine göre (cari/kapıda ödeme/sanal
-  POS) dökümü, tahsil edilen/edilemeyen tutarlar. Kapsam (hangi
-  verilerin göründüğü, bir "günü kapatma" aksiyonu olup olmayacağı)
-  uygulama aşamasında netleşecek
-- **Sipariş (Detaylı)** (`/admin/order-details`) — sipariş kalemi
-  bazında (mevcut `/admin/orders`'ın sipariş bazlı listesinin aksine)
+- **Gün Sonu** (`/admin/end-of-day`, `/dealer/end-of-day`) — günlük
+  kapanış özeti/mutabakat: o gün alınan siparişlerin ödeme tipine göre
+  (cari/kapıda ödeme/sanal POS) dökümü, tahsil edilen/edilemeyen
+  tutarlar. Bayi tarafında yalnızca kendi siparişleri. Kapsam (bir
+  "günü kapatma" aksiyonu olup olmayacağı) uygulama aşamasında
+  netleşecek
+- **Sipariş (Detaylı)** (`/admin/order-details`, `/dealer/order-details`)
+  — sipariş kalemi bazında (mevcut sipariş listesinin aksine)
   filtrelenebilir bir görünüm; hangi ürün hangi bayiye ne zaman gitmiş
-  sorgusunu tek satırda cevaplar
-- **Dış Sipariş** (`/admin/external-orders`) — sistem dışından
-  (telefon, e-posta vb.) gelen siparişlerin admin tarafından elle
+  sorgusunu tek satırda cevaplar. Bayi tarafında yalnızca kendi
+  siparişlerinin kalemleri
+- **Dış Sipariş** (`/admin/external-orders`, `/dealer/external-orders`)
+  — sistem dışından (telefon, e-posta vb.) gelen siparişlerin elle
   girilmesi; mevcut sipariş modeliyle (ürün/bayi/ödeme tipi) aynı
-  şemayı kullanır, yalnızca giriş noktası farklı
+  şemayı kullanır, yalnızca giriş noktası farklı. Bayi kendi dış
+  siparişini girip görebilir, başka bayininkini göremez
 
-**Çıkış kriteri —** üç sayfa da gerçek veriyle çalışıyor; "Yapım
+**Çıkış kriteri —** üç sayfa da hem admin hem bayi panelinde gerçek
+veriyle çalışıyor; bayi girişinde veri kendi kaydıyla sınırlı; "Yapım
 aşamasında" yer tutucusu kaldırılmış.
 
 ### Faz 10 — Responsive Tasarım
