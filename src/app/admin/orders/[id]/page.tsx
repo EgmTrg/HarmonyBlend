@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
+import { Download } from "lucide-react";
 import { db } from "@/db";
 import {
   brands,
@@ -12,7 +13,7 @@ import {
   users,
 } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
-import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass } from "@/lib/ui";
+import { CARD, TABLE_HEAD, TABLE_ROW, BUTTON_PRIMARY, badgeClass } from "@/lib/ui";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, nextOrderStatuses, type OrderStatus } from "@/lib/order-status";
 import { PAYMENT_METHOD_LABELS } from "@/lib/payment-methods";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
@@ -98,6 +99,10 @@ export default async function AdminOrderDetailPage({
           <span className={badgeClass(ORDER_STATUS_TONES[row.status as OrderStatus])}>
             {ORDER_STATUS_LABELS[row.status as OrderStatus] ?? row.status}
           </span>
+          <a href={`/admin/orders/${row.id}/document`} className={BUTTON_PRIMARY}>
+            <Download className="mr-2 h-4 w-4" strokeWidth={2} />
+            Sipariş Dökümanını İndir
+          </a>
           <ConfirmDeleteButton
             action={deleteOrder.bind(null, row.id)}
             confirmLabel="Kalıcı olarak sil?"

@@ -152,6 +152,28 @@ ve durum makinesi.
 başarılı/başarısız) uçtan uca sipariş oluşturulabiliyor; admin panelde durum
 geçişleri izlenebiliyor. Tarayıcıda doğrulandı.
 
+- ~~Sipariş dökümanı (PDF)~~ — ✅ Tamamlandı, roadmap dışı bir ek kapsam.
+  Sistemdeki tek PDF çıktısı olarak kasıtlı biçimde kapsamı dar tutuldu.
+  Kullanıcının verdiği örnek eski-ERP çıktısına (depo/sevkiyat için ürün
+  bazlı toplama listesi) benzer, ama modern ve markanın kendi kategori
+  ağacını kullanan bir tasarım: firma/marka başlığı, bayi/tarih/sipariş no,
+  ürünlerin sistemdeki kategoriye göre gruplanmış tablosu (kategori
+  değişirse döküman otomatik güncellenir), boş "Sevk" kutucuğu (depo
+  personeli elle işaretlesin diye) ve KDV dahil toplamlar
+  (`src/lib/pdf/order-pdf.ts`, `src/lib/order-document.ts`). Üç giriş
+  noktası: sipariş listesindeki her satırda tekli indirme ikonu, sipariş
+  detay sayfasında "Sipariş Dökümanını İndir" butonu, ve siparişler
+  sayfasının üstünde geçerli tablo filtresiyle (marka/durum/tarih aralığı)
+  eşleşen tüm siparişleri tek bir PDF'te art arda üreten "PDF Olarak İndir"
+  (`src/app/admin/orders/document/route.ts`) — filtre mantığı
+  (`getFilteredOrderIds`) hem tabloda hem export'ta aynı. Türkçe karakterler
+  (ş/ğ/ı/İ) için PT Sans fontu gömülü (`src/lib/pdf/fonts/`, SIL Open Font
+  License — ücretsiz, projeye maliyeti yok). pdfkit'in normal girişi
+  Next.js bundling'inde font-metrik dosyalarını bulamadığından
+  (`ENOENT Helvetica.afm`) `pdfkit/js/pdfkit.standalone.js` kullanılıyor.
+  CSV/Excel export zaten Faz 5'te var; ek PDF raporları (sayıca az,
+  belirli) ileride ayrıca istenirse eklenecek.
+
 ### Faz 4 — Cari Bakiye & Bağımsız Tahsilat Modülü ✅ Tamamlandı
 
 Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
