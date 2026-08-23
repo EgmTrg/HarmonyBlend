@@ -50,15 +50,12 @@ export function buildChartBucketPlan(
   }
 
   if (period === "today") {
-    const buckets: ChartBucket[] = [];
-    for (let h = 0; h < 24; h++) {
-      const start = new Date(periodRange.start);
-      start.setHours(h, 0, 0, 0);
-      const end = new Date(start);
-      end.setHours(h + 1, 0, 0, 0);
-      buckets.push({ key: String(h), label: `${String(h).padStart(2, "0")}:00`, start, end });
-    }
-    return { grain: "hour", buckets, rangeStart: periodRange.start, rangeEnd: periodRange.end };
+    // Saatlik kırılım yerine tek bir "Bugün" bucket'ı — marka bazlı görünüm
+    // açıkken zaten marka sayısı kadar sütun çıkıyor, saatlik detay gereksiz.
+    const buckets: ChartBucket[] = [
+      { key: "today", label: "Bugün", start: periodRange.start, end: periodRange.end },
+    ];
+    return { grain: "day", buckets, rangeStart: periodRange.start, rangeEnd: periodRange.end };
   }
 
   const spanDays = Math.round((periodRange.end.getTime() - periodRange.start.getTime()) / 86_400_000);
