@@ -87,19 +87,19 @@ export default async function AdminOrderDetailPage({
   const dateFormatter = new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" });
 
   return (
-    <div className="flex max-w-3xl flex-col gap-8">
-      <div className="flex items-start justify-between gap-4">
+    <div className="flex max-w-4xl flex-col gap-8">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-ink-900">{row.dealerName}</h1>
           <p className="text-sm text-ink-400">
             {row.brandName} — {PAYMENT_METHOD_LABELS[row.paymentMethod]} — {dateFormatter.format(row.createdAt)}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className={badgeClass(ORDER_STATUS_TONES[row.status as OrderStatus])}>
             {ORDER_STATUS_LABELS[row.status as OrderStatus] ?? row.status}
           </span>
-          <a href={`/admin/orders/${row.id}/document`} className={BUTTON_PRIMARY}>
+          <a href={`/admin/orders/${row.id}/document`} className={`${BUTTON_PRIMARY} whitespace-nowrap`}>
             <Download className="mr-2 h-4 w-4" strokeWidth={2} />
             Sipariş Dökümanını İndir
           </a>
