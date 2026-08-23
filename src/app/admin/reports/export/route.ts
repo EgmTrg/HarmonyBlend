@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/session";
 import { resolvePeriodRange, type PeriodKey } from "@/lib/date-range";
 import { getBrandSalesReport, getInactiveDealersReport } from "@/lib/reports";
+import { resolveInactiveThreshold } from "@/lib/inactive-threshold";
 
 export async function GET(request: NextRequest) {
   const session = await requireAdminSession();
@@ -41,8 +42,8 @@ export async function GET(request: NextRequest) {
 
     filename = `marka-bazli-satislar-${periodRange.label.replace(/\s+/g, "-")}.xlsx`;
   } else if (type === "inactive-dealers") {
-    const thresholdDays = Number(searchParams.get("threshold") ?? "30") || 30;
-    const rows = await getInactiveDealersReport(companyId, thresholdDays);
+    const threshold = resolveInactiveThreshold(searchParams.get("threshold") ?? undefined);
+    const rows = await getInactiveDealersReport(companyId, threshold.days);
 
     const sheet = workbook.addWorksheet("Pasif Bayiler");
     sheet.columns = [
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    filename = `pasif-bayiler-${thresholdDays}-gun.xlsx`;
+    filename = `pasif-bayiler-${threshold.key}.xlsx`;
   } else {
     return NextResponse.json({ error: "Geçersiz rapor tipi" }, { status: 400 });
   }

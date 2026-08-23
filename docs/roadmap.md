@@ -365,9 +365,9 @@ Hedef: Filtrelenebilir, dışa aktarılabilir raporlama motoru.
   mantığı kullansın.
 - ~~Sipariş vermeyen bayi raporu~~ — ✅ Tamamlandı — pasif bayi takibi için
   Payna Grup Portal karşılaştırmasından gelen ek kapsam. `/admin/reports`
-  sayfasında 30/60/90 günlük eşik seçilebiliyor
-  (`src/app/admin/reports/reports-filters.tsx`); hiç sipariş vermemiş ya da
-  eşik gün sayısından uzun süredir sipariş vermemiş bayiler, hangi
+  sayfasında Bugün / Dün / 1 Hafta / 2 Hafta (en sıkı uç) eşiği seçilebiliyor
+  (`src/lib/inactive-threshold.ts`, `src/app/admin/reports/reports-filters.tsx`);
+  hiç sipariş vermemiş ya da eşik gün sayısından uzun süredir sipariş vermemiş bayiler, hangi
   marka(lar)a bağlı oldukları ve son sipariş tarihiyle birlikte listeleniyor
   (`getInactiveDealersReport`, `src/lib/reports.ts`). İptal/red edilen
   siparişler "sipariş verdi" sayılmıyor — genel bakış istatistikleriyle

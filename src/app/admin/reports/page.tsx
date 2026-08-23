@@ -5,6 +5,7 @@ import { brands } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { resolvePeriodRange, type PeriodKey } from "@/lib/date-range";
 import { getBrandSalesReport, getInactiveDealersReport } from "@/lib/reports";
+import { resolveInactiveThreshold } from "@/lib/inactive-threshold";
 import { formatCurrency, formatNumber } from "@/lib/format";
 import { CARD, TABLE_HEAD, TABLE_ROW, BUTTON_PRIMARY } from "@/lib/ui";
 import { PeriodFilter } from "@/components/period-filter";
@@ -31,12 +32,12 @@ export default async function ReportsPage({
   );
   const period = hasExplicitPeriod ? (periodParam as PeriodKey) : "month";
   const periodRange = resolvePeriodRange(period, startParam, endParam);
-  const thresholdDays = Number(thresholdParam ?? "30") || 30;
+  const threshold = resolveInactiveThreshold(thresholdParam);
 
   const [companyBrands, salesRows, inactiveDealers] = await Promise.all([
     db.select().from(brands).where(eq(brands.companyId, companyId)).orderBy(brands.name),
     getBrandSalesReport(companyId, periodRange, brandFilter),
-    getInactiveDealersReport(companyId, thresholdDays),
+    getInactiveDealersReport(companyId, threshold.days),
   ]);
 
   const salesExportParams = new URLSearchParams({ type: "sales", period: hasExplicitPeriod ? period : "month" });
@@ -44,7 +45,7 @@ export default async function ReportsPage({
   if (hasExplicitPeriod && endParam) salesExportParams.set("end", endParam);
   if (brandFilter) salesExportParams.set("brand", brandFilter);
 
-  const inactiveExportParams = new URLSearchParams({ type: "inactive-dealers", threshold: String(thresholdDays) });
+  const inactiveExportParams = new URLSearchParams({ type: "inactive-dealers", threshold: threshold.key });
 
   return (
     <div className="flex flex-col gap-8">
@@ -102,7 +103,7 @@ export default async function ReportsPage({
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-col gap-3">
               <h2 className="text-sm font-medium text-ink-900">Sipariş Vermeyen Bayiler</h2>
-              <InactiveThresholdFilter selected={thresholdDays} />
+              <InactiveThresholdFilter selected={threshold.key} />
             </div>
             <a
               href={`/admin/reports/export?${inactiveExportParams.toString()}`}
@@ -114,7 +115,7 @@ export default async function ReportsPage({
           </div>
           {inactiveDealers.length === 0 ? (
             <p className="mt-4 text-sm text-ink-400">
-              Son {thresholdDays} gündür sipariş vermeyen bayi yok.
+              &quot;{threshold.label}&quot; filtresine göre sipariş vermeyen bayi yok.
             </p>
           ) : (
             <table className="mt-4 w-full text-sm">

@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { BrandFilterButtons } from "@/components/brand-filter-buttons";
+import { INACTIVE_THRESHOLD_OPTIONS } from "@/lib/inactive-threshold";
 
 export function SalesBrandFilter({ brands, selectedId }: { brands: { id: string; name: string }[]; selectedId: string }) {
   const router = useRouter();
@@ -19,33 +20,31 @@ export function SalesBrandFilter({ brands, selectedId }: { brands: { id: string;
   return <BrandFilterButtons brands={brands} selectedId={selectedId} onChange={onChange} />;
 }
 
-const THRESHOLD_OPTIONS = [30, 60, 90];
-
-export function InactiveThresholdFilter({ selected }: { selected: number }) {
+export function InactiveThresholdFilter({ selected }: { selected: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  function select(days: number) {
+  function select(key: string) {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("threshold", String(days));
+    params.set("threshold", key);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
   return (
     <div className="flex flex-wrap gap-2">
-      {THRESHOLD_OPTIONS.map((days) => (
+      {INACTIVE_THRESHOLD_OPTIONS.map((option) => (
         <button
-          key={days}
+          key={option.key}
           type="button"
-          onClick={() => select(days)}
+          onClick={() => select(option.key)}
           className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-            selected === days
+            selected === option.key
               ? "border-accent-600 bg-accent-600 text-white"
               : "border-border bg-card text-ink-600 hover:bg-content"
           }`}
         >
-          {days} gün
+          {option.label}
         </button>
       ))}
     </div>

@@ -4,6 +4,8 @@ import { brands, dealerBrands, dealers, orders } from "@/db/schema";
 import { EXCLUDED_FROM_STATS_STATUSES } from "@/lib/order-status";
 import type { PeriodRange } from "@/lib/date-range";
 
+export { INACTIVE_THRESHOLD_OPTIONS, resolveInactiveThreshold } from "@/lib/inactive-threshold";
+
 export interface BrandSalesRow {
   brandId: string;
   brandName: string;
@@ -62,8 +64,14 @@ export interface InactiveDealerRow {
   daysSinceLastOrder: number | null;
 }
 
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 // thresholdDays gündür sipariş vermeyen (ya da hiç sipariş vermemiş) bayiler
-// — iptal/red edilmiş siparişler "sipariş verdi" sayılmaz.
+// — iptal/red edilmiş siparişler "sipariş verdi" sayılmaz. Gün farkı takvim
+// gününe göre hesaplanır (saat bazlı 24 saatlik dilimlere göre değil), aksi
+// halde "Bugün"/"Dün" gibi dar eşikler saatin geliş anına göre yanlış sonuç verirdi.
 export async function getInactiveDealersReport(
   companyId: string,
   thresholdDays: number,
@@ -97,11 +105,12 @@ export async function getInactiveDealersReport(
   }
 
   const msPerDay = 86_400_000;
+  const referenceDay = startOfDay(reference);
   const result: InactiveDealerRow[] = [];
   for (const dealer of companyDealers) {
     const lastOrderAt = lastOrderByDealer.get(dealer.id) ?? null;
     const daysSinceLastOrder = lastOrderAt
-      ? Math.floor((reference.getTime() - lastOrderAt.getTime()) / msPerDay)
+      ? Math.round((referenceDay.getTime() - startOfDay(lastOrderAt).getTime()) / msPerDay)
       : null;
     const isInactive = daysSinceLastOrder === null || daysSinceLastOrder >= thresholdDays;
     if (!isInactive) continue;
