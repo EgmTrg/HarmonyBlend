@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { brands, dealerBrands, dealers, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
@@ -146,6 +146,67 @@ export async function updateDealerAndBrands(id: string, formData: FormData) {
 
   revalidatePath("/admin/brands");
   revalidatePath(`/admin/dealers/${id}`);
+}
+
+// Bayi listesindeki "Düzenle" penceresinden tek bir formla hem bayinin
+// "birincil" kullanıcısını düzenlemeye hem de (henüz yoksa) oluşturmaya
+// yarar — bkz. add-user-modal.tsx EditDealerModal. Var olan kullanıcıda
+// şifre alanı hiç gösterilmiyor/güncellenmiyor; yalnızca yeni oluştururken
+// zorunlu. Rol dealer_user dışına çekilirse dealerId null'lanır (kullanıcı
+// artık bu bayiye değil, head office'e bağlı olur).
+export async function saveDealerUser(dealerId: string, existingUserId: string | null, formData: FormData) {
+  const session = await requireAdminSession();
+
+  const [dealer] = await db
+    .select({ id: dealers.id })
+    .from(dealers)
+    .where(and(eq(dealers.id, dealerId), eq(dealers.companyId, session.user.companyId)))
+    .limit(1);
+  if (!dealer) throw new Error("Bayi bulunamadı.");
+
+  const role = String(formData.get("userRole") ?? "dealer_user");
+  if (!USER_ROLES.includes(role as AppRole)) throw new Error("Geçersiz rol.");
+  const name = String(formData.get("userName") ?? "").trim();
+  const email = String(formData.get("userEmail") ?? "").trim().toLowerCase();
+  const isActive = formData.get("userIsActive") === "true";
+  if (!name) throw new Error("Kullanıcı adı zorunlu.");
+  if (!email) throw new Error("E-posta zorunlu.");
+
+  const nextDealerId = role === "dealer_user" ? dealerId : null;
+
+  if (existingUserId) {
+    const [duplicate] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(and(eq(users.email, email), ne(users.id, existingUserId)))
+      .limit(1);
+    if (duplicate) throw new Error("Bu e-posta zaten kullanılıyor.");
+
+    await db
+      .update(users)
+      .set({ name, email, role: role as AppRole, isActive, dealerId: nextDealerId })
+      .where(and(eq(users.id, existingUserId), eq(users.companyId, session.user.companyId)));
+  } else {
+    const password = String(formData.get("userPassword") ?? "");
+    if (password.length < 8) throw new Error("Şifre en az 8 karakter olmalı.");
+
+    const [duplicate] = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
+    if (duplicate) throw new Error("Bu e-posta zaten kullanılıyor.");
+
+    const passwordHash = await hash(password, 10);
+    await db.insert(users).values({
+      companyId: session.user.companyId,
+      dealerId: nextDealerId,
+      name,
+      email,
+      role: role as AppRole,
+      isActive,
+      passwordHash,
+    });
+  }
+
+  revalidatePath("/admin/brands");
+  revalidatePath(`/admin/dealers/${dealerId}`);
 }
 
 export async function impersonateDealerUser(userId: string, _formData: FormData) {

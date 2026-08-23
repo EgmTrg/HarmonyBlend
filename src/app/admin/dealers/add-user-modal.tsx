@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Pencil, Plus, X } from "lucide-react";
-import { createDealerOrUser, updateDealerAndBrands } from "./actions";
+import { createDealerOrUser, saveDealerUser, updateDealerAndBrands } from "./actions";
 import { BUTTON_GHOST, BUTTON_PRIMARY, INPUT, LABEL } from "@/lib/ui";
 import { CurrencyInput } from "@/components/currency-input";
 import { useToast } from "@/lib/toast";
@@ -263,32 +263,63 @@ interface EditableDealer {
   maxBalanceLimit: string | null;
 }
 
+interface PrimaryUser {
+  id: string;
+  name: string | null;
+  email: string;
+  isActive: boolean;
+}
+
 export function EditDealerModal({
   dealer,
   companyBrands,
   assignedBrandIds,
+  primaryUser,
 }: {
   dealer: EditableDealer;
   companyBrands: CompanyBrand[];
   assignedBrandIds: string[];
+  primaryUser: PrimaryUser | null;
 }) {
   const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<1 | 2>(1);
+  const [activeTab, setActiveTab] = useState<1 | 2 | 3>(1);
+  const [userRole, setUserRole] = useState<Role>("dealer_user");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function close() {
     setIsOpen(false);
     setActiveTab(1);
+    setUserRole("dealer_user");
     setError(null);
   }
 
   async function handleSubmit(formData: FormData) {
     setError(null);
+    const userName = String(formData.get("userName") ?? "").trim();
+    const userEmail = String(formData.get("userEmail") ?? "").trim();
+    // Kullanıcı zaten varsa alanlar hep dolu geliyor, her kayıtta güncellenir.
+    // Yoksa yalnızca admin gerçekten isim/e-posta girdiyse yeni hesap
+    // oluşturmayı dene — aksi halde "Bayi Ayarları" sekmesinden yapılan
+    // sıradan bir güncelleme, Kullanıcı sekmesine hiç bakılmadan
+    // "Kullanıcı adı zorunlu" hatasına takılmasın.
+    const wantsUserChange = primaryUser !== null || userName !== "" || userEmail !== "";
+
+    if (!primaryUser && wantsUserChange) {
+      const password = String(formData.get("userPassword") ?? "");
+      const passwordConfirm = String(formData.get("userPasswordConfirm") ?? "");
+      if (password !== passwordConfirm) {
+        setError("Şifreler eşleşmiyor.");
+        return;
+      }
+    }
     setSubmitting(true);
     try {
       await updateDealerAndBrands(dealer.id, formData);
+      if (wantsUserChange) {
+        await saveDealerUser(dealer.id, primaryUser?.id ?? null, formData);
+      }
       close();
       showToast({ title: "Bayi güncellendi", variant: "success" });
     } catch (err) {
@@ -328,6 +359,9 @@ export function EditDealerModal({
                 </TabButton>
                 <TabButton active={activeTab === 2} onClick={() => setActiveTab(2)}>
                   Markalaşma
+                </TabButton>
+                <TabButton active={activeTab === 3} onClick={() => setActiveTab(3)}>
+                  Kullanıcı
                 </TabButton>
               </div>
 
@@ -381,6 +415,99 @@ export function EditDealerModal({
                   {companyBrands.length === 0 && (
                     <p className="text-sm text-ink-400">Önce bir marka oluşturun.</p>
                   )}
+                </div>
+
+                <div className={activeTab === 3 ? "flex flex-col gap-4" : "hidden"}>
+                  {!primaryUser && (
+                    <p className="text-xs text-ink-400">
+                      Bu bayi için henüz kullanıcı hesabı yok — aşağıdaki bilgilerle yeni bir
+                      hesap oluşturulacak.
+                    </p>
+                  )}
+                  <label className="flex flex-col gap-1">
+                    <span className={LABEL}>Kullanıcı adı</span>
+                    <input
+                      name="userName"
+                      defaultValue={primaryUser?.name ?? ""}
+                      autoComplete="off"
+                      className={INPUT}
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className={LABEL}>E-posta</span>
+                    <input
+                      name="userEmail"
+                      type="email"
+                      defaultValue={primaryUser?.email ?? ""}
+                      autoComplete="off"
+                      className={INPUT}
+                    />
+                  </label>
+                  {!primaryUser && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="flex flex-col gap-1">
+                        <span className={LABEL}>Şifre</span>
+                        <input
+                          name="userPassword"
+                          type="password"
+                          minLength={8}
+                          autoComplete="new-password"
+                          className={INPUT}
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1">
+                        <span className={LABEL}>Şifre tekrar</span>
+                        <input
+                          name="userPasswordConfirm"
+                          type="password"
+                          minLength={8}
+                          autoComplete="new-password"
+                          className={INPUT}
+                        />
+                      </label>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1">
+                    <span className={LABEL}>Rol</span>
+                    <div className="flex gap-2">
+                      {ROLE_OPTIONS.map((opt) => (
+                        <label
+                          key={opt.value}
+                          className={
+                            "flex-1 cursor-pointer rounded-lg border px-3 py-2 text-center text-sm font-medium transition " +
+                            (userRole === opt.value
+                              ? "border-accent-600 bg-accent-600 text-white"
+                              : "border-border text-ink-600 hover:border-accent-500")
+                          }
+                        >
+                          <input
+                            type="radio"
+                            name="userRole"
+                            value={opt.value}
+                            checked={userRole === opt.value}
+                            onChange={() => setUserRole(opt.value)}
+                            className="sr-only"
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                    {userRole !== "dealer_user" && (
+                      <span className="text-xs text-ink-400">
+                        Bu kullanıcı artık bu bayiye değil, firma geneline (head office) bağlı
+                        olacak.
+                      </span>
+                    )}
+                  </div>
+                  <label className="flex items-center gap-2 text-sm text-ink-600">
+                    <input
+                      name="userIsActive"
+                      type="checkbox"
+                      value="true"
+                      defaultChecked={primaryUser?.isActive ?? true}
+                    />
+                    Hesap etkin (aktif)
+                  </label>
                 </div>
               </div>
 

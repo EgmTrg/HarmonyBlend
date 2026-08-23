@@ -53,7 +53,13 @@ export default async function BrandsAndDealersPage({
       : Promise.resolve([]),
     dealerIds.length > 0
       ? db
-          .select({ id: users.id, dealerId: users.dealerId, email: users.email, isActive: users.isActive })
+          .select({
+            id: users.id,
+            dealerId: users.dealerId,
+            name: users.name,
+            email: users.email,
+            isActive: users.isActive,
+          })
           .from(users)
           .where(and(eq(users.role, "dealer_user"), inArray(users.dealerId, dealerIds)))
       : Promise.resolve([]),
@@ -64,10 +70,14 @@ export default async function BrandsAndDealersPage({
     list.push(row.brandId);
     assignedBrandIdsByDealer.set(row.dealerId, list);
   }
-  const primaryUserByDealer = new Map<string, { id: string; email: string }>();
+  // "Birincil" kullanıcı = bu bayinin ilk dealer_user hesabı (aktif/pasif
+  // fark etmez — pasif olsa bile EditDealerModal'ın Kullanıcı sekmesinde
+  // düzenlenip yeniden aktifleştirilebilsin diye). "Kullanıcı ile giriş
+  // yap" linki ayrıca isActive'e bakıp gizleniyor.
+  const primaryUserByDealer = new Map<string, { id: string; name: string | null; email: string; isActive: boolean }>();
   for (const row of dealerUserRows) {
-    if (!row.dealerId || !row.isActive || primaryUserByDealer.has(row.dealerId)) continue;
-    primaryUserByDealer.set(row.dealerId, { id: row.id, email: row.email });
+    if (!row.dealerId || primaryUserByDealer.has(row.dealerId)) continue;
+    primaryUserByDealer.set(row.dealerId, { id: row.id, name: row.name, email: row.email, isActive: row.isActive });
   }
 
   return (
@@ -120,7 +130,7 @@ export default async function BrandsAndDealersPage({
                   <td className="py-3 text-ink-400">{dealer.currentBalance}</td>
                   <td className="py-3">
                     <div className="flex items-center justify-end gap-4">
-                      {primaryUserByDealer.has(dealer.id) ? (
+                      {primaryUserByDealer.get(dealer.id)?.isActive ? (
                         <form action={impersonateDealerUser.bind(null, primaryUserByDealer.get(dealer.id)!.id)}>
                           <button
                             type="submit"
@@ -131,14 +141,22 @@ export default async function BrandsAndDealersPage({
                           </button>
                         </form>
                       ) : (
-                        <span className="text-xs text-ink-300" title="Bu bayi için kullanıcı hesabı yok">
-                          Kullanıcı yok
+                        <span
+                          className="text-xs text-ink-300"
+                          title={
+                            primaryUserByDealer.has(dealer.id)
+                              ? "Kullanıcı hesabı pasif"
+                              : "Bu bayi için kullanıcı hesabı yok"
+                          }
+                        >
+                          {primaryUserByDealer.has(dealer.id) ? "Kullanıcı pasif" : "Kullanıcı yok"}
                         </span>
                       )}
                       <EditDealerModal
                         dealer={dealer}
                         companyBrands={companyBrands}
                         assignedBrandIds={assignedBrandIdsByDealer.get(dealer.id) ?? []}
+                        primaryUser={primaryUserByDealer.get(dealer.id) ?? null}
                       />
                       <ToastForm action={deleteDealer.bind(null, dealer.id)} successMessage="Bayi silindi">
                         <button type="submit" className={BUTTON_GHOST_DANGER}>
