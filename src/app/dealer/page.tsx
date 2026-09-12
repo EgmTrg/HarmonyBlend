@@ -134,7 +134,7 @@ export default async function DealerHomePage() {
         <p className="text-sm text-ink-400">İşletmenize ait sipariş ve cari özetiniz aşağıda.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {stats.map((stat) => (
           <StatTile key={stat.label} {...stat} />
         ))}
@@ -161,7 +161,8 @@ export default async function DealerHomePage() {
         {topProductByCategory.length === 0 ? (
           <p className="mt-4 text-sm text-ink-400">Bu ay henüz sipariş vermediniz.</p>
         ) : (
-          <table className="mt-4 w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="mt-4 w-full text-xs sm:text-sm">
             <thead>
               <tr className={TABLE_HEAD}>
                 <th className="pb-2">Kategori</th>
@@ -179,6 +180,7 @@ export default async function DealerHomePage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

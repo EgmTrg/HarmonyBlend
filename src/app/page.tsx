@@ -8,7 +8,7 @@ export default async function HomePage({
   const { companyError } = await searchParams;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-navy-950 px-4 text-center">
+    <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-navy-950 px-4 py-8 text-center">
       <div className="flex items-center gap-2">
         <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-600 text-lg font-bold text-white">
           H

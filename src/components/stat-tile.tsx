@@ -1,5 +1,4 @@
 import type { LucideIcon } from "lucide-react";
-import { CARD } from "@/lib/ui";
 
 export type StatTileTone = "purple" | "success" | "warning" | "info" | "danger";
 
@@ -33,14 +32,16 @@ export function StatTile({
   tone: StatTileTone;
 }) {
   return (
-    <div className={CARD}>
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-ink-400">{label}</span>
-        <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${TONE_BG[tone]}`}>
-          <Icon className={`h-4 w-4 ${TONE_FG[tone]}`} strokeWidth={2} />
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm shadow-black/[0.03] sm:p-6">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs text-ink-400 sm:text-sm">{label}</span>
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9 ${TONE_BG[tone]}`}
+        >
+          <Icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${TONE_FG[tone]}`} strokeWidth={2} />
         </span>
       </div>
-      <p className="mt-3 text-2xl font-semibold text-ink-900">{value}</p>
+      <p className="mt-2 text-lg font-semibold text-ink-900 sm:mt-3 sm:text-2xl">{value}</p>
       {hint && <p className="mt-1 text-xs text-ink-400">{hint}</p>}
     </div>
   );

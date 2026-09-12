@@ -19,7 +19,7 @@ export function CartDrawerTrigger() {
         type="button"
         onClick={handleClearCart}
         disabled={totalItemCount === 0}
-        className="text-xs font-medium text-white/60 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-white/60"
+        className="hidden text-xs font-medium text-white/60 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-white/60 sm:inline"
       >
         Sepeti boşalt
       </button>

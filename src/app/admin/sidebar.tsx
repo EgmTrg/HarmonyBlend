@@ -3,24 +3,33 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { useLocalStorageStore } from "@/lib/use-local-storage-store";
+import { useMobileNav } from "@/components/mobile-nav-context";
 import { AdminNav } from "./nav";
 
 const STORAGE_KEY = "hb_admin_sidebar_collapsed";
 
 export function AdminSidebar({ signOutAction }: { signOutAction: () => Promise<void> }) {
   const [collapsed, setCollapsed] = useLocalStorageStore(STORAGE_KEY, false);
+  const { open, close } = useMobileNav();
 
   function toggle() {
     setCollapsed(!collapsed);
   }
 
   return (
-    <aside
-      className={
-        "sticky top-0 flex h-screen shrink-0 flex-col justify-between overflow-y-auto bg-navy-950 px-3 py-6 transition-[width] duration-200 motion-reduce:transition-none " +
-        (collapsed ? "w-20" : "w-64")
-      }
-    >
+    <>
+      <div
+        className={"fixed inset-0 z-40 bg-black/40 md:hidden " + (open ? "" : "pointer-events-none opacity-0")}
+        onClick={close}
+        aria-hidden={!open}
+      />
+      <aside
+        className={
+          "fixed inset-y-0 left-0 z-50 flex h-screen w-64 shrink-0 flex-col justify-between overflow-y-auto bg-navy-950 px-3 py-6 transition-transform duration-200 motion-reduce:transition-none md:sticky md:top-0 md:transition-[width] md:translate-x-0 " +
+          (open ? "translate-x-0" : "-translate-x-full") + " " +
+          (collapsed ? "md:w-20" : "md:w-64")
+        }
+      >
       <div className="flex flex-col gap-8">
         <Link href="/admin" className={"flex items-center gap-2 px-2" + (collapsed ? " justify-center" : "")}>
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-600 text-sm font-bold text-white">
@@ -40,7 +49,7 @@ export function AdminSidebar({ signOutAction }: { signOutAction: () => Promise<v
           onClick={toggle}
           aria-label={collapsed ? "Kenar çubuğunu genişlet" : "Kenar çubuğunu daralt"}
           className={
-            "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-white/60 transition hover:bg-white/5 hover:text-white " +
+            "hidden items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-white/60 transition hover:bg-white/5 hover:text-white md:flex " +
             (collapsed ? "justify-center" : "")
           }
         >
@@ -68,6 +77,7 @@ export function AdminSidebar({ signOutAction }: { signOutAction: () => Promise<v
 
         {!collapsed && <p className="px-3 text-xs text-white/30">© 2026 HarmonyBlend</p>}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

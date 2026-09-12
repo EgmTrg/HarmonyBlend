@@ -19,7 +19,8 @@ export function ProductTable({
   categories: CategoryOption[];
 }) {
   return (
-    <table className="w-full text-sm">
+    <div className="overflow-x-auto">
+    <table className="w-full text-xs sm:text-sm">
       <thead>
         <tr className={TABLE_HEAD}>
           <th className="pb-3 font-medium">Ad</th>
@@ -75,5 +76,6 @@ export function ProductTable({
         ))}
       </tbody>
     </table>
+    </div>
   );
 }

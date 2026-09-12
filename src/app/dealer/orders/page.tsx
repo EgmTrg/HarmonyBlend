@@ -37,7 +37,8 @@ export default async function DealerOrdersPage() {
       </div>
 
       <div className={CARD}>
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-xs sm:text-sm">
           <thead>
             <tr className={TABLE_HEAD}>
               <th className="pb-3 font-medium">Marka</th>
@@ -83,6 +84,7 @@ export default async function DealerOrdersPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

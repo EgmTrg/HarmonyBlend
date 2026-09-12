@@ -89,7 +89,7 @@ export function EditProductModal({
                   <span className={LABEL}>Ürün adı</span>
                   <input name="name" defaultValue={product.name} required className={INPUT} />
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <label className="flex flex-col gap-1">
                     <span className={LABEL}>SKU</span>
                     <input name="sku" defaultValue={product.sku} required className={INPUT} />
@@ -105,7 +105,7 @@ export function EditProductModal({
                     />
                   </label>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <label className="flex flex-col gap-1">
                     <span className={LABEL}>Birim fiyat</span>
                     <input

@@ -64,7 +64,7 @@ export default async function DealerDetailPage({
               <span className={LABEL}>VKN</span>
               <input name="taxNo" defaultValue={dealer.taxNo ?? ""} className={INPUT} />
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="flex flex-col gap-1">
                 <span className={LABEL}>İl</span>
                 <input name="il" defaultValue={dealer.il ?? ""} className={INPUT} />

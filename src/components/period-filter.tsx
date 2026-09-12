@@ -55,7 +55,7 @@ export function PeriodFilter({
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label htmlFor="period-start" className={LABEL}>
             Başlangıç
           </label>
@@ -64,7 +64,7 @@ export function PeriodFilter({
             type="date"
             value={customStart}
             onChange={(e) => setCustomStart(e.target.value)}
-            className={INPUT}
+            className={`${INPUT} min-w-0`}
           />
           <label htmlFor="period-end" className={LABEL}>
             Bitiş
@@ -74,7 +74,7 @@ export function PeriodFilter({
             type="date"
             value={customEnd}
             onChange={(e) => setCustomEnd(e.target.value)}
-            className={INPUT}
+            className={`${INPUT} min-w-0`}
           />
           <button
             type="button"

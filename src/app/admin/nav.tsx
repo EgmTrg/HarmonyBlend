@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CalendarCheck,
+  ClipboardCheck,
   ClipboardList,
   ExternalLink,
   FileBarChart2,
@@ -29,6 +30,7 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon; matchPrefixes?
   { href: "/admin/order-details", label: "Sipariş (Detaylı)", icon: FileSearch },
   { href: "/admin/external-orders", label: "Dış Sipariş", icon: ExternalLink },
   { href: "/admin/end-of-day", label: "Gün Sonu", icon: CalendarCheck },
+  { href: "/admin/audit", label: "Denetim", icon: ClipboardCheck },
   { href: "/admin/reports", label: "Raporlar", icon: FileBarChart2 },
   { href: "/admin/users", label: "Kullanıcılar", icon: Users },
   { href: "/admin/settings", label: "Ayarlar", icon: Settings },

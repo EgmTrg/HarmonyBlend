@@ -119,7 +119,8 @@ export default async function AdminOrderDetailPage({
           categories={brandCategories}
           headingSize="compact"
           renderItems={(catItems) => (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-xs sm:text-sm">
               <thead>
                 <tr className={TABLE_HEAD}>
                   <th className="pb-2 font-medium">Ürün</th>
@@ -143,6 +144,7 @@ export default async function AdminOrderDetailPage({
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         />
         <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm">

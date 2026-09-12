@@ -128,7 +128,8 @@ export function BalanceForm({
         {recentPayments.length === 0 ? (
           <p className="text-sm text-ink-400">Henüz bir bakiye ödemesi yapılmadı.</p>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-xs sm:text-sm">
             <thead>
               <tr className={TABLE_HEAD}>
                 <th className="pb-2">Tarih</th>
@@ -152,6 +153,7 @@ export function BalanceForm({
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

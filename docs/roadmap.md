@@ -546,33 +546,120 @@ işlevi uygulamak.
 veriyle çalışıyor; bayi girişinde veri kendi kaydıyla sınırlı; "Yapım
 aşamasında" yer tutucusu kaldırılmış.
 
-### Faz 10 — Responsive Tasarım
+### Faz 10 — Responsive Tasarım ✅ Tamamlandı
 
-Hedef: Site mobil/tablet ekranlarda kullanılabilir hale gelsin. Şu anki
-durum: sidebar (`src/app/admin/sidebar.tsx`, `src/app/dealer/layout.tsx`)
-dar ekranda daralmıyor/hamburger'e dönüşmüyor, birçok tablo
-`overflow-x-auto` olmadan taşıyor, `src/lib/ui.ts`/`globals.css`'te hiç
-breakpoint tanımlı değil. Üç aşamaya ayrılıyor, her biri bağımsız
-uygulanabilir ama bu sırayla en çok görsel etkiyi en düşük riskle verir.
+Hedef: Site mobil/tablet ekranlarda kullanılabilir hale gelsin.
 
-**10.1 — Mobil sidebar**
-- Hem admin hem dealer sidebar'ını aynı anda düzelten paylaşılan bir
-  off-canvas/hamburger bileşeni — dar ekranda sidebar gizlenir, bir
-  hamburger butonuyla üstten açılır
-
-**10.2 — Tablo taşmalarını sarmala**
-- Tüm `<table>` içeren ekranlar (`/admin/orders`, `/admin/products`,
-  `/admin/brands` bayi listesi, dealer sipariş geçmişi vb.)
-  `overflow-x-auto` kapsayıcıya alınır — mekanik, düşük riskli, tek tek
-  test edilecek ama tasarım kararı gerektirmiyor
-
-**10.3 — Sayfa/grid düzenlerini gözden geçir**
-- Kalan sayfa/grid düzenleri (stat kartları, form grid'leri, modal
-  genişlikleri) breakpoint'lerle (`sm:`/`md:`/`lg:`) gözden geçirilir
+- ~~10.1 — Mobil sidebar~~ — ✅ Tamamlandı. Paylaşılan
+  `src/components/mobile-nav-context.tsx` (`MobileNavProvider`/
+  `useMobileNav`, dealer'daki `CartProvider`/`useCart` deseniyle aynı) +
+  `mobile-nav-toggle.tsx` (hamburger, `CartDrawerTrigger` ikon
+  butonuyla aynı stil). `md` altında admin/dealer sidebar'ları
+  (`sidebar.tsx`) `fixed`+`-translate-x-full`/`translate-x-0` ile
+  off-canvas'a dönüyor, karartılmış bir backdrop'la (`md:hidden`)
+  açılıp kapanıyor, rota değişince otomatik kapanıyor; `md` ve üstünde
+  önceki sticky/daraltılabilir davranış birebir korunuyor (mobilde
+  masaüstü "daralt" tercihi görmezden geliniyor, o zaten tüm genişlikte
+  açılan bir overlay). Header'lar (`admin/layout.tsx`,
+  `dealer/layout.tsx`) da daraltıldı: tarih `sm` altında gizleniyor,
+  e-posta `truncate`, `main`/`header` padding'i `px-4`'e düşüyor.
+- ~~10.2 — Tablo taşmalarını sarmala~~ — ✅ Tamamlandı. 12 dosyadaki 17
+  `<table>` de `overflow-x-auto` kapsayıcıya alındı. Bunu yaparken asıl
+  hata ortaya çıktı: `admin/layout.tsx`/`dealer/layout.tsx`'teki iç içe
+  `flex flex-1` kapsayıcılarında `min-w-0` olmadığından, tablo
+  sarmalayıcısı içeride doğru scroll etse bile üstteki flex zincirinin
+  `min-width: auto` varsayılanı yüzünden **tüm sayfa** yatay kaydırma
+  kazanıyordu — 375px'te fark edilmeyen ama gerçek cihazda görülecek bir
+  bug. `min-w-0` hem `<div className="flex ... flex-col">` sarmalayıcıya
+  hem `<main>`'e eklenerek çözüldü.
+- ~~10.3 — Sayfa/grid düzenlerini gözden geçir~~ — ✅ Tamamlandı. Sabit
+  `grid-cols-2` form grid'leri (`add-user-modal.tsx` ×4,
+  `edit-product-modal.tsx` ×2, `dealers/[id]/page.tsx` ×1)
+  `grid-cols-1 sm:grid-cols-2` yapıldı. Filtre/araç çubukları
+  (`period-filter.tsx`, `brand-filter-buttons.tsx`,
+  `dealer-filter-form.tsx`) zaten `flex-wrap` kullanıyordu, değişiklik
+  gerekmedi; stat kartı grid'leri (`admin/page.tsx`, `dealer/page.tsx`,
+  `ledger/page.tsx`) zaten responsive'ti.
 
 **Çıkış kriteri —** admin ve dealer panelleri bir telefon ekranında
 (375px genişlik) yatay kaydırma gerektirmeden, sidebar erişilebilir
-şekilde kullanılabiliyor.
+şekilde kullanılabiliyor. Chrome'da 557px genişlikte hem admin hem bayi
+(impersonation ile) oturumunda uçtan uca doğrulandı: hamburger/drawer/
+backdrop akışı, tablo scroll'ları, modal grid stack'i; masaüstünde
+(1400px) önceki davranış (sticky sidebar, daralt/genişlet) değişmeden
+kaldı.
+
+### Faz 11 — Bayi Denetim (Stok Mutabakatı)
+
+Hedef: Musluoğlu markasının aylık bayi stok sayımı/satış mutabakatını
+şu an elle yürüttüğü Excel dosyasının (24 şube sekmesi, kırılgan
+`INDIRECT`/`VLOOKUP` formülleri, versiyon kontrolü yok) yerini alacak
+bir modül. Sayfa iskeletleri ve nav girişleri şimdiden eklendi
+(`src/app/admin/audit/`, `src/app/dealer/audit/` — `ComingSoon`
+bileşeniyle "Yapım aşamasında" gösteriyor); bu fazın kapsamı gerçek
+işlevi uygulamak. Kapsam v1'de **yalnızca Musluoğlu markası** (30 ürün,
+24 bayi — zaten `brands`/`products`/`categories`/`dealers`'ta kayıtlı,
+yeniden oluşturulmayacak).
+
+**İş mantığı** (Excel'den çıkarıldı, gerçek bir satırla doğrulandı —
+DEMETEVLER/CEVİZLİ BAKLAVA: 17.545+159×3.6−24.07−18.8=547.075 →
+×1.08(kutu)=590.841 → ×0.99(Ankara sapma)=584.93, Excel'deki hücreyle
+birebir eşleşiyor): bayi dönem başına ürün bazlı 5 değer girer —
+Dönem Başı Sayım(kg), Alım(tepsi), Fire(kg), Dönem Sonu Sayım(kg),
+Satılan(kg) — artı dönem başına Diğer Satışlar (TL, örn. gramajlı
+dondurma satışları/poşet/kutu) ve Mevcut Ciro (kasadan okunan gerçek
+ciro). Sistem hesaplar: `Alım(kg)=Alım(tepsi)×Tepsi Kg` →
+`Satılması Gereken=Başı+Alım(kg)−Fire−Sonu` →
+`Kutu Dahil=×(1+Kutu Oranı)` →
+`Net Beklenen=Kutu Dahil×(1−Sapma Oranı)` (**Börekler kategorisinde
+sapma düşülmez**) → `Fark(kg)=Satılan−Net Beklenen`,
+`Fark(TL)=Fark×Fiyat`; dönem toplamında "Yapması Gereken Ciro"
+(=Σ Net Beklenen×Fiyat + Diğer Satışlar), "Mevcut Ciro" ile
+karşılaştırılır. Kutu Oranı %8 sabit; Sapma Oranı bölgeye göre değişir
+(Excel'de Ankara %1, İstanbul %3).
+
+**Kilit akışı:** bayi verisini girer → "Gönder ve Kilitle" ile kilitler
+→ kilitliyken salt-okunur → sadece admin kilidi açabilir → açıldıktan
+sonra bayi veya admin düzenleyebilir.
+
+**Veri modeli (taslak):**
+- `products.trayWeightKg` — tepsi ağırlığı (kg), sadece denetime dahil
+  ürünlerde dolu
+- `auditRegions` — bölge + kutu/sapma oranı; `dealers.auditRegionId`
+  ile bağlanır (mevcut `dealers.il`/`bolge` alanları tutarsız/boş
+  olduğu için ayrı bir bölge kavramı gerekiyor)
+- `auditPeriods` — dönem (başlangıç/bitiş), admin açar; bir dönem tüm
+  Musluoğlu bayilerini aynı anda kapsar
+- `auditEntries` — bayi+dönem başına 1 satır: durum (taslak/kilitli),
+  kutu/sapma oranı snapshot'ı (oranlar sonradan değişse bile geçmiş
+  denetim etkilenmesin diye — `orderItems.vatRate` snapshot deseniyle
+  aynı mantık), Mevcut Ciro, gönderim/kilit açma izleri. Yeni dönem
+  açıldığında Dönem Başı Sayım, bir önceki dönemin Dönem Sonu
+  Sayım'ından otomatik devreder (düzenlenebilir)
+- `auditEntryItems` — bayi+dönem+ürün başına 5 girdi alanı; hesaplanan
+  alanlar (Alım kg, Fark kg/TL, ciro vb.) saklanmaz, `products.unitPrice`
+  ve oran snapshot'larından anlık hesaplanır (Excel'deki ayrı
+  fiyat-geçmişi listesi kullanılmaz, basitleştirilir)
+- `auditOtherSaleTypes` + `auditEntryOtherSales` — admin yönetimli
+  diğer satış kalemleri (sabit liste değil)
+
+**Sayfa planı:**
+- `/dealer/audit` — kategoriye göre gruplanmış giriş formu (Tatlılar/
+  Börekler), diğer satışlar, Mevcut Ciro, "Gönder ve Kilitle" butonu;
+  kilitliyken salt-okunur + geçmiş dönemler
+- `/admin/audit` — dönem aç/kapa, bayi durum tablosu (gönderilmedi/
+  taslak/kilitli), kilit aç, bölge bazlı İCMAL-benzeri karşılaştırma
+  tablosu (Yapması Gereken / Mevcut Ciro / Fark) + grafikler (bayi
+  bazlı fark, bölge bazlı ciro karşılaştırması — repo'da hiç chart
+  kütüphanesi yok, `recharts` eklenmesi öneriliyor); ayrıca bölge/oran
+  ve diğer-satış-kalemi yönetimi için küçük bir ayarlar bölümü
+- Bayi düzenleme sayfasına (`/admin/dealers/[id]`) "Denetim Bölgesi"
+  seçici, ürün düzenleme modaline "Tepsi Kg" alanı eklenir
+
+**Çıkış kriteri —** her iki panelde de gerçek veriyle çalışıyor; kilit
+akışı uçtan uca doğrulanmış; bölge/bayi karşılaştırma tablosu ve
+grafikler doğru rakamları gösteriyor; "Yapım aşamasında" yer tutucusu
+kaldırılmış.
 
 ---
 

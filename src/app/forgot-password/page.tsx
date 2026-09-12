@@ -5,7 +5,7 @@ import { requestPasswordReset } from "./actions";
 
 export default function ForgotPasswordPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-navy-950 px-4">
+    <main className="flex min-h-dvh flex-col items-center justify-center gap-8 bg-navy-950 px-4 py-8">
       <div className="flex items-center gap-2">
         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-600 text-base font-bold text-white">
           H

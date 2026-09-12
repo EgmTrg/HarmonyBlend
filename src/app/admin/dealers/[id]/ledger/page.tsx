@@ -53,7 +53,7 @@ export default async function DealerLedgerPage({
         <p className="text-sm text-ink-400">{dealer.name} — borç/alacak hareket dökümü.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div className={CARD}>
           <h2 className="mb-1 text-sm font-medium text-ink-400">Güncel Bakiye</h2>
           <p
@@ -76,7 +76,8 @@ export default async function DealerLedgerPage({
             Bu bayi için henüz bir cari hareket yok.
           </p>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-xs sm:text-sm">
             <thead>
               <tr className={TABLE_HEAD}>
                 <th className="px-6 pb-2 pt-4">Tarih</th>
@@ -108,6 +109,7 @@ export default async function DealerLedgerPage({
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>
