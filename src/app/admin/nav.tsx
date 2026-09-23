@@ -11,6 +11,7 @@ import {
   FileSearch,
   LayoutDashboard,
   Package,
+  ScrollText,
   Settings,
   Tags,
   Users,
@@ -32,6 +33,7 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon; matchPrefixes?
   { href: "/admin/end-of-day", label: "Gün Sonu", icon: CalendarCheck },
   { href: "/admin/audit", label: "Denetim", icon: ClipboardCheck },
   { href: "/admin/reports", label: "Raporlar", icon: FileBarChart2 },
+  { href: "/admin/logs", label: "Sistem Logları", icon: ScrollText },
   { href: "/admin/users", label: "Kullanıcılar", icon: Users },
   { href: "/admin/settings", label: "Ayarlar", icon: Settings },
 ];

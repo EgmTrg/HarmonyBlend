@@ -1,0 +1,22 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      - AUTH_TRUST_HOST=true
+      # Overrides .env.local's cloud Neon DATABASE_URL: routes the app at the
+      # self-hosted Neon stack in ./neon-local instead (start it first with
+      # `docker compose up -d` from that folder).
+      - DATABASE_URL=postgresql://cloud_admin:localdev@compute1:55433/postgres
+    networks:
+      - default
+      - neon-local
+    restart: unless-stopped
+
+networks:
+  neon-local:
+    name: neon-local_default
+    external: true

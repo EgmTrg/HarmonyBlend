@@ -8,6 +8,7 @@ import {
   timestamp,
   pgEnum,
   uniqueIndex,
+  jsonb,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { USER_ROLES } from "@/lib/roles";
@@ -20,6 +21,7 @@ export const paymentProvider = pgEnum("payment_provider", ["mock", "iyzico", "pa
 export const paymentStatus = pgEnum("payment_status", ["pending", "success", "failed", "refunded"]);
 export const ledgerDirection = pgEnum("ledger_direction", ["debit", "credit"]);
 export const ledgerSourceType = pgEnum("ledger_source_type", ["order", "payment", "manual_adjustment"]);
+export const logLevel = pgEnum("log_level", ["info", "warn", "error"]);
 
 export const companies = pgTable(
   "companies",
@@ -250,5 +252,18 @@ export const ledgerEntries = pgTable("ledger_entries", {
   // dönük ekstre görünümünde her satırın sonrasındaki bakiyeyi tekrar
   // hesaplamadan gösterebilmek için snapshot'lanıyor.
   balanceAfter: numeric("balance_after", { precision: 14, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const systemLogs = pgTable("system_logs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  // NULL when the log was captured outside a resolved company context (e.g.
+  // an error on an unauthenticated request).
+  companyId: uuid("company_id").references(() => companies.id, { onDelete: "cascade" }),
+  level: logLevel("level").notNull(),
+  message: text("message").notNull(),
+  // Route path or module that produced the log entry.
+  source: text("source"),
+  meta: jsonb("meta"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

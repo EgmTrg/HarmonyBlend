@@ -1,0 +1,6 @@
+# Runtime state that used to land here back when pageserver used a bind
+# mount for ./pageserver_config; it now uses a named Docker volume, so this
+# directory should only ever contain the two source .toml files. Ignored
+# defensively in case an older compose file is ever run again.
+pageserver_config/*.pid
+pageserver_config/tenants/

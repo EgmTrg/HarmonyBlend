@@ -661,6 +661,47 @@ akışı uçtan uca doğrulanmış; bölge/bayi karşılaştırma tablosu ve
 grafikler doğru rakamları gösteriyor; "Yapım aşamasında" yer tutucusu
 kaldırılmış.
 
+### Faz 12 — Docker Entegrasyonu, Sistem Logları & Self-Hosted Neon ✅ Tamamlandı
+
+Hedef: Uygulamayı Docker ile paketleyip çalıştırılabilir hale getirmek,
+admin panelinde temel bir sistem log ekranı sunmak ve yerel geliştirme
+için Neon'un self-hosted (Docker) sürümünü entegre etmek.
+
+- ~~12.1 — Docker paketleme~~ — ✅ Tamamlandı. Çok aşamalı `Dockerfile`
+  (deps → builder → runner, `node:22-alpine`, `next.config.ts`'e
+  eklenen `output: "standalone"`), `.dockerignore`, `docker-compose.yml`.
+  Auth.js'in container'ın `0.0.0.0` host'una güven duymayıp
+  `UntrustedHost` hatası vermesi `AUTH_TRUST_HOST=true` ile çözüldü.
+- ~~12.2 — Sistem Logları ekranı~~ — ✅ Tamamlandı. Yeni `system_logs`
+  tablosu (seviye: info/warn/error, mesaj, kaynak route, `meta` jsonb),
+  `src/lib/logger.ts` yazma yardımcı fonksiyonu, `src/instrumentation.ts`
+  içindeki Next.js `onRequestError` hook'uyla yakalanmamış sunucu
+  hataları (route/API/server action fark etmeksizin) otomatik loglanıyor.
+  `/admin/logs` sayfası (seviyeye göre filtrelenebilir, son 200 kayıt) +
+  sidebar girişi eklendi; kasıtlı bir hatayla uçtan uca doğrulandı.
+- ~~12.3 — Self-hosted Neon (Docker)~~ — ✅ Tamamlandı. `neon-local/`
+  altında Neon'un resmi docker-compose referansı uyarlanarak (pageserver
+  + 3× safekeeper + storage_broker + minio + compute, 8 container)
+  çalışır hale getirildi — bunun için Windows'a özgü birkaç sorun
+  çözüldü: `minio/mc`'nin Docker Hub'dan kaldırılmış olması (quay.io'ya
+  geçildi), compute imajının Debian bullseye `security` deposunun arşive
+  kaldırılmış olması (`snapshot.debian.org`'a + libcurl4 sürüm sabitleme),
+  pageserver'ın Windows bind-mount'ta atomik rename yapamaması (`EINVAL`
+  → named Docker volume + init container), Windows'un ayırdığı TCP port
+  aralığıyla çakışma (55433 → 45432) ve yeni pageserver'ın
+  `control_plane_api` doğrulaması. `src/db/index.ts`,
+  `@neondatabase/serverless` (neon-http) yerine `drizzle-orm/node-postgres`
+  + `pg` kullanacak şekilde değiştirildi — aynı kod hem bulut Neon'u
+  (SSL ile) hem self-hosted yığını destekliyor. Ana `docker-compose.yml`,
+  `neon-local` ağına bağlanıp `DATABASE_URL`'i oraya yönlendirecek
+  şekilde güncellendi (`.env.local`'daki bulut bağlantısı değişmedi,
+  sadece Docker'da override ediliyor).
+
+**Çıkış kriteri —** `docker compose up --build` ile uygulama ayağa
+kalkıyor; admin panelinde gerçek bir hata `/admin/logs`'ta görünüyor;
+`neon-local` yığını başlatılıp ana uygulama ona bağlandığında giriş ve
+sayfa erişimleri gerçek bir admin hesabıyla uçtan uca doğrulandı.
+
 ---
 
 ## 2. Veri Modeli

@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import * as schema from "./schema";
 
 type Db = ReturnType<typeof drizzle<typeof schema>>;
@@ -11,8 +11,11 @@ function createDb(): Db {
       "DATABASE_URL is not set. Copy .env.local.example to .env.local and fill it in."
     );
   }
-  const sql = neon(connectionString);
-  return drizzle(sql, { schema });
+  // Works against both cloud Neon (connection string carries `?sslmode=require`,
+  // which `pg` honors automatically) and a plain self-hosted Postgres/Neon
+  // endpoint (no sslmode param -> no TLS).
+  const pool = new Pool({ connectionString });
+  return drizzle(pool, { schema });
 }
 
 let cached: Db | undefined;
