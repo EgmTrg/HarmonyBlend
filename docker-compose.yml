@@ -11,12 +11,56 @@ services:
       # self-hosted Neon stack in ./neon-local instead (start it first with
       # `docker compose up -d` from that folder).
       - DATABASE_URL=postgresql://cloud_admin:localdev@compute1:55433/postgres
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - redis
+      - rabbitmq
     networks:
       - default
       - neon-local
     restart: unless-stopped
 
+  # Admin dashboard query cache (see src/lib/redis.ts). Optional at runtime:
+  # the app falls back to querying the DB directly if this is unreachable.
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # Browser UI for inspecting cached keys at http://localhost:8081.
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+
+  # Order status event fan-out (see src/lib/rabbitmq.ts, "order.status"
+  # fanout exchange). Nothing consumes it yet; publishing is best-effort and
+  # the order flow never depends on this being up. Management UI enabled at
+  # http://localhost:15672 (guest/guest).
+  rabbitmq:
+    image: rabbitmq:latest
+    restart: unless-stopped
+    command: ["sh", "-c", "rabbitmq-plugins enable --offline rabbitmq_management && rabbitmq-server"]
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
 networks:
   neon-local:
     name: neon-local_default
     external: true
+
+volumes:
+  redis_data:
+  rabbitmq_data:

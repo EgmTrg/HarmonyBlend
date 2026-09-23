@@ -702,6 +702,52 @@ kalkıyor; admin panelinde gerçek bir hata `/admin/logs`'ta görünüyor;
 `neon-local` yığını başlatılıp ana uygulama ona bağlandığında giriş ve
 sayfa erişimleri gerçek bir admin hesabıyla uçtan uca doğrulandı.
 
+### Faz 13 — Redis Önbellek & RabbitMQ Olay Altyapısı ✅ Tamamlandı
+
+Hedef: Docker'daki Redis ve RabbitMQ'yu uygulamaya bağlamak — Redis'i
+rapor/sorgu önbelleği, RabbitMQ'yu sipariş durum olaylarının yayınlandığı
+bir altyapı olarak.
+
+- ~~13.1 — Redis: admin dashboard önbelleği~~ — ✅ Tamamlandı.
+  `src/lib/redis.ts`'teki `cached(key, ttl, fn)` cache-aside yardımcı
+  fonksiyonu; `REDIS_URL` tanımsızsa veya Redis'e erişilemiyorsa sessizce
+  `fn()`'e (doğrudan DB sorgusuna) düşüyor, hiçbir sayfayı kırmıyor.
+  `/admin` (Genel Bakış) sayfasındaki 8 paralel agregasyon sorgusu 60
+  saniye cache'leniyor — repodaki tek gerçek "ağır rapor" ekranı bu
+  (`/admin/reports` hâlâ yapım aşamasında yer tutucu). Cache anahtarı
+  `companyId` + dönem/filtre parametrelerini kapsıyor; JSON round-trip'te
+  `trendRows.createdAt` string'e dönüştüğü için `bucketKeyForDate`'in
+  beklediği `Date`'e geri çevriliyor (aksi halde grafik bucket'ları sessizce
+  yanlış hesaplanırdı). Gerçek admin girişiyle doğrulandı: dashboard
+  yüklendi, Redis'te `admin:overview:...` anahtarı TTL≈60s ile göründü.
+- ~~13.2 — RabbitMQ: sipariş durum olay yayını~~ — ✅ Tamamlandı.
+  `src/lib/rabbitmq.ts`, `order.status` adında dayanıklı (durable) bir
+  fanout exchange'e yayın yapıyor — henüz hiçbir tüketici (queue) bağlı
+  değil, bu sadece ileride bir tüketici eklenebilecek bir olay akışı
+  altyapısı (`RABBITMQ_URL` tanımsızsa yayın sessizce no-op). Daha önce
+  `admin/orders/actions.ts` ve `dealer/actions.ts`'te 6 ayrı yerde tekrar
+  eden `db.insert(orderStatusHistory).values(...)` çağrısı,
+  `src/lib/order-events.ts`'teki tek bir `recordOrderStatusChange()`
+  fonksiyonunda birleştirildi (davranış değişmedi, sadece merkezileşti);
+  bu fonksiyon geçmiş satırını yazdıktan sonra olayı fire-and-forget
+  yayınlıyor — broker'da bir sorun asla sipariş/checkout akışını
+  kesmiyor. Exchange'e bağlanan geçici bir test kuyruğuyla gerçek bir
+  mesajın yayınlanıp tüketildiği doğrulandı.
+- ~~13.3 — Docker Compose servisleri~~ — ✅ Tamamlandı. `redis` (6379),
+  `redis-commander` (8081 — anahtarları görsel incelemek için) ve
+  `rabbitmq` (5672 + `rabbitmq_management` eklentisi ile 15672'de
+  yönetim arayüzü, guest/guest) servisleri ana `docker-compose.yml`'e
+  eklendi; `app` servisine `REDIS_URL`/`RABBITMQ_URL` verildi. `npm run
+  dev` (Docker dışı) etkilenmiyor — bu değişkenler tanımsız olunca ilgili
+  özellikler sessizce devre dışı kalıyor.
+
+**Çıkış kriteri —** `docker compose up --build` ile redis/rabbitmq/
+redis-commander ayağa kalkıyor; admin dashboard'u yükledikten sonra
+Redis'te ilgili anahtar TTL'li olarak görünüyor; bir sipariş durum
+geçişinde `order.status` exchange'ine gerçek bir mesaj yayınlandığı
+doğrulandı; her iki bileşen de opsiyonel — yokluklarında uygulama normal
+çalışmaya devam ediyor.
+
 ---
 
 ## 2. Veri Modeli
@@ -910,7 +956,7 @@ tek bir monolit, Neon'un serverless doğasına uygun bir ORM.
 | ORM | Drizzle ORM | Neon'un serverless sürücüsüyle edge-uyumlu, SQL'e yakın; Prisma'ya göre soğuk başlangıç maliyeti düşük. |
 | Veritabanı | Neon Postgres | Zorunlu kısıt. Branch özelliği dev/staging izolasyonu için ayrıca faydalı. |
 | Kimlik doğrulama | Auth.js (credentials) + rol bazlı middleware | Firma admini / marka yöneticisi / bayi kullanıcısı ayrımı route seviyesinde uygulanır. |
-| Önbellekleme | Upstash Redis | Serverless uyumlu; rapor sorgu sonuçları ve oturum verisi için. |
+| Önbellekleme | Redis (Faz 13'te self-hosted/Docker olarak entegre edildi) | Rapor sorgu sonuçları için; Upstash yerine Docker'da çalıştırılıyor — bkz. Faz 13. |
 | Excel / CSV export | exceljs, csv-stringify | Sunucu tarafında akış (streaming) ile büyük raporlarda bellek dostu üretim. |
 | PDF export | @react-pdf/renderer | React bileşenleriyle rapor şablonu; ayrı bir headless tarayıcıya ihtiyaç duymaz. |
 | Grafikler | Recharts | Raporlama ekranındaki filtrelenebilir grafikler için hafif, React-native API. |

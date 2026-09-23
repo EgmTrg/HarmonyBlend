@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { brands, ledgerEntries, orders, orderStatusHistory } from "@/db/schema";
+import { brands, ledgerEntries, orders } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { canTransitionOrderStatus } from "@/lib/order-status";
 import { postLedgerEntry } from "@/lib/ledger";
+import { recordOrderStatusChange } from "@/lib/order-events";
 
 export async function transitionOrderStatus(orderId: string, toStatus: string, formData: FormData) {
   const session = await requireAdminSession();
@@ -41,7 +42,7 @@ export async function transitionOrderStatus(orderId: string, toStatus: string, f
     .set({ status: toStatus, updatedAt: new Date() })
     .where(eq(orders.id, orderId));
 
-  await db.insert(orderStatusHistory).values({
+  await recordOrderStatusChange({
     orderId,
     fromStatus: currentStatus,
     toStatus,

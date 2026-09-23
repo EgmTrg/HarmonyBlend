@@ -9,6 +9,7 @@ import { resolvePeriodRange, type PeriodKey } from "@/lib/date-range";
 import { buildChartBucketPlan, bucketKeyForDate } from "@/lib/chart-buckets";
 import { formatCurrency, formatNumber } from "@/lib/format";
 import { CARD, TABLE_HEAD, TABLE_ROW } from "@/lib/ui";
+import { cached } from "@/lib/redis";
 import { StatTile } from "@/components/stat-tile";
 import { BarChart } from "@/components/bar-chart";
 import { GroupedBarChart, type GroupedBarDatum } from "@/components/grouped-bar-chart";
@@ -47,7 +48,12 @@ export default async function AdminHomePage({
   const chartPlan = buildChartBucketPlan(hasExplicitPeriod, period, periodRange);
   const thisMonthStart = startOfCurrentMonth();
 
-  const [
+  // 60s cache: this page runs 8 aggregate queries on every load/filter
+  // change, and a dashboard doesn't need per-request freshness. Falls back
+  // to querying directly when Redis is unavailable (see lib/redis.ts).
+  const cacheKey = `admin:overview:${companyId}:${period}:${startParam ?? ""}:${endParam ?? ""}:${productBrandFilter ?? ""}:${byBrand ? 1 : 0}`;
+
+  let [
     [dealerCount],
     [productCount],
     [balanceTotal],
@@ -56,7 +62,7 @@ export default async function AdminHomePage({
     companyBrands,
     topProductRows,
     topDealerOrderRows,
-  ] = await Promise.all([
+  ] = await cached(cacheKey, 60, () => Promise.all([
     db.select({ value: count() }).from(dealers).where(eq(dealers.companyId, companyId)),
     db
       .select({ value: count() })
@@ -130,7 +136,12 @@ export default async function AdminHomePage({
           productBrandFilter ? eq(brands.id, productBrandFilter) : undefined
         )
       ),
-  ]);
+  ]));
+
+  // trendRows comes back through a JSON round-trip on a cache hit, so
+  // createdAt needs reviving from string to Date before bucketKeyForDate
+  // (which relies on Date comparisons) sees it.
+  trendRows = trendRows.map((row) => ({ ...row, createdAt: new Date(row.createdAt) }));
 
   const brandSeries = companyBrands.map((b) => ({ id: b.id, name: b.name }));
 

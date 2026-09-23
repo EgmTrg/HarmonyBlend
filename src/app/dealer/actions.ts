@@ -4,10 +4,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { companies, dealerBrands, dealers, orderItems, orderStatusHistory, orders, payments, products } from "@/db/schema";
+import { companies, dealerBrands, dealers, orderItems, orders, payments, products } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { canTransitionOrderStatus, initialOrderStatus } from "@/lib/order-status";
 import { postLedgerEntry } from "@/lib/ledger";
+import { recordOrderStatusChange } from "@/lib/order-events";
 import { mockPosProvider } from "@/lib/payments/mock-provider";
 import { PAYMENT_METHOD_CODES, type PaymentMethodCode } from "@/lib/payment-methods";
 import { calculateLineNet, calculateLineVat } from "@/lib/cart-totals";
@@ -136,7 +137,7 @@ export async function createOrder(
 
   await db.insert(orderItems).values(lineItems.map((li) => ({ ...li, orderId: order.id })));
 
-  await db.insert(orderStatusHistory).values({
+  await recordOrderStatusChange({
     orderId: order.id,
     fromStatus: null,
     toStatus: startStatus,
@@ -160,7 +161,7 @@ export async function createOrder(
       .update(orders)
       .set({ status: "approved", updatedAt: new Date() })
       .where(eq(orders.id, order.id));
-    await db.insert(orderStatusHistory).values({
+    await recordOrderStatusChange({
       orderId: order.id,
       fromStatus: startStatus,
       toStatus: "approved",
@@ -192,7 +193,7 @@ export async function createOrder(
       .update(orders)
       .set({ status: nextStatus, updatedAt: new Date() })
       .where(eq(orders.id, order.id));
-    await db.insert(orderStatusHistory).values({
+    await recordOrderStatusChange({
       orderId: order.id,
       fromStatus: startStatus,
       toStatus: nextStatus,
@@ -208,7 +209,7 @@ export async function createOrder(
         .update(orders)
         .set({ status: "approved", updatedAt: new Date() })
         .where(eq(orders.id, order.id));
-      await db.insert(orderStatusHistory).values({
+      await recordOrderStatusChange({
         orderId: order.id,
         fromStatus: "paid",
         toStatus: "approved",
@@ -313,7 +314,7 @@ export async function cancelOrder(orderId: string, formData: FormData) {
     .set({ status: "cancelled", updatedAt: new Date() })
     .where(eq(orders.id, orderId));
 
-  await db.insert(orderStatusHistory).values({
+  await recordOrderStatusChange({
     orderId,
     fromStatus: row.status,
     toStatus: "cancelled",
