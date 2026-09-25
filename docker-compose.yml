@@ -56,6 +56,21 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  # Runs the Postman smoke-test collection (./postman) against the running
+  # app with Newman (Postman's CLI runner). Not part of the normal stack —
+  # it's a one-shot test run, not a long-lived service — so it's gated
+  # behind the "test" profile and only starts on demand:
+  #   docker compose --profile test run --rm newman
+  newman:
+    image: postman/newman:latest
+    profiles: ["test"]
+    volumes:
+      - ./postman:/etc/newman:ro
+    depends_on:
+      - app
+    entrypoint: ["newman", "run", "/etc/newman/harmonyblend-smoke.postman_collection.json"]
+    command: ["--env-var", "baseUrl=http://app:3000"]
+
 networks:
   neon-local:
     name: neon-local_default

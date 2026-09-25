@@ -3,10 +3,19 @@ import { requireAdminSession } from "@/lib/session";
 import { ROLE_LABELS } from "@/lib/roles";
 import { MobileNavProvider } from "@/components/mobile-nav-context";
 import { MobileNavToggle } from "@/components/mobile-nav-toggle";
+import { logActivity } from "@/lib/activity-log";
 import { AdminSidebar } from "./sidebar";
 
 async function signOutAction() {
   "use server";
+  const session = await requireAdminSession();
+  await logActivity({
+    action: "auth.logout",
+    message: `Çıkış yapıldı: ${session.user.email}`,
+    source: "admin.layout.signOutAction",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+  });
   await signOut({ redirectTo: "/login" });
 }
 

@@ -12,11 +12,13 @@ export function ToastForm({
   action,
   successMessage,
   className,
+  autoComplete,
   children,
 }: {
   action: (formData: FormData) => Promise<unknown>;
   successMessage: string;
   className?: string;
+  autoComplete?: string;
   children: ReactNode;
 }) {
   const { showToast } = useToast();
@@ -34,7 +36,7 @@ export function ToastForm({
   }
 
   return (
-    <form action={handleAction} className={className}>
+    <form action={handleAction} className={className} autoComplete={autoComplete}>
       {children}
     </form>
   );

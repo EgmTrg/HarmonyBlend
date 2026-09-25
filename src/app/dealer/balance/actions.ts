@@ -6,6 +6,7 @@ import { payments } from "@/db/schema";
 import { requireDealerSession } from "@/lib/session";
 import { postLedgerEntry } from "@/lib/ledger";
 import { mockPosProvider } from "@/lib/payments/mock-provider";
+import { logActivity } from "@/lib/activity-log";
 
 export async function payBalance(amount: string, simulateFailure: boolean) {
   const session = await requireDealerSession();
@@ -46,6 +47,18 @@ export async function payBalance(amount: string, simulateFailure: boolean) {
       note: "Bakiye ödemesi",
     });
   }
+
+  await logActivity({
+    action: "payment.standalone_collection",
+    level: chargeResult.status === "success" ? "info" : "warn",
+    message: `Bakiye ödemesi ${chargeResult.status === "success" ? "başarılı" : "başarısız"}: ${normalizedAmount} TL`,
+    source: "dealer.balance.payBalance",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "payment",
+    entityId: payment.id,
+    meta: { dealerId, amount: normalizedAmount, status: chargeResult.status, providerRef: chargeResult.providerRef },
+  });
 
   revalidatePath("/dealer/balance");
   revalidatePath("/dealer");

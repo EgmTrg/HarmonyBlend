@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { resolveCompanyByCodeOrName } from "@/lib/companies";
 import type { AppRole } from "@/lib/roles";
+import { logActivity } from "@/lib/activity-log";
 
 const ADMIN_ROLES: AppRole[] = ["company_admin", "brand_manager"];
 
@@ -23,21 +24,55 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
         const companyCode = credentials?.companyCode as string | undefined;
-        if (!email || !password || !companyCode) return null;
+
+        async function loginFailed(reason: string, extra?: Record<string, unknown>) {
+          await logActivity({
+            action: "auth.login_failed",
+            level: "warn",
+            message: `Giriş başarısız (${reason})${email ? `: ${email}` : ""}`,
+            source: "auth.authorize",
+            meta: { reason, emailAttempted: email ?? null, companyCodeAttempted: companyCode ?? null, ...extra },
+          });
+        }
+
+        if (!email || !password || !companyCode) {
+          await loginFailed("missing_fields");
+          return null;
+        }
 
         const company = await resolveCompanyByCodeOrName(companyCode);
-        if (!company) return null;
+        if (!company) {
+          await loginFailed("company_not_found");
+          return null;
+        }
 
         const [user] = await db
           .select()
           .from(users)
           .where(and(eq(users.email, email), eq(users.companyId, company.id)))
           .limit(1);
-        if (!user) return null;
-        if (!user.isActive) return null;
+        if (!user) {
+          await loginFailed("user_not_found", { companyId: company.id });
+          return null;
+        }
+        if (!user.isActive) {
+          await loginFailed("user_inactive", { companyId: company.id, userId: user.id });
+          return null;
+        }
 
         const passwordMatches = await compare(password, user.passwordHash);
-        if (!passwordMatches) return null;
+        if (!passwordMatches) {
+          await loginFailed("invalid_password", { companyId: company.id, userId: user.id });
+          return null;
+        }
+
+        await logActivity({
+          action: "auth.login_success",
+          message: `Giriş yapıldı: ${user.email} (${user.role})`,
+          source: "auth.authorize",
+          actor: { id: user.id, email: user.email, role: user.role },
+          companyId: user.companyId,
+        });
 
         return {
           id: user.id,

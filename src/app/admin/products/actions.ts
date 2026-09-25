@@ -5,6 +5,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { brands, categories, orderItems, orders, products } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
+import { logActivity } from "@/lib/activity-log";
 
 async function assertCompanyOwnsBrand(companyId: string, brandId: string) {
   const [brand] = await db
@@ -23,7 +24,18 @@ export async function createCategory(brandId: string, formData: FormData) {
   const parentId = String(formData.get("parentId") ?? "") || null;
   if (!name) throw new Error("Kategori adı zorunlu.");
 
-  await db.insert(categories).values({ brandId, name, parentId });
+  const [created] = await db.insert(categories).values({ brandId, name, parentId }).returning();
+
+  await logActivity({
+    action: "category.created",
+    message: `Kategori oluşturuldu: ${name}`,
+    source: "admin.products.createCategory",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "category",
+    entityId: created.id,
+    meta: { brandId, parentId },
+  });
 
   revalidatePath("/admin/products");
 }
@@ -33,6 +45,18 @@ export async function deleteCategory(id: string, brandId: string, _formData: For
   await assertCompanyOwnsBrand(session.user.companyId, brandId);
 
   await db.delete(categories).where(and(eq(categories.id, id), eq(categories.brandId, brandId)));
+
+  await logActivity({
+    action: "category.deleted",
+    level: "warn",
+    message: `Kategori silindi: ${id}`,
+    source: "admin.products.deleteCategory",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "category",
+    entityId: id,
+    meta: { brandId },
+  });
 
   revalidatePath("/admin/products");
 }
@@ -62,20 +86,36 @@ export async function createProduct(brandId: string, formData: FormData) {
     throw new Error("Sipariş katı 1 veya daha büyük bir tam sayı olmalı.");
   }
 
+  let createdId: string;
   try {
-    await db.insert(products).values({
-      brandId,
-      categoryId,
-      sku,
-      name,
-      unit,
-      unitPrice,
-      vatRate,
-      orderMultiple: Number(orderMultiple),
-    });
+    const [created] = await db
+      .insert(products)
+      .values({
+        brandId,
+        categoryId,
+        sku,
+        name,
+        unit,
+        unitPrice,
+        vatRate,
+        orderMultiple: Number(orderMultiple),
+      })
+      .returning();
+    createdId = created.id;
   } catch {
     throw new Error("Bu SKU bu markada zaten kullanılıyor.");
   }
+
+  await logActivity({
+    action: "product.created",
+    message: `Ürün oluşturuldu: ${name} (${sku})`,
+    source: "admin.products.createProduct",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "product",
+    entityId: createdId,
+    meta: { brandId, sku, unitPrice, vatRate },
+  });
 
   revalidatePath("/admin/products");
 }
@@ -115,6 +155,17 @@ export async function updateProduct(id: string, brandId: string, formData: FormD
     throw new Error("Bu SKU bu markada zaten kullanılıyor.");
   }
 
+  await logActivity({
+    action: "product.updated",
+    message: `Ürün güncellendi: ${name} (${sku})`,
+    source: "admin.products.updateProduct",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "product",
+    entityId: id,
+    meta: { brandId, sku, unitPrice, vatRate, isActive },
+  });
+
   revalidatePath("/admin/products");
 }
 
@@ -132,6 +183,17 @@ export async function toggleProductActive(
     .set({ isActive: nextActive })
     .where(and(eq(products.id, id), eq(products.brandId, brandId)));
 
+  await logActivity({
+    action: "product.toggled",
+    message: `Ürün ${nextActive ? "aktif edildi" : "pasife alındı"}: ${id}`,
+    source: "admin.products.toggleProductActive",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "product",
+    entityId: id,
+    meta: { brandId, nextActive },
+  });
+
   revalidatePath("/admin/products");
 }
 
@@ -143,6 +205,7 @@ export async function deleteProduct(
 ) {
   const session = await requireAdminSession();
   await assertCompanyOwnsBrand(session.user.companyId, brandId);
+  let removedOrderCount = 0;
 
   if (force) {
     // order_items -> products FK'sinde cascade yok (sipariş kalemleri kasten
@@ -156,6 +219,7 @@ export async function deleteProduct(
     const orderIds = [...new Set(rows.map((r) => r.orderId))];
     if (orderIds.length > 0) {
       await db.delete(orders).where(inArray(orders.id, orderIds));
+      removedOrderCount = orderIds.length;
     }
   }
 
@@ -166,6 +230,18 @@ export async function deleteProduct(
       "Bu ürün geçmiş siparişlerde kullanıldığı için silinemiyor — bunun yerine pasife alabilirsiniz."
     );
   }
+
+  await logActivity({
+    action: "product.deleted",
+    level: "warn",
+    message: `Ürün silindi: ${id}${force ? ` (zorla, ${removedOrderCount} sipariş de silindi)` : ""}`,
+    source: "admin.products.deleteProduct",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "product",
+    entityId: id,
+    meta: { brandId, force, removedOrderCount },
+  });
 
   revalidatePath("/admin/products");
   revalidatePath("/admin/orders");

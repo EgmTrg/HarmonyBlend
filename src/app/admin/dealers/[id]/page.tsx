@@ -179,12 +179,13 @@ export default async function DealerDetailPage({
             action={createDealerUser.bind(null, dealer.id)}
             successMessage="Kullanıcı oluşturuldu"
             className="flex flex-wrap items-end gap-3"
+            autoComplete="off"
           >
             <div className="flex flex-col gap-1">
               <label htmlFor="du-email" className={LABEL}>
                 E-posta
               </label>
-              <input id="du-email" name="email" type="email" required className={INPUT} />
+              <input id="du-email" name="email" type="email" autoComplete="off" required className={INPUT} />
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="du-password" className={LABEL}>
@@ -194,6 +195,7 @@ export default async function DealerDetailPage({
                 id="du-password"
                 name="password"
                 type="password"
+                autoComplete="new-password"
                 minLength={8}
                 required
                 className={INPUT}

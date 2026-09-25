@@ -41,6 +41,7 @@ export default async function ResetPasswordPage({
               <input
                 name="password"
                 type="password"
+                autoComplete="new-password"
                 placeholder="••••••••"
                 required
                 minLength={8}
@@ -52,6 +53,7 @@ export default async function ResetPasswordPage({
               <input
                 name="passwordConfirm"
                 type="password"
+                autoComplete="new-password"
                 placeholder="••••••••"
                 required
                 minLength={8}

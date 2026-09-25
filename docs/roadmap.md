@@ -361,7 +361,16 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.
 
-### Faz 5 — Raporlama & Analitik ✅ Tamamlandı
+### Faz 5 — Raporlama & Analitik ↩️ Geri Alındı
+
+> **Geri alım notu:** Aşağıdaki iş gerçekten tamamlanmış ve teslim
+> edilmişti, ancak `2c230d1` commit'inde (`src/lib/reports.ts`,
+> `src/app/admin/reports/export/route.ts`,
+> `src/app/admin/reports/reports-filters.tsx` silinerek) `/admin/reports`
+> yeniden "yapım aşamasında" yer tutucusuna çevrildi. Bu bölüm, ileride
+> yeniden yapılırken referans olması için olduğu gibi bırakıldı — durum
+> etiketi dışında içerik güncel koda değil, o zamanki teslimatın kaydına
+> aittir.
 
 Hedef: Filtrelenebilir, dışa aktarılabilir raporlama motoru.
 

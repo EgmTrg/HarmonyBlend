@@ -6,7 +6,7 @@ interface HasCategoryId {
 }
 
 const HEADING_CLASSES = {
-  default: { top: "text-lg font-semibold text-ink-900", nested: "text-base font-medium text-ink-600" },
+  default: { top: "text-[19px] font-semibold text-ink-900", nested: "text-[17px] font-medium text-ink-600" },
   compact: { top: "text-base font-semibold text-ink-900", nested: "text-sm font-medium text-ink-600" },
 } as const;
 

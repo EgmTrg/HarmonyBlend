@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useLocalStorageStore } from "@/lib/use-local-storage-store";
 import { useToast } from "@/lib/toast";
 import { COMPANY_STORAGE_KEY, type StoredCompany } from "@/lib/company-storage";
-import { BUTTON_PRIMARY, INPUT, LABEL } from "@/lib/ui";
+import { BUTTON_GHOST, BUTTON_PRIMARY, INPUT, LABEL } from "@/lib/ui";
 import { findCompanyAction } from "./company-actions";
 
 export function CompanyGate({ invalidCompany }: { invalidCompany: boolean }) {
@@ -52,9 +52,14 @@ export function CompanyGate({ invalidCompany }: { invalidCompany: boolean }) {
 
   if (company && !invalidCompany) {
     return (
-      <Link href={`/login?company=${encodeURIComponent(company.code)}`} className={BUTTON_PRIMARY}>
-        Giriş yap →
-      </Link>
+      <div className="flex w-full max-w-xs flex-col items-center gap-3">
+        <Link href={`/login?company=${encodeURIComponent(company.code)}`} className={BUTTON_PRIMARY}>
+          Giriş yap →
+        </Link>
+        <button type="button" onClick={() => setCompany(null)} className={BUTTON_GHOST}>
+          Firma değiştir
+        </button>
+      </div>
     );
   }
 

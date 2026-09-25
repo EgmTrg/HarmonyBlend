@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
-import { signIn } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { resolveCompanyByCodeOrName } from "@/lib/companies";
 import { BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
 import { ChangeCompanyButton } from "./change-company-button";
@@ -25,7 +25,7 @@ export default async function LoginPage({
         email: formData.get("email"),
         password: formData.get("password"),
         companyCode,
-        redirectTo: "/admin",
+        redirect: false,
       });
     } catch (err) {
       if (err instanceof AuthError) {
@@ -33,6 +33,11 @@ export default async function LoginPage({
       }
       throw err;
     }
+    // signIn() az önce oturumu kurdu — role, sipariş verirken önemli: bayi
+    // kullanıcısı /admin'e gidip proxy.ts'te reddedilip "/" ekranına geri
+    // savrulmasın diye, roline göre doğru panele yönlendiriyoruz.
+    const session = await auth();
+    redirect(session?.user?.role === "dealer_user" ? "/dealer" : "/admin");
   }
 
   return (

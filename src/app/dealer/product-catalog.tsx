@@ -78,11 +78,11 @@ function ProductRow({
 
   return (
     <tr className={TABLE_ROW}>
-      <td className="py-3 text-xs font-medium text-ink-900">{product.name}</td>
-      <td className="py-3 text-ink-400">{product.sku}</td>
-      <td className="py-3 text-ink-400">{product.unit}</td>
-      <td className="py-3 text-ink-600">{product.unitPrice}</td>
-      <td className="py-3">
+      <td className="py-1.5 text-[13px] font-medium text-ink-900">{product.name}</td>
+      <td className="py-1.5 text-ink-400">{product.sku}</td>
+      <td className="py-1.5 text-ink-400">{product.unit}</td>
+      <td className="py-1.5 text-ink-600">{product.unitPrice}</td>
+      <td className="py-1.5">
         <div className="flex flex-col items-end gap-1">
           <div className="flex items-center justify-end gap-2">
             <input

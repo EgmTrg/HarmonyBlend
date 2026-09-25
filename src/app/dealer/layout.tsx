@@ -7,6 +7,7 @@ import { requireDealerSession } from "@/lib/session";
 import { ROLE_LABELS } from "@/lib/roles";
 import { MobileNavProvider } from "@/components/mobile-nav-context";
 import { MobileNavToggle } from "@/components/mobile-nav-toggle";
+import { logActivity } from "@/lib/activity-log";
 import { CartProvider } from "./cart-context";
 import { CartDrawer } from "./cart-drawer";
 import { CartDrawerTrigger } from "./cart-drawer-trigger";
@@ -15,6 +16,14 @@ import { stopImpersonation } from "./actions";
 
 async function signOutAction() {
   "use server";
+  const session = await requireDealerSession();
+  await logActivity({
+    action: "auth.logout",
+    message: `Çıkış yapıldı: ${session.user.email}`,
+    source: "dealer.layout.signOutAction",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+  });
   await signOut({ redirectTo: "/login" });
 }
 

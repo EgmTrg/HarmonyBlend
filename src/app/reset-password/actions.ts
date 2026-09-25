@@ -6,6 +6,7 @@ import { and, eq, gt, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { passwordResetTokens, users } from "@/db/schema";
+import { logActivity } from "@/lib/activity-log";
 
 // redirect() Next.js içinde özel bir hata fırlatarak çalışır — bu yüzden
 // ToastForm'un try/catch'i içinde çağrılamaz (bkz. src/app/dealer/sidebar.tsx
@@ -37,6 +38,12 @@ export async function resetPassword(rawToken: string, formData: FormData) {
     .limit(1);
 
   if (!tokenRow) {
+    await logActivity({
+      action: "auth.password_reset_completed",
+      level: "warn",
+      message: "Şifre sıfırlama denemesi — geçersiz/süresi dolmuş token",
+      source: "reset-password.resetPassword",
+    });
     redirect(`/reset-password?token=${rawToken}&error=invalid`);
   }
 
@@ -47,6 +54,14 @@ export async function resetPassword(rawToken: string, formData: FormData) {
     .update(passwordResetTokens)
     .set({ usedAt: new Date() })
     .where(eq(passwordResetTokens.id, tokenRow.id));
+
+  const [user] = await db.select({ email: users.email }).from(users).where(eq(users.id, tokenRow.userId)).limit(1);
+  await logActivity({
+    action: "auth.password_reset_completed",
+    message: `Şifre sıfırlandı: ${user?.email ?? tokenRow.userId}`,
+    source: "reset-password.resetPassword",
+    actor: { id: tokenRow.userId, email: user?.email ?? null },
+  });
 
   redirect("/login?reset=success");
 }

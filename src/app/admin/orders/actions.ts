@@ -8,6 +8,7 @@ import { requireAdminSession } from "@/lib/session";
 import { canTransitionOrderStatus } from "@/lib/order-status";
 import { postLedgerEntry } from "@/lib/ledger";
 import { recordOrderStatusChange } from "@/lib/order-events";
+import { logActivity } from "@/lib/activity-log";
 
 export async function transitionOrderStatus(orderId: string, toStatus: string, formData: FormData) {
   const session = await requireAdminSession();
@@ -120,6 +121,17 @@ export async function deleteOrder(orderId: string, _formData: FormData) {
   // order_items / order_status_history / payments hepsi orders'a cascade
   // bağlı — sipariş silinince otomatik temizleniyor.
   await db.delete(orders).where(eq(orders.id, orderId));
+
+  await logActivity({
+    action: "order.deleted",
+    level: "warn",
+    message: `Sipariş kalıcı olarak silindi: ${orderId}`,
+    source: "admin.orders.deleteOrder",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "order",
+    entityId: orderId,
+  });
 
   revalidatePath("/admin/orders");
 }

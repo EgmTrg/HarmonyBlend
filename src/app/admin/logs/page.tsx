@@ -1,33 +1,41 @@
-import { and, desc, eq, isNull, or } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, lt, or } from "drizzle-orm";
+import { Download } from "lucide-react";
 import { db } from "@/db";
 import { systemLogs } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
-import { CARD, TABLE_HEAD, TABLE_ROW, badgeClass, type BadgeTone } from "@/lib/ui";
+import { resolvePeriodRange, type PeriodKey } from "@/lib/date-range";
+import { CARD, TABLE_HEAD, BUTTON_PRIMARY } from "@/lib/ui";
+import { PeriodFilter } from "@/components/period-filter";
 import { LogLevelFilter } from "./log-level-filter";
-
-const LEVEL_LABELS: Record<string, string> = {
-  info: "Bilgi",
-  warn: "Uyarı",
-  error: "Hata",
-};
-
-const LEVEL_TONES: Record<string, BadgeTone> = {
-  info: "info",
-  warn: "warning",
-  error: "danger",
-};
+import { LogRow } from "./log-row";
 
 export default async function AdminLogsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ level?: string }>;
+  searchParams: Promise<{ level?: string; period?: string; start?: string; end?: string }>;
 }) {
   const session = await requireAdminSession();
-  const { level: levelFilter } = await searchParams;
+  const {
+    level: levelFilter,
+    period: periodParam,
+    start: startParam,
+    end: endParam,
+  } = await searchParams;
+
+  const hasExplicitPeriod = (["today", "week", "month", "last_month", "custom"] as PeriodKey[]).includes(
+    periodParam as PeriodKey
+  );
+  const periodRange = hasExplicitPeriod
+    ? resolvePeriodRange(periodParam as PeriodKey, startParam, endParam)
+    : null;
 
   const conditions = [or(eq(systemLogs.companyId, session.user.companyId), isNull(systemLogs.companyId))];
   if (levelFilter && ["info", "warn", "error"].includes(levelFilter)) {
     conditions.push(eq(systemLogs.level, levelFilter as "info" | "warn" | "error"));
+  }
+  if (periodRange) {
+    conditions.push(gte(systemLogs.createdAt, periodRange.start));
+    conditions.push(lt(systemLogs.createdAt, periodRange.end));
   }
 
   const rows = await db
@@ -37,17 +45,40 @@ export default async function AdminLogsPage({
     .orderBy(desc(systemLogs.createdAt))
     .limit(200);
 
+  const exportParams = new URLSearchParams();
+  if (levelFilter) exportParams.set("level", levelFilter);
+  if (hasExplicitPeriod) {
+    exportParams.set("period", periodParam as PeriodKey);
+    if (startParam) exportParams.set("start", startParam);
+    if (endParam) exportParams.set("end", endParam);
+  }
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-ink-900">Sistem Logları</h1>
-        <p className="text-sm text-ink-400">
-          Uygulama tarafında yakalanan sunucu hataları ve olayları (en son 200 kayıt).
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-ink-900">Sistem Logları</h1>
+          <p className="text-sm text-ink-400">
+            Kullanıcı işlemleri (giriş, sipariş, kayıt oluşturma/silme vb.) ve yakalanan sunucu hataları
+            (ekranda en son 200 kayıt gösterilir; seçili tarih aralığındaki tüm kayıtlar için CSV indirin).
+            Detayları görmek için bir satıra tıklayın.
+          </p>
+        </div>
+        <a href={`/admin/logs/export?${exportParams.toString()}`} className={BUTTON_PRIMARY}>
+          <Download className="mr-2 h-4 w-4" strokeWidth={2} />
+          CSV Olarak İndir
+        </a>
       </div>
 
       <div className={CARD}>
-        <LogLevelFilter initialLevel={levelFilter ?? ""} />
+        <div className="flex flex-col gap-4">
+          <PeriodFilter
+            period={hasExplicitPeriod ? (periodParam as PeriodKey) : ""}
+            start={startParam ?? ""}
+            end={endParam ?? ""}
+          />
+          <LogLevelFilter initialLevel={levelFilter ?? ""} />
+        </div>
       </div>
 
       <div className={CARD}>
@@ -57,26 +88,13 @@ export default async function AdminLogsPage({
               <tr className={TABLE_HEAD}>
                 <th className="pb-3 font-medium">Seviye</th>
                 <th className="pb-3 font-medium">Mesaj</th>
-                <th className="pb-3 font-medium">Kaynak</th>
+                <th className="pb-3 font-medium">Kullanıcı</th>
                 <th className="pb-3 font-medium">Tarih</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.id} className={TABLE_ROW}>
-                  <td className="py-3">
-                    <span className={badgeClass(LEVEL_TONES[row.level] ?? "neutral")}>
-                      {LEVEL_LABELS[row.level] ?? row.level}
-                    </span>
-                  </td>
-                  <td className="py-3 text-ink-900">{row.message}</td>
-                  <td className="py-3 text-ink-400">{row.source ?? "—"}</td>
-                  <td className="py-3 text-ink-400">
-                    {new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "medium" }).format(
-                      row.createdAt
-                    )}
-                  </td>
-                </tr>
+                <LogRow key={row.id} row={{ ...row, meta: (row.meta ?? {}) as Record<string, unknown> }} />
               ))}
               {rows.length === 0 && (
                 <tr>

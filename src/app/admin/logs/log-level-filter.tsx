@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { INPUT, LABEL } from "@/lib/ui";
 
 const LEVELS: { value: string; label: string }[] = [
@@ -13,6 +13,7 @@ const LEVELS: { value: string; label: string }[] = [
 export function LogLevelFilter({ initialLevel }: { initialLevel: string }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   return (
     <div className="flex flex-col gap-1">
@@ -24,7 +25,11 @@ export function LogLevelFilter({ initialLevel }: { initialLevel: string }) {
         value={initialLevel}
         onChange={(e) => {
           const level = e.target.value;
-          router.push(level ? `${pathname}?level=${level}` : pathname, { scroll: false });
+          const params = new URLSearchParams(searchParams.toString());
+          if (level) params.set("level", level);
+          else params.delete("level");
+          const query = params.toString();
+          router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
         }}
         className={`${INPUT} max-w-xs`}
       >

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { companies } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
+import { logActivity } from "@/lib/activity-log";
 
 export async function updateOrderApprovalSetting(formData: FormData) {
   const session = await requireAdminSession();
@@ -18,6 +19,17 @@ export async function updateOrderApprovalSetting(formData: FormData) {
     .update(companies)
     .set({ requiresOrderApproval })
     .where(eq(companies.id, session.user.companyId));
+
+  await logActivity({
+    action: "settings.updated",
+    message: `Sipariş onay ayarı değiştirildi: ${requiresOrderApproval ? "onay gerekiyor" : "otomatik onay"}`,
+    source: "admin.settings.updateOrderApprovalSetting",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "company",
+    entityId: session.user.companyId,
+    meta: { requiresOrderApproval },
+  });
 
   revalidatePath("/admin/settings");
 }

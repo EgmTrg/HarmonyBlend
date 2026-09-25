@@ -6,21 +6,37 @@ import { db } from "@/db";
 import { brands, orderItems, orders, products } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { slugify } from "@/lib/slug";
+import { logActivity } from "@/lib/activity-log";
 
 export async function createBrand(formData: FormData) {
   const session = await requireAdminSession();
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Marka adı zorunlu.");
 
+  let createdId: string;
   try {
-    await db.insert(brands).values({
-      companyId: session.user.companyId,
-      name,
-      slug: slugify(name),
-    });
+    const [created] = await db
+      .insert(brands)
+      .values({
+        companyId: session.user.companyId,
+        name,
+        slug: slugify(name),
+      })
+      .returning();
+    createdId = created.id;
   } catch {
     throw new Error("Bu isimde (veya aynı slug'a sahip) bir marka zaten var.");
   }
+
+  await logActivity({
+    action: "brand.created",
+    message: `Marka oluşturuldu: ${name}`,
+    source: "admin.brands.createBrand",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "brand",
+    entityId: createdId,
+  });
 
   revalidatePath("/admin/brands");
 }
@@ -39,12 +55,23 @@ export async function updateBrand(id: string, formData: FormData) {
     throw new Error("Bu isimde (veya aynı slug'a sahip) bir marka zaten var.");
   }
 
+  await logActivity({
+    action: "brand.updated",
+    message: `Marka güncellendi: ${name}`,
+    source: "admin.brands.updateBrand",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "brand",
+    entityId: id,
+  });
+
   revalidatePath("/admin/brands");
   revalidatePath(`/admin/brands/${id}`);
 }
 
 export async function deleteBrand(id: string, force: boolean, _formData: FormData) {
   const session = await requireAdminSession();
+  let removedOrderCount = 0;
 
   if (force) {
     // Marka silinince products cascade ile silinmeye çalışılıyor, ama
@@ -64,6 +91,7 @@ export async function deleteBrand(id: string, force: boolean, _formData: FormDat
       const orderIds = [...new Set(rows.map((r) => r.orderId))];
       if (orderIds.length > 0) {
         await db.delete(orders).where(inArray(orders.id, orderIds));
+        removedOrderCount = orderIds.length;
       }
     }
   }
@@ -77,6 +105,18 @@ export async function deleteBrand(id: string, force: boolean, _formData: FormDat
       "Bu markadaki ürünler geçmiş siparişlerde kullanıldığı için marka silinemiyor."
     );
   }
+
+  await logActivity({
+    action: "brand.deleted",
+    level: "warn",
+    message: `Marka silindi: ${id}${force ? ` (zorla, ${removedOrderCount} sipariş de silindi)` : ""}`,
+    source: "admin.brands.deleteBrand",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "brand",
+    entityId: id,
+    meta: { force, removedOrderCount },
+  });
 
   revalidatePath("/admin/brands");
   revalidatePath("/admin/orders");

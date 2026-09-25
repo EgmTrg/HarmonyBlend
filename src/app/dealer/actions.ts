@@ -9,6 +9,7 @@ import { requireDealerSession } from "@/lib/session";
 import { canTransitionOrderStatus, initialOrderStatus } from "@/lib/order-status";
 import { postLedgerEntry } from "@/lib/ledger";
 import { recordOrderStatusChange } from "@/lib/order-events";
+import { logActivity } from "@/lib/activity-log";
 import { mockPosProvider } from "@/lib/payments/mock-provider";
 import { PAYMENT_METHOD_CODES, type PaymentMethodCode } from "@/lib/payment-methods";
 import { calculateLineNet, calculateLineVat } from "@/lib/cart-totals";
@@ -343,6 +344,16 @@ export async function cancelOrder(orderId: string, formData: FormData) {
 export async function stopImpersonation() {
   const session = await requireDealerSession();
   if (!session.user.impersonatorEmail) throw new Error("Aktif bir impersonation oturumu yok.");
+
+  await logActivity({
+    action: "impersonation.stopped",
+    message: `Taklit oturumu sonlandırıldı: ${session.user.impersonatorEmail} -> ${session.user.email}`,
+    source: "dealer.stopImpersonation",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "user",
+    entityId: session.user.id,
+  });
 
   await unstable_update({ stopImpersonation: true } as unknown as Parameters<
     typeof unstable_update

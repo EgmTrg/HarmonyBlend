@@ -9,6 +9,7 @@ import { brands, dealerBrands, dealers, users } from "@/db/schema";
 import { requireAdminSession } from "@/lib/session";
 import { USER_ROLES, type AppRole } from "@/lib/roles";
 import { unstable_update } from "@/auth";
+import { logActivity } from "@/lib/activity-log";
 
 export async function createDealerOrUser(formData: FormData) {
   const session = await requireAdminSession();
@@ -66,14 +67,28 @@ export async function createDealerOrUser(formData: FormData) {
   }
 
   const passwordHash = await hash(password, 10);
-  await db.insert(users).values({
+  const [createdUser] = await db
+    .insert(users)
+    .values({
+      companyId: session.user.companyId,
+      dealerId,
+      name,
+      email,
+      role: role as AppRole,
+      isActive,
+      passwordHash,
+    })
+    .returning();
+
+  await logActivity({
+    action: "user.created",
+    message: `Kullanıcı oluşturuldu: ${email} (${role})${dealerId ? ` — yeni bayi: ${name}` : ""}`,
+    source: "admin.dealers.createDealerOrUser",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
     companyId: session.user.companyId,
-    dealerId,
-    name,
-    email,
-    role: role as AppRole,
-    isActive,
-    passwordHash,
+    entityType: "user",
+    entityId: createdUser.id,
+    meta: { role, dealerId, isActive },
   });
 
   revalidatePath("/admin/brands");
@@ -92,6 +107,16 @@ export async function updateDealer(id: string, formData: FormData) {
     .update(dealers)
     .set({ name, taxNo, il, bolge, maxBalanceLimit })
     .where(and(eq(dealers.id, id), eq(dealers.companyId, session.user.companyId)));
+
+  await logActivity({
+    action: "dealer.updated",
+    message: `Bayi güncellendi: ${name}`,
+    source: "admin.dealers.updateDealer",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "dealer",
+    entityId: id,
+  });
 
   revalidatePath("/admin/brands");
   revalidatePath(`/admin/dealers/${id}`);
@@ -144,6 +169,17 @@ export async function updateDealerAndBrands(id: string, formData: FormData) {
       .where(and(eq(dealerBrands.dealerId, id), inArray(dealerBrands.brandId, toRemove)));
   }
 
+  await logActivity({
+    action: "dealer.updated",
+    message: `Bayi güncellendi: ${name}`,
+    source: "admin.dealers.updateDealerAndBrands",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "dealer",
+    entityId: id,
+    meta: { addedBrandIds: toAdd, removedBrandIds: toRemove },
+  });
+
   revalidatePath("/admin/brands");
   revalidatePath(`/admin/dealers/${id}`);
 }
@@ -186,6 +222,17 @@ export async function saveDealerUser(dealerId: string, existingUserId: string | 
       .update(users)
       .set({ name, email, role: role as AppRole, isActive, dealerId: nextDealerId })
       .where(and(eq(users.id, existingUserId), eq(users.companyId, session.user.companyId)));
+
+    await logActivity({
+      action: "user.updated",
+      message: `Kullanıcı güncellendi: ${email}`,
+      source: "admin.dealers.saveDealerUser",
+      actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+      companyId: session.user.companyId,
+      entityType: "user",
+      entityId: existingUserId,
+      meta: { role, isActive, dealerId: nextDealerId },
+    });
   } else {
     const password = String(formData.get("userPassword") ?? "");
     if (password.length < 8) throw new Error("Şifre en az 8 karakter olmalı.");
@@ -194,14 +241,28 @@ export async function saveDealerUser(dealerId: string, existingUserId: string | 
     if (duplicate) throw new Error("Bu e-posta zaten kullanılıyor.");
 
     const passwordHash = await hash(password, 10);
-    await db.insert(users).values({
+    const [createdUser] = await db
+      .insert(users)
+      .values({
+        companyId: session.user.companyId,
+        dealerId: nextDealerId,
+        name,
+        email,
+        role: role as AppRole,
+        isActive,
+        passwordHash,
+      })
+      .returning();
+
+    await logActivity({
+      action: "user.created",
+      message: `Kullanıcı oluşturuldu: ${email} (${role})`,
+      source: "admin.dealers.saveDealerUser",
+      actor: { id: session.user.id, email: session.user.email, role: session.user.role },
       companyId: session.user.companyId,
-      dealerId: nextDealerId,
-      name,
-      email,
-      role: role as AppRole,
-      isActive,
-      passwordHash,
+      entityType: "user",
+      entityId: createdUser.id,
+      meta: { role, isActive, dealerId: nextDealerId },
     });
   }
 
@@ -232,6 +293,16 @@ export async function impersonateDealerUser(userId: string, _formData: FormData)
     throw new Error("Bu kullanıcıyla giriş yapılamıyor.");
   }
 
+  await logActivity({
+    action: "impersonation.started",
+    message: `Taklit oturumu başlatıldı: ${session.user.email} -> kullanıcı ${userId}`,
+    source: "admin.dealers.impersonateDealerUser",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "user",
+    entityId: userId,
+  });
+
   // unstable_update()'in tipi yalnızca Session alanlarını kabul ediyor;
   // impersonateUserId, jwt callback'indeki "update" trigger'ına özel bir
   // sinyal — bkz. src/auth.ts.
@@ -247,6 +318,17 @@ export async function deleteDealer(id: string, _formData: FormData) {
   await db
     .delete(dealers)
     .where(and(eq(dealers.id, id), eq(dealers.companyId, session.user.companyId)));
+
+  await logActivity({
+    action: "dealer.deleted",
+    level: "warn",
+    message: `Bayi silindi: ${id}`,
+    source: "admin.dealers.deleteDealer",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "dealer",
+    entityId: id,
+  });
 
   revalidatePath("/admin/brands");
 }
@@ -270,17 +352,33 @@ export async function createDealerUser(dealerId: string, formData: FormData) {
 
   const passwordHash = await hash(password, 10);
 
+  let createdUserId: string;
   try {
-    await db.insert(users).values({
-      companyId: session.user.companyId,
-      dealerId,
-      email,
-      role: "dealer_user",
-      passwordHash,
-    });
+    const [createdUser] = await db
+      .insert(users)
+      .values({
+        companyId: session.user.companyId,
+        dealerId,
+        email,
+        role: "dealer_user",
+        passwordHash,
+      })
+      .returning();
+    createdUserId = createdUser.id;
   } catch {
     throw new Error("Bu e-posta zaten kullanılıyor.");
   }
+
+  await logActivity({
+    action: "user.created",
+    message: `Bayi kullanıcısı oluşturuldu: ${email}`,
+    source: "admin.dealers.createDealerUser",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "user",
+    entityId: createdUserId,
+    meta: { dealerId },
+  });
 
   revalidatePath(`/admin/dealers/${dealerId}`);
 }
@@ -297,6 +395,18 @@ export async function deleteDealerUser(userId: string, dealerId: string, _formDa
         eq(users.companyId, session.user.companyId)
       )
     );
+
+  await logActivity({
+    action: "user.deleted",
+    level: "warn",
+    message: `Bayi kullanıcısı silindi: ${userId}`,
+    source: "admin.dealers.deleteDealerUser",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "user",
+    entityId: userId,
+    meta: { dealerId },
+  });
 
   revalidatePath(`/admin/dealers/${dealerId}`);
 }
@@ -330,6 +440,17 @@ export async function assignDealerBrand(
 
   await db.insert(dealerBrands).values({ dealerId, brandId }).onConflictDoNothing();
 
+  await logActivity({
+    action: "dealer.brand_assigned",
+    message: `Markaya atandı: bayi ${dealerId} -> marka ${brandId}`,
+    source: "admin.dealers.assignDealerBrand",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "dealer",
+    entityId: dealerId,
+    meta: { brandId },
+  });
+
   revalidatePath(`/admin/dealers/${dealerId}`);
 }
 
@@ -344,6 +465,17 @@ export async function unassignDealerBrand(
   await db
     .delete(dealerBrands)
     .where(and(eq(dealerBrands.dealerId, dealerId), eq(dealerBrands.brandId, brandId)));
+
+  await logActivity({
+    action: "dealer.brand_unassigned",
+    message: `Marka bağı kaldırıldı: bayi ${dealerId} -> marka ${brandId}`,
+    source: "admin.dealers.unassignDealerBrand",
+    actor: { id: session.user.id, email: session.user.email, role: session.user.role },
+    companyId: session.user.companyId,
+    entityType: "dealer",
+    entityId: dealerId,
+    meta: { brandId },
+  });
 
   revalidatePath(`/admin/dealers/${dealerId}`);
 }

@@ -24,12 +24,14 @@ export default function ForgotPasswordPage() {
           action={requestPasswordReset}
           successMessage="E-posta kayıtlıysa bir sıfırlama bağlantısı gönderildi."
           className="flex flex-col gap-4"
+          autoComplete="off"
         >
           <label className="flex flex-col gap-1">
             <span className={LABEL}>E-posta</span>
             <input
               name="email"
               type="email"
+              autoComplete="off"
               placeholder="ornek@harmonyblend.dev"
               required
               className={INPUT}

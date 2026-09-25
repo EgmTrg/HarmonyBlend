@@ -1,0 +1,156 @@
+{
+  "info": {
+    "name": "HarmonyBlend Smoke Test",
+    "description": "Auth akışı + temel admin sayfa erişimlerini doğrulayan uçtan uca smoke test. Newman ile çalıştırılır: `docker compose --profile test run --rm newman`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "adminEmail", "value": "admin@harmonyblend.dev" },
+    { "key": "adminPassword", "value": "changeme123" },
+    { "key": "companyCode", "value": "TUNAM" },
+    { "key": "csrfToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Unauthenticated request is redirected to login",
+      "protocolProfileBehavior": { "followRedirects": false },
+      "request": { "method": "GET", "url": "{{baseUrl}}/admin/settings" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('no session -> 307 redirect to /login', () => {",
+              "  pm.expect(pm.response.code).to.eql(307);",
+              "  pm.expect(pm.response.headers.get('location')).to.eql('/login');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Get CSRF token",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/csrf"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('csrfToken present', () => pm.expect(body.csrfToken).to.be.a('string').and.not.empty);",
+              "pm.collectionVariables.set('csrfToken', body.csrfToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Login (credentials)",
+      "protocolProfileBehavior": { "followRedirects": false },
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+        "url": "{{baseUrl}}/api/auth/callback/credentials",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "email", "value": "{{adminEmail}}" },
+            { "key": "password", "value": "{{adminPassword}}" },
+            { "key": "companyCode", "value": "{{companyCode}}" },
+            { "key": "csrfToken", "value": "{{csrfToken}}" },
+            { "key": "json", "value": "true" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('login accepted (200 or redirect)', () => {",
+              "  pm.expect([200, 302]).to.include(pm.response.code);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Session reflects logged-in admin",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/session"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('session user matches admin', () => {",
+              "  pm.expect(body.user, 'no user in session - login likely failed').to.exist;",
+              "  pm.expect(body.user.email).to.eql(pm.collectionVariables.get('adminEmail'));",
+              "  pm.expect(body.user.role).to.eql('company_admin');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Admin overview page loads",
+      "request": { "method": "GET", "url": "{{baseUrl}}/admin" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('status is 200', () => pm.response.to.have.status(200));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. System logs page loads",
+      "request": { "method": "GET", "url": "{{baseUrl}}/admin/logs" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('page contains expected heading', () => {",
+              "  pm.expect(pm.response.text()).to.include('Sistem Logları');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Products page loads",
+      "request": { "method": "GET", "url": "{{baseUrl}}/admin/products" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('status is 200', () => pm.response.to.have.status(200));"]
+          }
+        }
+      ]
+    }
+  ]
+}
