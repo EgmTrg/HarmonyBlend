@@ -66,10 +66,17 @@ services:
     profiles: ["test"]
     volumes:
       - ./postman:/etc/newman:ro
+    env_file:
+      - .env.local
     depends_on:
       - app
-    entrypoint: ["newman", "run", "/etc/newman/harmonyblend-smoke.postman_collection.json"]
-    command: ["--env-var", "baseUrl=http://app:3000"]
+    entrypoint: ["sh", "-c"]
+    command:
+      - >
+        newman run /etc/newman/harmonyblend-smoke.postman_collection.json
+        --env-var baseUrl=http://app:3000
+        --env-var adminEmail="$$SEED_ADMIN_EMAIL"
+        --env-var adminPassword="$$SEED_ADMIN_PASSWORD"
 
 networks:
   neon-local:

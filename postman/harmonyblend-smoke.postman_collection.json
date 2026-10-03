@@ -6,8 +6,8 @@
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000" },
-    { "key": "adminEmail", "value": "admin@harmonyblend.dev" },
-    { "key": "adminPassword", "value": "changeme123" },
+    { "key": "adminEmail", "value": "", "description": "newman --env-var adminEmail=... ile verilir (bkz. docker-compose.yml)" },
+    { "key": "adminPassword", "value": "", "description": "newman --env-var adminPassword=... ile verilir (bkz. docker-compose.yml)" },
     { "key": "companyCode", "value": "TUNAM" },
     { "key": "csrfToken", "value": "" }
   ],
@@ -100,7 +100,7 @@
               "const body = pm.response.json();",
               "pm.test('session user matches admin', () => {",
               "  pm.expect(body.user, 'no user in session - login likely failed').to.exist;",
-              "  pm.expect(body.user.email).to.eql(pm.collectionVariables.get('adminEmail'));",
+              "  pm.expect(body.user.email).to.eql(pm.variables.get('adminEmail'));",
               "  pm.expect(body.user.role).to.eql('company_admin');",
               "});"
             ]

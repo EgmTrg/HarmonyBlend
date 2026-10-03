@@ -38,6 +38,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# yerel makineye ozel gelistirme betikleri (sabit yollar iceriyor, repoya
+# dahil edilmiyor ama diskte kalmaya devam ediyor)
+projeyi-baslat.bat
+projeyi-durdur.bat
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
