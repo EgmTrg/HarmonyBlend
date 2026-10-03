@@ -1,14 +1,9 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import puppeteer from "puppeteer-core";
 import { findChromeExecutable } from "./find-chrome.mjs";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DOCS_ROOT = path.resolve(__dirname, "..");
-const ROADMAP_MD = path.join(DOCS_ROOT, "roadmap.md");
-const DIAGRAMS_DIR = path.join(DOCS_ROOT, "assets", "diagrams");
+import { DOCS_ROOT, DIAGRAMS_DIR, sourceMdPath } from "./markdown-source.mjs";
 
 const MERMAID_CANDIDATES = [
   "mermaid.min.js",
@@ -81,8 +76,8 @@ async function renderOne(page, code, outFile) {
   await element.screenshot({ path: outFile, omitBackground: false });
 }
 
-export async function renderDiagrams() {
-  const markdown = await readFile(ROADMAP_MD, "utf-8");
+export async function renderDiagrams(name = "roadmap") {
+  const markdown = await readFile(sourceMdPath(name), "utf-8");
   const blocks = extractMermaidBlocks(markdown);
 
   await mkdir(DIAGRAMS_DIR, { recursive: true });
@@ -118,7 +113,7 @@ export async function renderDiagrams() {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  renderDiagrams()
+  renderDiagrams(process.argv[2])
     .then((files) => console.log(`Tamamlandı: ${files.length} diyagram üretildi.`))
     .catch((err) => {
       console.error(err);

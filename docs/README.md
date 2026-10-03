@@ -36,3 +36,17 @@ npm run docx        # sadece Word (mevcut diyagram PNG'lerini kullanır)
 
 `roadmap.md` içindeki mermaid diyagramlarını değiştirdiyseniz önce
 `npm run diagrams`, sonra `pdf`/`docx` çalıştırın (ya da doğrudan `npm run build`).
+
+## Başka bir doküman üretmek için
+
+Pipeline `roadmap.md`'ye özel değil — `docs/` altındaki herhangi bir
+`<isim>.md` dosyası aynı şekilde derlenebilir:
+
+```
+npm run build -- <isim>        # ör. npm run build -- product-overview
+npm run build:product-overview # product-overview.md için kısayol
+```
+
+Çıktılar `output/<isim>.pdf` ve `output/<isim>.docx` olarak üretilir.
+Markdown içine `![açıklama](assets/screenshots/dosya.png)` ile eklenen
+normal (mermaid olmayan) görseller otomatik olarak gömülür.

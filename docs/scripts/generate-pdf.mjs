@@ -4,15 +4,16 @@ import { marked } from "marked";
 import puppeteer from "puppeteer-core";
 import { findChromeExecutable } from "./find-chrome.mjs";
 import {
-  loadRoadmap,
+  loadMarkdownDoc,
   replaceMermaidBlocks,
   diagramToken,
   diagramPngPath,
+  inlineLocalImages,
   OUTPUT_DIR,
 } from "./markdown-source.mjs";
 
-export async function buildBodyHtml() {
-  const { meta, content } = await loadRoadmap();
+export async function buildBodyHtml(name = "roadmap") {
+  const { meta, content } = await loadMarkdownDoc(name);
   const { content: withTokens, diagramCount } = replaceMermaidBlocks(content);
 
   let bodyHtml = marked.parse(withTokens);
@@ -26,10 +27,20 @@ export async function buildBodyHtml() {
     bodyHtml = bodyHtml.replace(tokenPattern, figure);
   }
 
+  bodyHtml = bodyHtml.replace(
+    /<p><img src="([^"]+)" alt="([^"]*)"\s*\/?><\/p>/g,
+    (_match, src, alt) =>
+      `<figure class="screenshot"><img src="${src}" alt="${alt}" />${
+        alt ? `<figcaption>${alt}</figcaption>` : ""
+      }</figure>`
+  );
+
+  bodyHtml = await inlineLocalImages(bodyHtml);
+
   return { meta, bodyHtml };
 }
 
-export function pageHtml(meta, bodyHtml) {
+export function pageHtml(meta, bodyHtml, name = "roadmap") {
   const generatedOn = new Date().toLocaleDateString("tr-TR", {
     year: "numeric",
     month: "long",
@@ -187,26 +198,45 @@ export function pageHtml(meta, bodyHtml) {
     break-inside: avoid;
   }
   figure.diagram img { max-width: 100%; }
+
+  figure.screenshot {
+    margin: 16px 0;
+    padding: 0;
+    text-align: center;
+    break-inside: avoid;
+  }
+  figure.screenshot img {
+    max-width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  figure.screenshot figcaption {
+    font-family: var(--mono);
+    font-size: 8.3pt;
+    color: var(--ink-faint);
+    margin-top: 6px;
+  }
 </style>
 </head>
 <body>
   <section class="cover">
-    <p class="eyebrow">Sistem Mimarisi &amp; Yol Haritası Dokümanı</p>
+    <p class="eyebrow">${meta.eyebrow || "Sistem Mimarisi &amp; Yol Haritası Dokümanı"}</p>
     <h1>${meta.title || "HarmonyBlend (HB)"}</h1>
     <p class="subtitle">${meta.subtitle || ""}</p>
-    <p class="meta">Oluşturulma tarihi: ${generatedOn}<br/>docs/roadmap.md kaynağından otomatik üretildi</p>
+    <p class="meta">Oluşturulma tarihi: ${generatedOn}<br/>docs/${name}.md kaynağından otomatik üretildi</p>
   </section>
   ${bodyHtml}
 </body>
 </html>`;
 }
 
-export async function generatePdf() {
-  const { meta, bodyHtml } = await buildBodyHtml();
-  const html = pageHtml(meta, bodyHtml);
+export async function generatePdf(name = "roadmap") {
+  const { meta, bodyHtml } = await buildBodyHtml(name);
+  const html = pageHtml(meta, bodyHtml, name);
 
   await mkdir(OUTPUT_DIR, { recursive: true });
-  const outPath = path.join(OUTPUT_DIR, "roadmap.pdf");
+  const outPath = path.join(OUTPUT_DIR, `${name}.pdf`);
 
   const browser = await puppeteer.launch({
     executablePath: findChromeExecutable(),
@@ -235,7 +265,7 @@ export async function generatePdf() {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  generatePdf()
+  generatePdf(process.argv[2])
     .then((p) => console.log(`PDF üretildi: ${p}`))
     .catch((err) => {
       console.error(err);

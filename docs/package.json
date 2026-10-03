@@ -6,6 +6,7 @@
   "description": "HarmonyBlend (HB) roadmap dokümanının PDF/Word üretim hattı",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "build:product-overview": "node scripts/build.mjs product-overview",
     "diagrams": "node scripts/render-diagrams.mjs",
     "pdf": "node scripts/generate-pdf.mjs",
     "docx": "node scripts/generate-docx.mjs"

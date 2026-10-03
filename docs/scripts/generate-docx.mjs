@@ -19,9 +19,10 @@ import {
   VerticalAlign,
 } from "docx";
 import {
-  loadRoadmap,
+  loadMarkdownDoc,
   replaceMermaidBlocks,
   diagramPngPath,
+  resolveLocalImagePath,
   OUTPUT_DIR,
 } from "./markdown-source.mjs";
 
@@ -193,6 +194,45 @@ async function diagramParagraph(n) {
   });
 }
 
+async function screenshotParagraphs(src, alt) {
+  const buffer = await readFile(resolveLocalImagePath(src));
+  const { width, height } = pngDimensions(buffer);
+  const targetWidth = 440;
+  const targetHeight = Math.round((height / width) * targetWidth);
+
+  const paragraphs = [
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 160, after: alt ? 40 : 160 },
+      border: {
+        top: { style: BorderStyle.SINGLE, size: 4, color: LINE },
+        bottom: { style: BorderStyle.SINGLE, size: 4, color: LINE },
+        left: { style: BorderStyle.SINGLE, size: 4, color: LINE },
+        right: { style: BorderStyle.SINGLE, size: 4, color: LINE },
+      },
+      children: [
+        new ImageRun({
+          data: buffer,
+          transformation: { width: targetWidth, height: targetHeight },
+          type: "png",
+        }),
+      ],
+    }),
+  ];
+
+  if (alt) {
+    paragraphs.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 160 },
+        children: [new TextRun({ text: alt, font: "Consolas", size: 16, color: INK_FAINT })],
+      })
+    );
+  }
+
+  return paragraphs;
+}
+
 async function tokensToDocxChildren(tokens) {
   const children = [];
   let firstH1 = true;
@@ -236,8 +276,11 @@ async function tokensToDocxChildren(tokens) {
       case "paragraph": {
         const raw = token.text?.trim();
         const diagramMatch = raw && raw.match(/^@@DIAGRAM_PLACEHOLDER_(\d+)@@$/);
+        const soleImage = token.tokens?.length === 1 && token.tokens[0].type === "image" ? token.tokens[0] : null;
         if (diagramMatch) {
           children.push(await diagramParagraph(Number(diagramMatch[1])));
+        } else if (soleImage) {
+          children.push(...(await screenshotParagraphs(soleImage.href, soleImage.text)));
         } else {
           children.push(
             new Paragraph({
@@ -291,7 +334,7 @@ async function tokensToDocxChildren(tokens) {
   return children;
 }
 
-function coverParagraphs(meta) {
+function coverParagraphs(meta, name) {
   const generatedOn = new Date().toLocaleDateString("tr-TR", {
     year: "numeric",
     month: "long",
@@ -302,7 +345,7 @@ function coverParagraphs(meta) {
       spacing: { before: 2400, after: 200 },
       children: [
         new TextRun({
-          text: "SİSTEM MİMARİSİ & YOL HARİTASI DOKÜMANI",
+          text: meta.eyebrow || "SİSTEM MİMARİSİ & YOL HARİTASI DOKÜMANI",
           font: "Consolas",
           size: 18,
           color: ACCENT_2,
@@ -339,7 +382,7 @@ function coverParagraphs(meta) {
     new Paragraph({
       children: [
         new TextRun({
-          text: "docs/roadmap.md kaynağından otomatik üretildi",
+          text: `docs/${name}.md kaynağından otomatik üretildi`,
           font: "Consolas",
           size: 17,
           color: INK_FAINT,
@@ -350,8 +393,8 @@ function coverParagraphs(meta) {
   ];
 }
 
-export async function generateDocx() {
-  const { meta, content } = await loadRoadmap();
+export async function generateDocx(name = "roadmap") {
+  const { meta, content } = await loadMarkdownDoc(name);
   const { content: withTokens } = replaceMermaidBlocks(content);
   const tokens = marked.lexer(withTokens);
 
@@ -389,20 +432,20 @@ export async function generateDocx() {
     sections: [
       {
         properties: { page: { margin: { top: 1000, bottom: 1000, left: 1100, right: 1100 } } },
-        children: [...coverParagraphs(meta), ...body],
+        children: [...coverParagraphs(meta, name), ...body],
       },
     ],
   });
 
   await mkdir(OUTPUT_DIR, { recursive: true });
-  const outPath = path.join(OUTPUT_DIR, "roadmap.docx");
+  const outPath = path.join(OUTPUT_DIR, `${name}.docx`);
   const buffer = await Packer.toBuffer(doc);
   await writeFile(outPath, buffer);
   return outPath;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  generateDocx()
+  generateDocx(process.argv[2])
     .then((p) => console.log(`Word belgesi üretildi: ${p}`))
     .catch((err) => {
       console.error(err);

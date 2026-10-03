@@ -4,9 +4,16 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const DOCS_ROOT = path.resolve(__dirname, "..");
-export const ROADMAP_MD = path.join(DOCS_ROOT, "roadmap.md");
 export const DIAGRAMS_DIR = path.join(DOCS_ROOT, "assets", "diagrams");
 export const OUTPUT_DIR = path.join(DOCS_ROOT, "output");
+
+export function sourceMdPath(name) {
+  return path.join(DOCS_ROOT, `${name}.md`);
+}
+
+export function outputPath(name, ext) {
+  return path.join(OUTPUT_DIR, `${name}.${ext}`);
+}
 
 /** Basit frontmatter ayrıştırıcı: yalnızca "key: value" satırlarını okur. */
 export function splitFrontmatter(raw) {
@@ -20,8 +27,8 @@ export function splitFrontmatter(raw) {
   return { meta, content: match[2] };
 }
 
-export async function loadRoadmap() {
-  const raw = await readFile(ROADMAP_MD, "utf-8");
+export async function loadMarkdownDoc(name) {
+  const raw = await readFile(sourceMdPath(name), "utf-8");
   return splitFrontmatter(raw);
 }
 
@@ -46,4 +53,25 @@ export function diagramToken(n) {
 
 export function diagramPngPath(n) {
   return path.join(DIAGRAMS_DIR, `diagram-${n}.png`);
+}
+
+/** Markdown içindeki yerel (http olmayan) görsel yollarını docs/ köküne göre çözer. */
+export function resolveLocalImagePath(src) {
+  return path.join(DOCS_ROOT, src);
+}
+
+/** HTML içindeki yerel <img src="..."> referanslarını base64 data URI'ye çevirir
+ * (puppeteer'ın page.setContent'inde taban URL olmadığından dosya yolları çözülemiyor). */
+export async function inlineLocalImages(html) {
+  const imgTag = /<img src="([^"]+)"([^>]*)>/g;
+  const matches = [...html.matchAll(imgTag)];
+  let result = html;
+  for (const match of matches) {
+    const [full, src, rest] = match;
+    if (src.startsWith("http") || src.startsWith("data:")) continue;
+    const buffer = await readFile(resolveLocalImagePath(src));
+    const dataUri = `data:image/png;base64,${buffer.toString("base64")}`;
+    result = result.replaceAll(full, `<img src="${dataUri}"${rest}>`);
+  }
+  return result;
 }
