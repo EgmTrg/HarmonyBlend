@@ -115,9 +115,9 @@ export default function HakkindaPage() {
               uçtan uca izlenebilir bir panel alır.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <span className={BUTTON_PRIMARY}>Bugün kullanılabilir bir sistem →</span>
+              <span className={BUTTON_PRIMARY}>Çalışan, gün kurtaran bir sistem</span>
               <span className="inline-flex items-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink-600">
-                Çok markalı, çok bayili yapı için tasarlandı
+                Çok markalı, bayi kontrollü, akışkan bir sistem
               </span>
             </div>
           </div>
