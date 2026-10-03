@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Work_Sans, IBM_Plex_Mono } from "next/font/google";
 import { CARD, BUTTON_PRIMARY, badgeClass } from "@/lib/ui";
+import { LightboxImage } from "./lightbox-image";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -47,8 +48,7 @@ function ShotFrame({
         <span className="h-2 w-2 rounded-full bg-white/15" />
         <span className="h-2 w-2 rounded-full bg-white/15" />
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} loading="lazy" className="block h-auto w-full" />
+      <LightboxImage src={src} alt={alt} />
       <figcaption style={mono} className="px-3.5 py-3 text-xs text-ink-400">
         {caption}
       </figcaption>
@@ -264,8 +264,8 @@ export default function HakkindaPage() {
           <h2 style={display} className="max-w-xl text-balance text-[clamp(24px,3.2vw,32px)] font-medium text-ink-900">
             Bugün ne var, yakında ne geliyor.
           </h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
-            <div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className={CARD}>
               <span className={badgeClass("success")} style={mono}>Bugün hazır</span>
               <ul className="mt-4 flex flex-col gap-2.5 text-sm text-ink-600">
                 <li>Çok markalı katalog ve bayi/marka eşleştirmesi</li>
@@ -276,7 +276,7 @@ export default function HakkindaPage() {
                 <li>Mobil &amp; tablet uyumlu arayüz</li>
               </ul>
             </div>
-            <div>
+            <div className={CARD}>
               <span className={badgeClass("warning")} style={mono}>Yakında</span>
               <ul className="mt-4 flex flex-col gap-2.5 text-sm text-ink-600">
                 <li>Markaya özel sipariş gün/saat kısıtlaması</li>
@@ -286,7 +286,7 @@ export default function HakkindaPage() {
                 <li>Talebe özel raporlar</li>
               </ul>
             </div>
-            <div>
+            <div className={CARD}>
               <span className={badgeClass("danger")} style={mono}>Şu an kapsam dışı</span>
               <ul className="mt-4 flex flex-col gap-2.5 text-sm text-ink-600">
                 <li>Gerçek bankadan canlı tahsilat (şu an test modunda)</li>
@@ -302,18 +302,18 @@ export default function HakkindaPage() {
           <p style={mono} className="mb-7 text-xs uppercase tracking-[0.1em] text-ink-400">
             Neden HarmonyBlend?
           </p>
-          <div className="grid gap-7 sm:grid-cols-3">
-            <div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className={CARD}>
               <span style={display} className="mb-2.5 block text-3xl italic text-accent-500">i.</span>
               <h3 className="mb-1.5 text-[15.5px] font-semibold text-ink-900">Dağınıklığın yerini merkez alır</h3>
               <p className="text-sm text-ink-600">Telefon, WhatsApp ve Excel&apos;in dağıttığı bilgi tek bir panelde toplanır.</p>
             </div>
-            <div>
+            <div className={CARD}>
               <span style={display} className="mb-2.5 block text-3xl italic text-accent-500">ii.</span>
               <h3 className="mb-1.5 text-[15.5px] font-semibold text-ink-900">Markanız büyüdükçe o da büyür</h3>
               <p className="text-sm text-ink-600">Yeni bir marka veya bayi eklemek bir form doldurmaktan ibarettir.</p>
             </div>
-            <div>
+            <div className={CARD}>
               <span style={display} className="mb-2.5 block text-3xl italic text-accent-500">iii.</span>
               <h3 className="mb-1.5 text-[15.5px] font-semibold text-ink-900">Her şey kayıtlı, geriye bakılabilir</h3>
               <p className="text-sm text-ink-600">Kim ne zaman ne yaptı — her sipariş ve ödeme için izlenebilir.</p>
