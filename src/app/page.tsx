@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CompanyGate } from "./company-gate";
 
 export default async function HomePage({
@@ -19,14 +20,12 @@ export default async function HomePage({
       </div>
       <p className="max-w-sm text-sm text-white/50">B2B Sipariş &amp; Bayi Yönetim Sistemi</p>
       <CompanyGate invalidCompany={companyError === "1"} />
-      <a
-        href="https://claude.ai/artifact/MMv62agpSd3VSAmokBc8Pa"
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        href="/hakkinda"
         className="text-xs text-white/40 underline-offset-2 hover:text-white/70 hover:underline"
       >
         HarmonyBlend nedir? →
-      </a>
+      </Link>
     </main>
   );
 }
