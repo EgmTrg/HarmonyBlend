@@ -17,12 +17,30 @@ veri modeli, iş akışı, teknoloji ve ekran planını içerir.
 
 ## 1. Fazlandırılmış Yol Haritası
 
-Yedi faz; her biri bir öncekinin üstüne çalışır durumda kalacak şekilde
-kurgulandı. Sanal POS entegrasyonu bilerek en sona bırakıldı — mock sağlayıcı
-arayüzü Faz 3'te kurulduğu için Faz 6 bir "değiştirme" işlemi, yeniden yazma
-değil. Aynı gerekçeyle bir ERP entegrasyonu ihtimali de en sona (Faz 7)
-bırakıldı; Faz 4'teki sipariş düzenleme/silme özelliği bu ihtimali gözeterek
+Her faz bir öncekinin üstüne çalışır durumda kalacak şekilde kurgulandı.
+Sanal POS entegrasyonu bilerek sona bırakıldı — mock sağlayıcı arayüzü
+Faz 3'te kurulduğu için Faz 6 bir "değiştirme" işlemi, yeniden yazma değil.
+Aynı gerekçeyle bir ERP entegrasyonu ihtimali de sona (Faz 7) bırakıldı;
+Faz 4'teki sipariş düzenleme/silme özelliği bu ihtimali gözeterek
 tasarlanacak (bkz. Faz 4 ve Faz 7 notları) ki ileride yeniden tasarlanmasın.
+
+Faz numaraları **tamamlanma sırasını** yansıtır (ör. Faz 12/13, henüz
+yapılmamış Faz 8/9/11'den önce tamamlandı); aşağıdaki sıra bu yüzden sabit
+bırakıldı — bitmiş bir fazın numarasını değiştirmek, o numarayla referans
+veren commit mesajlarıyla tutarsızlık yaratır. Henüz yapılmamış fazlar için
+**uygulama önceliği** ise farklı ve ayrı bir sıralamadır:
+
+> **Öncelik Sırası (henüz yapılmamış fazlar, etki/bağımlılık sırasına
+> göre) —** Faz 14 → Faz 11 → Faz 9 → Faz 5 → Faz 8 → Faz 6 → Faz 7.
+> Gerekçe: Faz 14 (sipariş zaman penceresi) ve Faz 11 (bayi denetimi) dışa
+> bağımlı değil, küçük/izole kapsamlı ve canlı operasyonu doğrudan
+> etkiliyor; Faz 9 operasyon ekibinin günlük ihtiyacı, sayfa iskeletleri
+> hazır; Faz 5 kapsamı henüz tanımsız (yukarıdaki not), kullanıcıdan gelen
+> rapor talepleri netleşince bu sırada ele alınacak; Faz 8 daha büyük/4 alt
+> adımlı bir iş ama günlük sipariş akışını bloklamıyor; Faz 6 gerçek bir
+> banka/PSP seçimi gibi dış bir karara bağlı; Faz 7 "hangi ERP'ye
+> bağlanılacağı belli değil" diyen en büyük bilinmeyen/risk olduğu için en
+> sonda. Bu sıra, projenin ilerleyişine göre güncellenebilir.
 
 ### Faz 1 — Temel Altyapı & Veri Modeli Kurulumu ✅ Tamamlandı
 
@@ -361,55 +379,21 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
 **Çıkış kriteri —** bir bayi siparişsiz şekilde mock POS ile ödeme yapıyor ve
 cari bakiyesinin anında güncellendiğini görüyor.
 
-### Faz 5 — Raporlama & Analitik ↩️ Geri Alındı
+### Faz 5 — Raporlama & Analitik (kapsam belirlenecek)
 
-> **Geri alım notu:** Aşağıdaki iş gerçekten tamamlanmış ve teslim
-> edilmişti, ancak `2c230d1` commit'inde (`src/lib/reports.ts`,
-> `src/app/admin/reports/export/route.ts`,
-> `src/app/admin/reports/reports-filters.tsx` silinerek) `/admin/reports`
-> yeniden "yapım aşamasında" yer tutucusuna çevrildi. Bu bölüm, ileride
-> yeniden yapılırken referans olması için olduğu gibi bırakıldı — durum
-> etiketi dışında içerik güncel koda değil, o zamanki teslimatın kaydına
-> aittir.
+> **Not:** Bu fazın önceki tasarımı (marka bazlı satış raporu + pasif bayi
+> raporu, Excel export) `2c230d1` commit'inde tamamen geri alındı
+> (`src/lib/reports.ts`, `src/app/admin/reports/export/route.ts`,
+> `src/app/admin/reports/reports-filters.tsx` silindi, `/admin/reports`
+> "yapım aşamasında" yer tutucusuna döndü) ve bu kayıt artık referans
+> amacıyla da tutulmuyor — o rapor tasarımı istenen kapsamla örtüşmüyordu.
+> Faz kapsamı, kullanıcının "şu konuda bir rapor olsun" şeklinde tek tek
+> vereceği somut rapor taleplerine göre ileride yeniden tanımlanacak;
+> aşağıdaki hedef ve çıkış kriteri o zaman yazılacak.
 
-Hedef: Filtrelenebilir, dışa aktarılabilir raporlama motoru.
+Hedef: TBD — kullanıcıdan gelecek rapor taleplerine göre belirlenecek.
 
-- ~~Marka / tarih aralığı filtreleriyle dinamik tablo ve grafikler~~ — ✅
-  Tamamlandı. Ürün bazlı filtre şimdilik kapsam dışı bırakıldı; bayi bazlı
-  filtre de eklenmedi — bayiler raporlarda sadece gruplanmış çıktı (en çok
-  sipariş/ciro yapan bayiler) olarak görünüyor, filtre girdisi değil.
-  Admin genel bakış (`src/app/admin/page.tsx`) ve siparişler
-  (`src/app/admin/orders/`) ekranlarına dönem filtresi
-  (`src/components/period-filter.tsx`, `src/lib/date-range.ts`) ve marka
-  filtresi (`src/components/brand-filter-buttons.tsx`,
-  `src/components/by-brand-toggle.tsx`) eklendi; grafikler seçilen döneme
-  göre saat/gün/hafta/ay bucket'larına bölünüyor
-  (`src/lib/chart-buckets.ts`, `src/components/grouped-bar-chart.tsx`).
-- ~~Excel (.xlsx) export~~ — ✅ Tamamlandı, sadece Excel ile — CSV şimdilik
-  kapsam dışı, PDF ise ileride sayısı az birkaç belirli rapor için ayrıca
-  ele alınacak. Yeni `/admin/reports` sayfası (`src/app/admin/reports/`)
-  altında marka bazlı satış raporu ve pasif bayi raporu için birer
-  "Excel'e Aktar" butonu; indirme, seçili filtrelerle aynı sorguyu tekrar
-  çalıştırıp `exceljs` ile `.xlsx` üreten bir route handler'dan geçiyor
-  (`src/app/admin/reports/export/route.ts`). Rapor sorguları
-  `src/lib/reports.ts`'te toplandı ki sayfa ve export handler'ı aynı
-  mantığı kullansın.
-- ~~Sipariş vermeyen bayi raporu~~ — ✅ Tamamlandı — pasif bayi takibi için
-  Payna Grup Portal karşılaştırmasından gelen ek kapsam. `/admin/reports`
-  sayfasında Bugün / Dün / 1 Hafta / 2 Hafta (en sıkı uç) eşiği seçilebiliyor
-  (`src/lib/inactive-threshold.ts`, `src/app/admin/reports/reports-filters.tsx`);
-  hiç sipariş vermemiş ya da eşik gün sayısından uzun süredir sipariş vermemiş bayiler, hangi
-  marka(lar)a bağlı oldukları ve son sipariş tarihiyle birlikte listeleniyor
-  (`getInactiveDealersReport`, `src/lib/reports.ts`). İptal/red edilen
-  siparişler "sipariş verdi" sayılmıyor — genel bakış istatistikleriyle
-  aynı kural (`EXCLUDED_FROM_STATS_STATUSES`).
-
-Kapsam dışı bırakıldı: büyüyen veri hacmi için özet tablo / materialized
-view stratejisi — genel bakış grafikleri mevcut hacimde yeterli
-performans sağlıyor, ileride ihtiyaç olursa ayrı bir işe konu edilecek.
-
-**Çıkış kriteri —** bir firma yetkilisi son üç ayın marka bazlı satışlarını
-filtreleyip Excel'e aktarabiliyor.
+**Çıkış kriteri —** TBD.
 
 ### Faz 6 — Canlı Sanal POS Entegrasyonu & Sertleştirme
 
