@@ -757,6 +757,74 @@ geçişinde `order.status` exchange'ine gerçek bir mesaj yayınlandığı
 doğrulandı; her iki bileşen de opsiyonel — yokluklarında uygulama normal
 çalışmaya devam ediyor.
 
+### Faz 14 — Marka Bazlı Sipariş Zaman Penceresi (Gün/Tarih/Saat Kısıtlamaları)
+
+Hedef: Bir markanın sipariş alıp almayacağını ve ne zaman alacağını admin'in
+tek tıkla açıp kapatabildiği, markaya özgü gün/tarih/saat kısıtlamalarıyla
+kontrol edebildiği bir sistem — üstüne, tüm markalara karşı baskın (daha
+gevşek bir marka ayarını asla geçersiz kılamayan, sadece daha da
+sıkılaştırabilen) firma çapında bir genel ayar.
+
+**İş mantığı — "baskın genel ayar" kuralı:** her markanın kendi sipariş
+penceresi (gün/tarih/saat) olabilir, ama firma çapındaki genel pencere her
+zaman üstte bir tavan olarak çalışır: efektif pencere = genel pencere ∩
+marka penceresi (ikisinin kesişimi). Örnek: Musluoğlu saat 22:00'a kadar
+sipariş kabul ediyor ama genel ayarda son sipariş saati 21:00 ise, efektif
+son saat 21:00'dir — Musluoğlu'nun kendi ayarı genel ayarı gevşetemez,
+yalnızca kendi başına daha da sıkı bir kısıtlama ekleyebilir (örn. markaya
+özel 20:00 gibi daha erken bir saat koyarsa o zaman devreye girer). Aynı
+kesişim mantığı gün (haftanın hangi günleri sipariş alınır) ve tarih
+aralığı (örn. bayram/tatil kapatması) için de geçerli. Marka veya genel
+ayarda bir alan boş/tanımsız bırakılırsa o alanda kısıtlama yok sayılır
+(kısıtlama koymamak = her zaman izinli). Markanın "sipariş alımı" anahtarı
+kapalıysa (genel ayardan bağımsız) o marka hiç sipariş alamaz; genel
+ayardaki ana kapatma anahtarı kapalıysa hiçbir marka sipariş alamaz (tüm
+markalar için tek seferde acil durdurma).
+
+**Veri modeli (taslak):**
+- `companies`'e eklenecek genel ayar alanları: `order_window_enabled`
+  (boolean, DEFAULT true — ana acil-durdurma anahtarı),
+  `order_allowed_days` (haftanın günleri, NULL = kısıtlama yok),
+  `order_start_time` / `order_end_time` (time, NULL = kısıtlama yok),
+  `order_window_start_date` / `order_window_end_date` (date, NULL =
+  kısıtlama yok — tatil/bayram gibi dönemsel kapatmalar için)
+- `brands`'e aynı şemayla marka bazlı kolonlar (`order_window_enabled`,
+  `order_allowed_days`, `order_start_time`, `order_end_time`,
+  `order_window_start_date`, `order_window_end_date`) — genel ayarla birebir
+  aynı alan seti, farkı sadece hangi seviyede tutulduğu
+- Efektif pencereyi hesaplayan tek bir yardımcı fonksiyon (ör.
+  `src/lib/order-window.ts::isOrderingAllowed(brand, companySettings, now)`)
+  — hem server action'da (`createOrder`) hem UI'da (katalog/sepet) aynı
+  mantığı çağırır, iki yerde ayrı ayrı yazılmaz
+
+**UI (admin, `/admin/settings` sayfasına yeni bölüm):**
+- Sayfanın üstünde her zaman açık, katlanmayan bir "Genel Sipariş
+  Kısıtlamaları" kartı — ana aç/kapa anahtarı + gün/tarih/saat alanları;
+  "tüm markalara karşı baskındır" uyarı metniyle işaretli
+- Altında her marka adı (DilimBörek, Musluoğlu, ...) kendi başlığı bir
+  accordion/disclosure satırı olarak listelenir — başlığa tıklanınca o
+  markanın aç/kapa anahtarı + gün/tarih/saat alanları expand olur, tekrar
+  tıklanınca kapanır; birden fazla marka aynı anda açık kalabilir
+- Her markanın başlığında mevcut durumun özeti (örn. "Açık · Pzt-Cmt
+  09:00-21:00" ya da "Kapalı") — accordion kapalıyken bile durum tek
+  bakışta görünür
+
+**Bayi tarafı etkisi:**
+- Pencere dışındaysa bayi kataloğunda o markanın "Sepete Ekle"/checkout
+  akışı devre dışı bırakılır, nedeni açıklayan bir banner gösterilir (örn.
+  "Bu marka için sipariş saatleri: 09:00-21:00, Pzt-Cmt — şu an sipariş
+  alınmıyor")
+- `createOrder` server action'ı aynı kontrolü sunucu tarafında tekrarlar —
+  client'a güvenilmez (mevcut fiyat/KDV/sipariş katı doğrulama ilkesiyle
+  aynı desen)
+
+**Çıkış kriteri —** admin bir markanın sipariş alımını tek tıkla kapatıp
+açabiliyor; markaya gün/tarih/saat kısıtlaması koyduğunda bayi panelinde
+pencere dışı anlarda o markaya sipariş verilemiyor; genel ayar bir
+markanın kendi ayarından daha sıkıysa genel ayar kazanıyor (örnekte: genel
+21:00 son saat, marka 22:00 son saat ayarlamış olsa bile sipariş 21:00'da
+kesiliyor) — hem UI hem sunucu tarafında doğrulandı.
+
 ---
 
 ## 2. Veri Modeli
