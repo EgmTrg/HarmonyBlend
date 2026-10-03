@@ -141,7 +141,7 @@ export function CheckoutForm({
         </div>
         {!cariAvailable && (
           <p className="mt-3 text-xs text-ink-400">
-            Bakiye limitiniz bu sipariş ile aşılacağı için cari ile ödeme kapalı — nakit/kapıda
+            Bakiye limitiniz bu sipariş ile aşılacağı için cari ile ödeme kapalı — nakit/merkezde
             ödeme veya sanal POS kullanabilirsiniz.
           </p>
         )}

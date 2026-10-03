@@ -111,7 +111,7 @@ export async function createOrder(
       Number(dealerInfo.currentBalance) + Number(totalAmount) > Number(dealerInfo.maxBalanceLimit)
     ) {
       throw new Error(
-        "Bakiye limitiniz aşılıyor, cari ile ödeme yapamazsınız. Lütfen nakit/kapıda ödeme seçin."
+        "Bakiye limitiniz aşılıyor, cari ile ödeme yapamazsınız. Lütfen nakit/merkezde ödeme seçin."
       );
     }
   }

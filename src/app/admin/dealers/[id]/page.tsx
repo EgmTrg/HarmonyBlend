@@ -82,7 +82,7 @@ export default async function DealerDetailPage({
                 placeholder="Boş bırakılırsa limitsiz"
               />
               <span className="text-xs text-ink-400">
-                Bu tutar aşılırsa cari ile ödeme kapanır, bayi nakit/kapıda ödeme kullanmak
+                Bu tutar aşılırsa cari ile ödeme kapanır, bayi nakit/merkezde ödeme kullanmak
                 zorunda kalır.
               </span>
             </label>

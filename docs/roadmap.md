@@ -11,7 +11,7 @@ veri modeli, iş akışı, teknoloji ve ekran planını içerir.
 
 - **Kapsam** — Tunam çatısı altında çoklu alt marka (Musluoğlu, Dilim Börek)
 - **Veritabanı** — Neon Postgres, ilk günden sabit
-- **Ödeme** — Cari · Nakit/Kapıda Ödeme · Sanal POS (mock)
+- **Ödeme** — Cari · Nakit/Merkezde Ödeme · Sanal POS (mock)
 
 ---
 
@@ -137,7 +137,7 @@ ve durum makinesi.
   Tamamlandı, roadmap dışı bir ek kapsam. Yeni admin `/admin/settings`
   sayfası (yalnızca `company_admin` rolü değiştirebiliyor) ve
   `companies.requires_order_approval` sütunu (varsayılan `true`, mevcut
-  davranışı bozmuyor). Kapalıyken `createOrder` cari/kapıda ödeme
+  davranışı bozmuyor). Kapalıyken `createOrder` cari/merkezde ödeme
   siparişlerini `submitted → approved`, sanal POS'ta ödeme başarılı
   olan siparişleri `paid → approved` durumuna otomatik geçiriyor
   (`changedBy: null`, sistem notu ile) — durum makinesindeki mevcut
@@ -166,7 +166,7 @@ ve durum makinesi.
   firma (Tunam) çalışıyor, ama giriş akışı artık birden fazla firmayı
   ayrıştırabilecek şekilde kurulu.
 
-**Çıkış kriteri —** üç ödeme tipiyle de (cari, kapıda ödeme, sanal POS
+**Çıkış kriteri —** üç ödeme tipiyle de (cari, merkezde ödeme, sanal POS
 başarılı/başarısız) uçtan uca sipariş oluşturulabiliyor; admin panelde durum
 geçişleri izlenebiliyor. Tarayıcıda doğrulandı.
 
@@ -210,7 +210,7 @@ Hedef: Siparişten kopuk, serbest tutarlı ödeme ve cari hesap defteri.
   (`src/lib/ledger.ts`) — her çağrı bir defter satırı yazıp
   `dealers.currentBalance` önbelleğini aynı anda günceller. Üç yazım
   noktası: cari sipariş oluşturulduğunda otomatik borç
-  (`src/app/dealer/actions.ts::createOrder`), kapıda ödemesi tahsil
+  (`src/app/dealer/actions.ts::createOrder`), merkezde ödemesi tahsil
   edilemeyen siparişin (`delivered_unpaid`) cariye borç düşmesi
   (`src/app/admin/orders/actions.ts::transitionOrderStatus`), ve bağımsız
   bakiye ödemesinin alacak kaydı. Neon HTTP sürücüsünün gerçek transaction
@@ -520,7 +520,7 @@ işlevi uygulamak.
 
 - **Gün Sonu** (`/admin/end-of-day`, `/dealer/end-of-day`) — günlük
   kapanış özeti/mutabakat: o gün alınan siparişlerin ödeme tipine göre
-  (cari/kapıda ödeme/sanal POS) dökümü, tahsil edilen/edilemeyen
+  (cari/merkezde ödeme/sanal POS) dökümü, tahsil edilen/edilemeyen
   tutarlar. Bayi tarafında yalnızca kendi siparişleri. Kapsam (bir
   "günü kapatma" aksiyonu olup olmayacağı) uygulama aşamasında
   netleşecek
@@ -972,7 +972,7 @@ ayrı yola dallanır. Her geçiş `order_status_history`'ye yazılır.
 **Cari (Açık Hesap):** draft → submitted → approved → preparing → shipped →
 delivered → closed. (approved öncesi: cancelled / rejected)
 
-**Nakit / Kapıda Ödeme:** draft → submitted → approved → preparing → shipped
+**Nakit / Merkezde Ödeme:** draft → submitted → approved → preparing → shipped
 → awaiting_cash_collection → delivered_paid → closed. (tahsil edilemezse:
 ledger'a borç düşülür, "Bakiye Öde" ile kapanır)
 

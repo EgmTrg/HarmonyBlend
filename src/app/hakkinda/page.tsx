@@ -195,7 +195,7 @@ export default function HakkindaPage() {
               bağlayın. Bayi yalnızca kendisine açık kataloğu görür.
             </Feature>
             <Feature title="Sipariş &amp; Ödeme" icon={<IconOrder />}>
-              Açık hesap, kapıda ödeme veya sanal POS — hangisinin hangi bayide açık olacağına
+              Açık hesap, merkezde ödeme veya sanal POS — hangisinin hangi bayide açık olacağına
               siz karar verirsiniz. Durum her an görünür.
             </Feature>
             <Feature title="Cari Hesap Takibi" icon={<IconLedger />}>

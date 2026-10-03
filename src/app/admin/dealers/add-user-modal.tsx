@@ -206,7 +206,7 @@ export function AddDealerOrUserModal({ companyBrands }: { companyBrands: Company
                         <span className={LABEL}>Maksimum bakiye limiti</span>
                         <CurrencyInput name="maxBalanceLimit" placeholder="Boş bırakılırsa limitsiz" />
                         <span className="text-xs text-ink-400">
-                          Bu tutar aşılırsa cari ile ödeme kapanır, bayi nakit/kapıda ödeme
+                          Bu tutar aşılırsa cari ile ödeme kapanır, bayi nakit/merkezde ödeme
                           kullanmak zorunda kalır.
                         </span>
                       </label>
@@ -393,7 +393,7 @@ export function EditDealerModal({
                       placeholder="Boş bırakılırsa limitsiz"
                     />
                     <span className="text-xs text-ink-400">
-                      Bu tutar aşılırsa cari ile ödeme kapanır, bayi nakit/kapıda ödeme
+                      Bu tutar aşılırsa cari ile ödeme kapanır, bayi nakit/merkezde ödeme
                       kullanmak zorunda kalır.
                     </span>
                   </label>

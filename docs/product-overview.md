@@ -71,7 +71,7 @@ dönüp görebilirsiniz.
 **Sipariş & Ödeme**
 - Bayi kendi panelinden ürün kataloğuna bakıp sepet oluşturur, siparişi
   tamamlar
-- Üç farklı ödeme şekli: açık hesap (cari), kapıda ödeme, sanal POS —
+- Üç farklı ödeme şekli: açık hesap (cari), merkezde ödeme, sanal POS —
   hangisinin hangi bayide açık olacağına siz karar verirsiniz
 - Her siparişin durumu (onaylandı, hazırlanıyor, sevk edildi, teslim
   edildi...) her an görünür ve geçmişi kayıtlıdır

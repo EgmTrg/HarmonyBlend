@@ -58,7 +58,7 @@ export async function transitionOrderStatus(orderId: string, toStatus: string, f
       amount: row.totalAmount,
       sourceType: "order",
       sourceId: orderId,
-      note: "Kapıda tahsil edilemedi",
+      note: "Merkezde tahsil edilemedi",
     });
   }
 
