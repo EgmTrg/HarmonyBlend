@@ -144,8 +144,8 @@ export default function HakkindaPage() {
               </h3>
               <ul className="flex flex-col gap-2.5 text-sm text-ink-600">
                 <li>Siparişler telefonla/WhatsApp&apos;la dağınık şekilde geliyor</li>
-                <li>Bayi bakiyeleri elle, Excel&apos;de takip ediliyor</li>
-                <li>Hangi markanın ne sattığı tek bakışta görünmüyor</li>
+                <li>Bayi, güncel bakiyesini öğrenmek için her seferinde merkezi aramak zorunda kalıyor</li>
+                <li>Hangi bayinin hangi ürüne yöneldiği, hangisini satamadığı belirsiz kalıyor</li>
                 <li>Büyüme ile hata payı katlanarak artıyor</li>
               </ul>
             </div>
