@@ -9,6 +9,11 @@ services:
       - MINIO_ROOT_USER=minio
       - MINIO_ROOT_PASSWORD=password
     command: server /data --address :9000 --console-address ":9001"
+    # Neon'un uzak depolamasi (pageserver/safekeeper katmanlari) burada. Volume
+    # olmadan konteyner yeniden olusturulunca (docker compose down + up) tum
+    # veritabani kayboluyor - 2026-10-10'da yasandi. Safekeeper'lar icin de ayni.
+    volumes:
+      - minio_data:/data
 
   minio_create_buckets:
     image: quay.io/minio/mc:RELEASE.2022-10-29T10-09-23Z
@@ -75,6 +80,8 @@ services:
     ports:
       #- 5454:5454 # pg protocol handler
       - 7676:7676 # http endpoints
+    volumes:
+      - safekeeper1_data:/data
     entrypoint:
       - "/bin/sh"
       - "-c"
@@ -105,6 +112,8 @@ services:
     ports:
       #- 5454:5454 # pg protocol handler
       - 7677:7676 # http endpoints
+    volumes:
+      - safekeeper2_data:/data
     entrypoint:
       - "/bin/sh"
       - "-c"
@@ -135,6 +144,8 @@ services:
     ports:
       #- 5454:5454 # pg protocol handler
       - 7678:7676 # http endpoints
+    volumes:
+      - safekeeper3_data:/data
     entrypoint:
       - "/bin/sh"
       - "-c"
@@ -233,3 +244,7 @@ services:
 
 volumes:
   pageserver_data:
+  minio_data:
+  safekeeper1_data:
+  safekeeper2_data:
+  safekeeper3_data:

@@ -10,7 +10,10 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "db:backup": "node scripts/db-backup.mjs full",
+    "db:backup:master": "node scripts/db-backup.mjs master",
+    "db:restore": "node scripts/db-restore.mjs"
   },
   "dependencies": {
     "@types/pdfkit": "^0.17.6",

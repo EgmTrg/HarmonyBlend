@@ -46,3 +46,6 @@ projeyi-durdur.bat
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# veritabani yedekleri (sifre hash'leri ve bayi verisi icerir, repoya girmez)
+/backups/
