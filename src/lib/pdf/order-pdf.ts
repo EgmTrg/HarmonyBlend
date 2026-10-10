@@ -23,6 +23,12 @@ const COLORS = {
 const FONT_DIR = path.join(process.cwd(), "src", "lib", "pdf", "fonts");
 const REGULAR_FONT = fs.readFileSync(path.join(FONT_DIR, "PTSans-Regular.ttf"));
 const BOLD_FONT = fs.readFileSync(path.join(FONT_DIR, "PTSans-Bold.ttf"));
+// Standalone pdfkit kendi Buffer polyfill'ini kullandığı için Node Buffer'ını
+// tanımıyor ve dosya yolu sanıp fs'e düşüyor — data URI olarak veriyoruz.
+const BRAND_MARK = `data:image/png;base64,${fs
+  .readFileSync(path.join(process.cwd(), "src", "lib", "pdf", "hb-mark.png"))
+  .toString("base64")}`;
+const BRAND_MARK_SIZE = 11;
 
 const PAGE_MARGIN = 40;
 const COLS = { no: 25, product: 215, sku: 75, quantity: 60, shipped: 70, delivered: 70 };
@@ -64,15 +70,12 @@ export async function buildOrdersPdf(orderList: OrderDocumentData[]): Promise<Bu
     // devre dışı bırakmazsak bu, boş bir sonraki sayfa daha ekler.
     doc.page.margins.bottom = 0;
     const bottom = doc.page.height - PAGE_MARGIN + 14;
-    doc
-      .font("Regular")
-      .fontSize(7.5)
-      .fillColor(COLORS.ink400)
-      .text(`HarmonyBlend — Sayfa ${i + 1} / ${pageRange.count}`, PAGE_MARGIN, bottom, {
-        width: doc.page.width - PAGE_MARGIN * 2,
-        align: "center",
-        lineBreak: false,
-      });
+    const footer = `HarmonyBlend — Sayfa ${i + 1} / ${pageRange.count}`;
+    doc.font("Regular").fontSize(7.5).fillColor(COLORS.ink400);
+    // Amblem + metin birlikte ortalanır
+    const footerX = (doc.page.width - (BRAND_MARK_SIZE + 4 + doc.widthOfString(footer))) / 2;
+    doc.image(BRAND_MARK, footerX, bottom - 2, { width: BRAND_MARK_SIZE, height: BRAND_MARK_SIZE });
+    doc.text(footer, footerX + BRAND_MARK_SIZE + 4, bottom, { lineBreak: false });
   }
 
   doc.end();

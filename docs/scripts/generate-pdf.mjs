@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { readFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { marked } from "marked";
@@ -10,7 +11,12 @@ import {
   diagramPngPath,
   inlineLocalImages,
   OUTPUT_DIR,
+  DOCS_ROOT,
 } from "./markdown-source.mjs";
+
+const BRAND_MARK_URI = `data:image/svg+xml;base64,${readFileSync(
+  path.join(DOCS_ROOT, "logo", "logo-2-kanatli-merkez-icon.svg")
+).toString("base64")}`;
 
 export async function buildBodyHtml(name = "roadmap") {
   const { meta, content } = await loadMarkdownDoc(name);
@@ -82,6 +88,11 @@ export function pageHtml(meta, bodyHtml, name = "roadmap") {
     flex-direction: column;
     justify-content: center;
     page-break-after: always;
+  }
+  .cover .brand-mark {
+    width: 72px;
+    height: 72px;
+    margin: 0 0 22px;
   }
   .cover .eyebrow {
     font-family: var(--mono);
@@ -221,6 +232,7 @@ export function pageHtml(meta, bodyHtml, name = "roadmap") {
 </head>
 <body>
   <section class="cover">
+    <img class="brand-mark" src="${BRAND_MARK_URI}" alt="HarmonyBlend" />
     <p class="eyebrow">${meta.eyebrow || "Sistem Mimarisi &amp; Yol Haritası Dokümanı"}</p>
     <h1>${meta.title || "HarmonyBlend (HB)"}</h1>
     <p class="subtitle">${meta.subtitle || ""}</p>

@@ -2,14 +2,13 @@ import Link from "next/link";
 import { ToastForm } from "@/components/toast-form";
 import { BUTTON_PRIMARY, CARD, INPUT, LABEL } from "@/lib/ui";
 import { requestPasswordReset } from "./actions";
+import { BrandMark } from "@/components/brand-mark";
 
 export default function ForgotPasswordPage() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-8 bg-navy-950 px-4 py-8">
       <div className="flex items-center gap-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-600 text-base font-bold text-white">
-          H
-        </span>
+        <BrandMark size={44} />
         <span className="text-lg font-semibold text-white">
           Harmony<span className="text-accent-500">Blend</span>
         </span>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Work_Sans, IBM_Plex_Mono } from "next/font/google";
 import { CARD, BUTTON_PRIMARY, badgeClass } from "@/lib/ui";
 import { LightboxImage } from "./lightbox-image";
+import { BrandMark } from "@/components/brand-mark";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -90,9 +91,7 @@ export default function HakkindaPage() {
       <div className="mx-auto max-w-5xl px-5">
         <div className="flex items-center justify-between border-b border-border py-5">
           <div className="flex items-center gap-2.5 text-[15px] font-semibold text-ink-900">
-            <span style={display} className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-[14px] font-semibold text-white">
-              H
-            </span>
+            <BrandMark size={32} />
             Harmony<span className="text-accent-600">Blend</span>
           </div>
           <span style={mono} className="text-xs text-ink-400">

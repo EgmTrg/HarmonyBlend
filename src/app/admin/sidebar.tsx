@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { useLocalStorageStore } from "@/lib/use-local-storage-store";
 import { useMobileNav } from "@/components/mobile-nav-context";
 import { AdminNav } from "./nav";
+import { BrandMark } from "@/components/brand-mark";
 
 const STORAGE_KEY = "hb_admin_sidebar_collapsed";
 
@@ -32,9 +33,7 @@ export function AdminSidebar({ signOutAction }: { signOutAction: () => Promise<v
       >
       <div className="flex flex-col gap-8">
         <Link href="/admin" className={"flex items-center gap-2 px-2" + (collapsed ? " justify-center" : "")}>
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-600 text-sm font-bold text-white">
-            H
-          </span>
+          <BrandMark size={36} />
           {!collapsed && (
             <span className="text-sm font-semibold text-white">
               Harmony<span className="text-accent-500">Blend</span>

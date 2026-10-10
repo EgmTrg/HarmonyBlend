@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CompanyGate } from "./company-gate";
+import { BrandMark } from "@/components/brand-mark";
 
 export default async function HomePage({
   searchParams,
@@ -11,9 +12,7 @@ export default async function HomePage({
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-navy-950 px-4 py-8 text-center">
       <div className="flex items-center gap-2">
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-600 text-lg font-bold text-white">
-          H
-        </span>
+        <BrandMark size={48} />
         <span className="text-xl font-semibold text-white">
           Harmony<span className="text-accent-500">Blend</span>
         </span>
